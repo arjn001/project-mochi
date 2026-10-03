@@ -64,7 +64,8 @@ flowchart LR
 ## AI providers
 Every AI sits behind one small interface: check if it's available, send a
 conversation, stream the reply back. The rest of Mochi never knows which AI
-is answering.
+is answering. The providers can only be reached through the share gate, so no
+path to an AI ever skips it.
 
 Version 1 providers, as decided in MOCHI-6:
 - **Built-in AI** through VS Code's language model API. It only works if she
