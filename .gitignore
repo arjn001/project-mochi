@@ -4,3 +4,16 @@ dist/
 *.vsix
 .DS_Store
 .vscode-test/
+
+# Local secrets, never committed
+.jira-env
+.env
+.env.*
+
+# AI agent instruction files, local only
+CLAUDE.md
+CLAUDE.local.md
+AGENTS.md
+**/CLAUDE.md
+**/AGENTS.md
+.claude/
