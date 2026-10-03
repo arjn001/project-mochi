@@ -49,3 +49,4 @@
   story in the description, and Tasks under it.
 - Small, natural commits, one logical change each, starting with the Jira key.
 - One branch per task, merged with a pull request.
+- Branches are kept after merging, never deleted.
