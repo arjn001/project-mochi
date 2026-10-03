@@ -20,8 +20,11 @@ her click.
 
 ## Coding late
 - **Trigger:** she is coding after 11 pm.
-- **What Mochi does:** one soft nudge per night, like a stretch, some water,
-  or a reminder that sleep helps the code too.
+- **What Mochi does:** one soft nudge per night that offers a darker theme,
+  with a gentle reminder to stretch, drink some water, or that sleep helps
+  the code too.
+- **Example:** "It's past midnight. Want me to switch to a darker theme? And
+  maybe some water?"
 - **Never:** nag, repeat, or guilt-trip.
 
 ## Finishing something
