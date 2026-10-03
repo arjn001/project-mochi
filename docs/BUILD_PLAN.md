@@ -17,10 +17,11 @@ MOCHI-16 Build the side panel: no panel UI is built until it's merged.
 ## Milestone 1: Mochi exists
 1. **MOCHI-52 Check the name and ID are free on the Marketplace.** You'll see:
    the name and ID we'll use, confirmed available.
-2. **MOCHI-47 Publisher account.** You'll see: a publisher ID ready for
-   package.json.
-3. **MOCHI-10 Scaffold the extension project.** You'll see: a "Hello from
-   Mochi" command.
+2. **MOCHI-47 Publisher account.** Create the `arjungyawali` publisher. You'll
+   see: the publisher page on the Marketplace, ready for package.json.
+3. **MOCHI-10 Scaffold the extension project.** package.json uses publisher
+   `arjungyawali`, name `mochi-companion`, and display name "Mochi
+   Companion". You'll see: a "Hello from Mochi" command.
 4. **MOCHI-11 Run it in the development window.** You'll see: press F5 and the
    command works in a second VS Code window.
 5. **MOCHI-13 Set up building and tests.** You'll see: one passing unit test
