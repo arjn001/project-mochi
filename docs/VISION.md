@@ -38,8 +38,11 @@ Warm, present, and never in the way. Encouraging, never scary.
 ## Presence
 - Home: a panel on the right side, next to the code
 - When the panel is closed: a small status bar line that shows its mood
+- Inside the code: a small hint next to an error, one click to explain
+- Nudges: a small corner card for gentle moments, like late at night
 - Speaking up: gentle by default, with quiet, gentle, and chatty settings
 - Look: a soft illustrated cat with a few moods
+- Details and the first sketch: PRESENCE.md
 
 ## Later
 - Messaging between people: notes, "ask for help," jumping into Live Share
