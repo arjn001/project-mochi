@@ -32,6 +32,7 @@ Warm, present, and never in the way. Encouraging, never scary.
 - A few useful actions: switch theme, set up a Python project, focus timer,
   explain an error or selected code
 - Moments: opening VS Code, getting stuck, coding late, finishing something
+  (details in MOMENTS.md)
 - Packs: a default pack plus a private personal layer
 - A "Make it yours" page
 
@@ -52,4 +53,3 @@ Warm, present, and never in the way. Encouraging, never scary.
 
 ## Open questions
 - Where the AI comes from
-- What the companion does in each key moment of her day
