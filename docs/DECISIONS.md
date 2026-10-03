@@ -40,6 +40,9 @@
 ## Presence
 - Home on the right side, a status bar mood line when closed, gentle by
   default, a soft illustrated cat with moods.
+- Two more places from the first sketch: a hint inside the code next to
+  errors, and a gentle corner nudge for key moments. Both stay silent in
+  quiet mode.
 
 ## Process
 - Jira space MOCHI: each category is a "User Stories" epic with its user
