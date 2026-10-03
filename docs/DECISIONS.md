@@ -10,6 +10,26 @@
   default pack and a private personal layer that never ships publicly.
 - Settings are always editable through a "Make it yours" page.
 
+## AI
+- Mochi asks where its AI comes from during the first-run welcome. It can be
+  changed anytime on the "Make it yours" page.
+- Version 1 options:
+  - VS Code's built-in AI, through her Copilot sign-in. Picked automatically
+    when available, no key needed. This is the default.
+  - Claude, with her own API key.
+  - Any OpenAI-compatible service, with an API key and an address. This
+    covers ChatGPT.
+- All options sit behind one provider layer, so Mochi's personality comes from
+  the pack, not from whichever AI answers.
+- API keys live in VS Code's secret storage, never in settings files or the
+  repo.
+- Asking to share code always names where it goes ("Share this error with
+  Claude?").
+- The welcome explains that a ChatGPT or Claude subscription is not an API
+  key. API keys are billed separately per use.
+- Local models (like Ollama) wait for the next version, since most people
+  don't have one set up.
+
 ## Deferred, by design
 - Messaging between people (notes, ask for help, Live Share). The architecture
   should leave room for it.
@@ -29,3 +49,4 @@
   story in the description, and Tasks under it.
 - Small, natural commits, one logical change each, starting with the Jira key.
 - One branch per task, merged with a pull request.
+- Branches are kept after merging, never deleted.

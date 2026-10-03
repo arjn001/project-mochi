@@ -35,6 +35,8 @@ Warm, present, and never in the way. Encouraging, never scary.
   (details in MOMENTS.md)
 - Packs: a default pack plus a private personal layer
 - A "Make it yours" page
+- AI: VS Code's built-in AI by default, or Claude or any OpenAI-compatible
+  service with her own key, chosen during setup (details in DECISIONS.md)
 
 ## Presence
 - Home: a panel on the right side, next to the code
@@ -50,6 +52,4 @@ Warm, present, and never in the way. Encouraging, never scary.
 - A natural-language layer over any installed extension's commands
 - Community packs
 - Creative corners: art, music, mind labs, stories
-
-## Open questions
-- Where the AI comes from
+- Local AI models, like Ollama
