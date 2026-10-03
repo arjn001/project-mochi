@@ -22,6 +22,7 @@
   default, a soft illustrated cat with moods.
 
 ## Process
-- Jira space MOCHI: epic "User Stories" > stories > subtasks.
+- Jira space MOCHI: each category is a "User Stories" epic with its user
+  story in the description, and Tasks under it.
 - Small, natural commits, one logical change each, starting with the Jira key.
 - One branch per task, merged with a pull request.
