@@ -10,6 +10,17 @@
   default pack and a private personal layer that never ships publicly.
 - Settings are always editable through a "Make it yours" page.
 
+## Name and ID
+- Marketplace display name: "Mochi Companion". Plain "Mochi" is already taken
+  by another AI coding extension.
+- Publisher: `arjungyawali`, so Arjun is the author. This is also a portfolio
+  project.
+- Extension ID: `arjungyawali.mochi-companion`.
+- Inside VS Code, the cat is still just called Mochi.
+- Checked free on 2026-10-03: the display name, publisher, and ID on the VS
+  Code Marketplace, and the `arjungyawali` namespace and ID on Open VSX. Mochi
+  may be published on Open VSX too.
+
 ## AI
 - Mochi asks where its AI comes from during the first-run welcome. It can be
   changed anytime on the "Make it yours" page.
