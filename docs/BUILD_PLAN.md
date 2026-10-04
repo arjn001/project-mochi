@@ -26,8 +26,10 @@ MOCHI-16 Build the side panel: no panel UI is built until it's merged.
    command works in a second VS Code window.
 5. **MOCHI-13 Set up building and tests.** You'll see: one passing unit test
    and one passing integration test.
-6. **MOCHI-51 Run tests on every pull request.** You'll see: GitHub Actions
-   running the tests on a pull request, with a green check.
+6. **MOCHI-51 Run tests on every pull request.** Linux only for now, since
+   the repo is private and macOS CI minutes cost several times more. You'll
+   see: GitHub Actions running the tests on a pull request, with a green
+   check.
 7. **MOCHI-12 Add the companion's icon to the sidebar.** You'll see: a cat icon
    that opens an empty view. We also check whether the panel can open on the
    right side.
@@ -88,6 +90,10 @@ only. The personal layer and the gift stay a surprise for Milestone 5.
     celebration naming what she finished.
 
 ## Milestone 5: Mochi is hers, then everyone's
+**Before any release** (including MOCHI-45, the private build for her): add a
+macOS job to the CI workflow from MOCHI-51, since Mochi's first users are on
+Macs.
+
 29. **MOCHI-41 Build the private personal layer.** You'll see: a personal
     layer laid over the default pack, kept in private storage.
 30. **MOCHI-42 First-run welcome.** You'll see: a hello, the AI choice, and the
