@@ -17,6 +17,29 @@
   ],
   "main": "./out/extension.js",
   "contributes": {
+    "viewsContainers": {
+      "secondarySidebar": [
+        {
+          "id": "mochi",
+          "title": "Mochi",
+          "icon": "media/mochi-sidebar.svg"
+        }
+      ]
+    },
+    "views": {
+      "mochi": [
+        {
+          "id": "mochi.home",
+          "name": "Mochi"
+        }
+      ]
+    },
+    "viewsWelcome": [
+      {
+        "view": "mochi.home",
+        "contents": "Hi! Mochi is still settling in. More is coming soon."
+      }
+    ],
     "commands": [
       {
         "command": "mochi.sayHello",
