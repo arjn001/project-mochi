@@ -62,11 +62,23 @@ What this means for later:
 - **Quiet:** only the status bar mood. No hints in the code, no nudges.
 - **Gentle (default):** all four places, used sparingly.
 - **Chatty:** all four places, with more greetings and small talk.
-- **In quiet mode, napping always wins over any other mood.** The mood line
-  shows "Mochi is napping" with the tooltip "Quiet mode. Click to open
-  Mochi.", so she can see at a glance that Mochi is being quiet.
+- **In quiet mode, napping wins over anything Mochi starts on its own.** The
+  mood line shows "Mochi is napping" with the tooltip "Quiet mode. Click to
+  open Mochi.", so she can see at a glance that Mochi is being quiet.
+- **Things she starts herself still show in quiet mode.** A focus session
+  shows "Focusing · 18 min left" in the mood line, and its "Time's up!"
+  message still appears, because she asked for it.
 - Changing the level takes effect right away, with no reload. A project can
   have its own level, which wins over her user setting.
+
+## Asking first
+**Mochi confirms before doing anything she didn't directly ask for.**
+- When Mochi offers something on its own, like a darker theme late at night,
+  it asks first and acts only after a clear yes (MOCHI-31).
+- When she directly asks for something, like starting a focus session from
+  the Command Palette, that request is her yes. Mochi doesn't ask again.
+- Anything Mochi attaches to an AI request is a separate matter: it always
+  goes through the share gate, even when she asked the question.
 
 ## Look
 A soft illustrated cat with a few moods, in original art.
