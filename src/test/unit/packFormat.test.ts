@@ -10,6 +10,7 @@ const complete: Pack = {
     greetingLate: ["Hi, night owl!"],
     stuck: ["Want me to take a look?"],
     lateNight: ["It's late. Some water?"],
+    lateNightCompany: ["Still here with you."],
     celebrate: ["Yay, you finished {thing}!"],
   },
 };

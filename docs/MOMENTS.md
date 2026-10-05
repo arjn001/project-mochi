@@ -22,12 +22,18 @@ her click.
 - **Never:** say she's wrong, keep offering, or read her code without a click.
 
 ## Coding late
-- **Trigger:** she is coding after 11 pm.
-- **What Mochi does:** one soft nudge per night that offers a darker theme
-  and keeps her company. Mochi is a late-night coding buddy, not a parent.
-- **Example:** "It's getting late. Want me to dim things with a darker
-  theme?"
-- **Never:** lecture about sleep, nag, repeat, or guilt-trip.
+- **Trigger:** she's typing after the late hour, a setting that's 23:00 by
+  default. Late night lasts until 5:00.
+- **What Mochi does:** one nudge per night, across all her VS Code windows.
+  - On a light theme, it offers to dim things, in the pack's words: "It's
+    getting late. Want me to dim things with a darker theme?"
+  - On a dark theme, or any high contrast theme (light or dark), it only
+    keeps her company: "Night shift together. I'm right here if you need
+    me." It never offers to change a high contrast theme.
+- **Waits for focus:** never during a focus session she started. Her next
+  typing after it ends gets the nudge.
+- **Never:** in quiet mode, more than once a night, lecture about sleep, nag,
+  or guilt-trip.
 
 ## Finishing something
 - **Trigger:** she tells Mochi she finished something ("I did the database

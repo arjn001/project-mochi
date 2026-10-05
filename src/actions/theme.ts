@@ -2,7 +2,7 @@ import * as vscode from "vscode";
 import { Action, defineAction } from "./confirm";
 import { DARKER_THEME, ThemeKind, dimTexts, skipDimming } from "./darkerTheme";
 
-function currentKind(): ThemeKind {
+export function currentThemeKind(): ThemeKind {
   switch (vscode.window.activeColorTheme.kind) {
     case vscode.ColorThemeKind.Dark:
       return "dark";
@@ -14,11 +14,13 @@ function currentKind(): ThemeKind {
 }
 
 // Switches the whole of VS Code to a darker theme, in her user settings, so
-// it stays after a restart. Undo puts her old theme back exactly.
-export function dimAction(): Action {
+// it stays after a restart. Undo puts her old theme back exactly. The
+// late-night nudge asks with one of the pack's lines instead.
+export function dimAction(question: string = dimTexts.question): Action {
   return defineAction({
     ...dimTexts,
-    skip: () => skipDimming(currentKind()),
+    question,
+    skip: () => skipDimming(currentThemeKind()),
     act: async () => {
       const workbench = vscode.workspace.getConfiguration("workbench");
       const before = workbench.inspect<string>("colorTheme")?.globalValue;

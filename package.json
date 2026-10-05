@@ -60,11 +60,42 @@
         "category": "Mochi"
       },
       {
+        "command": "mochi.focus",
+        "title": "Start a focus session",
+        "category": "Mochi"
+      },
+      {
+        "command": "mochi.focus.stop",
+        "title": "Stop the focus session",
+        "category": "Mochi"
+      },
+      {
+        "command": "mochi.focus.menu",
+        "title": "Focus session options",
+        "category": "Mochi"
+      },
+      {
         "command": "mochi.sayHello",
         "title": "Say Hello",
         "category": "Mochi"
       }
     ],
+    "menus": {
+      "commandPalette": [
+        {
+          "command": "mochi.focus",
+          "when": "!mochi.focusing"
+        },
+        {
+          "command": "mochi.focus.stop",
+          "when": "mochi.focusing"
+        },
+        {
+          "command": "mochi.focus.menu",
+          "when": "false"
+        }
+      ]
+    },
     "configuration": {
       "title": "Mochi",
       "properties": {
@@ -87,6 +118,20 @@
           ],
           "default": "gentle",
           "markdownDescription": "How often Mochi speaks up on its own. Mochi always answers when you open it."
+        },
+        "mochi.focusMinutes": {
+          "type": "number",
+          "default": 25,
+          "minimum": 5,
+          "maximum": 120,
+          "markdownDescription": "How long a focus session lasts, in minutes."
+        },
+        "mochi.lateHour": {
+          "type": "integer",
+          "default": 23,
+          "minimum": 0,
+          "maximum": 23,
+          "markdownDescription": "The hour when late night starts, from 0 to 23. Late night lasts until 5:00. Mochi greets the night owl and keeps you company from then on."
         }
       }
     },

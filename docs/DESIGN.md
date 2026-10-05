@@ -43,8 +43,14 @@ the mood line both open Mochi's tab.
 - Screen readers hear "Mochi is purring. Open Mochi."
 - **Moods:** here, purring (the default for now), and napping. Moods from the
   moments and the pack come later.
-- **Quiet mode:** napping always wins over any other mood. The line shows
-  "Mochi is napping" with the tooltip "Quiet mode. Click to open Mochi."
+- **Quiet mode:** napping wins over anything Mochi starts on its own. The
+  line shows "Mochi is napping" with the tooltip "Quiet mode. Click to open
+  Mochi."
+- **Focus session:** "Focusing · 18 min left", in minutes only, never ticking
+  seconds. It shows even in quiet mode, since she started it. Clicking it
+  offers "Stop the focus session" or "Open Mochi". When time's up: "Time's
+  up! That was some focused work. Stretch break?" with "Another round" and
+  "Done", also in quiet mode.
 
 ## Speak-up levels
 Shown in Settings under "Mochi", and settable per project:
@@ -68,6 +74,9 @@ The default lines are in `packs/default/pack.json` (format in PACKS.md).
   slow blink from me."
 - **Never corporate, guilty, or lecturing.** A unit test checks the default
   lines for this.
+- **Late-night nudge:** once per night, while she's typing, after the late
+  hour (a setting, 23:00 by default). A light theme gets the dim offer; dark
+  and high contrast themes get a company-only line.
 - **Late night is company, not a parent:** "Late-night coding buddy,
   reporting for duty. Cozier theme?" No lectures about water or sleep.
 - **Greetings by time of day:** morning, afternoon, or evening. From 23:00
@@ -90,7 +99,9 @@ The default lines are in `packs/default/pack.json` (format in PACKS.md).
   reason: "Mochi uses Copilot to answer the questions you ask it."
 - **When a brain can't answer**, Mochi says why kindly, like "This brain is
   resting for now, maybe a usage limit. Try again a bit later."
-- **Actions always ask first** (MOCHI-31), as a gentle notification, never a
+- **Mochi confirms before doing anything she didn't directly ask for**
+  (MOCHI-31). What she starts herself, like a focus session, isn't asked
+  again. Offers ask as a gentle notification, never a
   dialog that blocks VS Code: "Want me to dim things with a darker theme?"
   with "Dim things" and "Not now". Closing it means no.
 - **Then offer Undo:** "Dimmed! Changed your mind?" with an Undo button that

@@ -98,6 +98,45 @@ describe("Mochi in VS Code", () => {
     });
   });
 
+  describe("focus session", () => {
+    const settings = () => vscode.workspace.getConfiguration("mochi");
+
+    afterEach(async () => {
+      await vscode.commands.executeCommand("mochi.focus.stop");
+      await settings().update("speakUp", undefined, vscode.ConfigurationTarget.Global);
+      await settings().update("focusMinutes", undefined, vscode.ConfigurationTarget.Global);
+    });
+
+    async function mochi(): Promise<MochiApi> {
+      return (await vscode.extensions
+        .getExtension<MochiApi>("arjungyawali.mochi-companion")!
+        .activate()) as MochiApi;
+    }
+
+    it("shows the minutes left in the mood line, and goes away when stopped", async () => {
+      const api = await mochi();
+      await vscode.commands.executeCommand("mochi.focus");
+      assert.strictEqual(api.moodText(), "$(mochi-here) Focusing · 25 min left");
+
+      await vscode.commands.executeCommand("mochi.focus.stop");
+      assert.strictEqual(api.moodText(), "$(mochi-purring) Mochi is purring");
+    });
+
+    it("uses the length from Settings", async () => {
+      const api = await mochi();
+      await settings().update("focusMinutes", 45, vscode.ConfigurationTarget.Global);
+      await vscode.commands.executeCommand("mochi.focus");
+      assert.strictEqual(api.moodText(), "$(mochi-here) Focusing · 45 min left");
+    });
+
+    it("still shows in quiet mode, since she started it", async () => {
+      const api = await mochi();
+      await settings().update("speakUp", "quiet", vscode.ConfigurationTarget.Global);
+      await vscode.commands.executeCommand("mochi.focus");
+      assert.strictEqual(api.moodText(), "$(mochi-here) Focusing · 25 min left");
+    });
+  });
+
   describe("quiet mode", () => {
     const settings = () => vscode.workspace.getConfiguration("mochi");
 
