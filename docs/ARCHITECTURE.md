@@ -74,9 +74,11 @@ Version 1 providers, as decided in MOCHI-6:
   has Copilot, so Mochi checks for it and never assumes it's there.
 - **Claude** with her own API key.
 - **OpenAI-compatible**, with an API key and an address. This covers ChatGPT.
+  A stretch goal that can move after version 1.
 
 If no AI is connected yet, everything that doesn't need one still works:
 moments, the status mood, and actions like the theme and the focus timer.
+Mochi never ships its own AI key; each user brings their own brain.
 Local models can be added later as one more provider.
 
 ## Packs and the personal layer

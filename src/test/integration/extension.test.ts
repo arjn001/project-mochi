@@ -1,5 +1,6 @@
 import * as assert from "node:assert";
 import * as vscode from "vscode";
+import { BuiltInAi } from "../../ai/builtInAi";
 import type { MochiApi } from "../../extension";
 
 describe("Mochi in VS Code", () => {
@@ -35,6 +36,19 @@ describe("Mochi in VS Code", () => {
       "The mochi.open command is not registered, so the status bar can't open Mochi."
     );
     await vscode.commands.executeCommand("mochi.open");
+  });
+
+  describe("asking Mochi", () => {
+    it("registers the Ask command", async () => {
+      const commands = await vscode.commands.getCommands(true);
+      assert.ok(commands.includes("mochi.ask"), "The mochi.ask command is not registered.");
+    });
+
+    it("checks for the built-in AI without failing when there's no Copilot", async () => {
+      // The test copy of VS Code has no Copilot, so there's no brain here.
+      const available = await new BuiltInAi().isAvailable();
+      assert.strictEqual(typeof available, "boolean");
+    });
   });
 
   describe("quiet mode", () => {

@@ -22,20 +22,28 @@
   may be published on Open VSX too.
 
 ## AI
-- Mochi asks where its AI comes from during the first-run welcome. It can be
-  changed anytime on the "Make it yours" page.
-- Version 1 options:
-  - VS Code's built-in AI, through her Copilot sign-in. Picked automatically
-    when available, no key needed. This is the default.
-  - Claude, with her own API key.
-  - Any OpenAI-compatible service, with an API key and an address. This
-    covers ChatGPT.
+- Mochi works without AI. Greetings, late-night company, quiet mode, the mood
+  line, and actions like the theme and focus timer all work with no brain.
+  AI is for chat, explaining code and errors, checking her work, and
+  understanding when she says she finished something.
+- The first-run welcome has one optional step, "Pick a brain", in this order:
+  1. VS Code's built-in AI, through her Copilot sign-in, when it's available.
+     No key needed. VS Code shows its own one-time permission prompt.
+  2. "My own Claude key", stored in VS Code's secret storage.
+  3. Any OpenAI-compatible service, with an API key and an address. This
+     covers ChatGPT. A stretch goal that can move after version 1.
+  4. "Maybe later".
+- No nagging. If she skips it, the only prompt is when she asks something in
+  chat: "I'd need a brain to answer that. Want to set one up?", with a button.
+- The brain can be changed anytime on the "Make it yours" page.
+- We never ship our own AI key inside Mochi, and Mochi has no server of its
+  own. Each user brings their own brain, through Copilot or their own key.
 - All options sit behind one provider layer, so Mochi's personality comes from
   the pack, not from whichever AI answers.
 - API keys live in VS Code's secret storage, never in settings files or the
   repo.
-- Asking to share code always names where it goes ("Share this error with
-  Claude?").
+- The share gate always names the AI before anything Mochi attaches is sent
+  ("Share this error with Claude?").
 - The welcome explains that a ChatGPT or Claude subscription is not an API
   key. API keys are billed separately per use.
 - Local models (like Ollama) wait for the next version, since most people

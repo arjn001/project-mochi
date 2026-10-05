@@ -1,4 +1,6 @@
 import * as vscode from "vscode";
+import { registerAskCommand } from "./ai/askCommand";
+import { BuiltInAi } from "./ai/builtInAi";
 import { createMoodLine, showMood } from "./presence/statusBar";
 import { onSpeakUpChange, readSpeakUp } from "./settings";
 
@@ -31,8 +33,11 @@ export function activate(context: vscode.ExtensionContext): MochiApi {
   showMood(mood, readSpeakUp());
   const followSpeakUp = onSpeakUpChange((level) => showMood(mood, level));
 
+  // Talking to Mochi, through VS Code's built-in AI for now.
+  const ask = registerAskCommand(new BuiltInAi());
+
   // Anything added here is cleaned up when Mochi shuts down.
-  context.subscriptions.push(sayHello, open, home, mood, followSpeakUp);
+  context.subscriptions.push(sayHello, open, home, mood, followSpeakUp, ask);
 
   return { moodText: () => mood.text };
 }
