@@ -125,6 +125,13 @@
           "minimum": 5,
           "maximum": 120,
           "markdownDescription": "How long a focus session lasts, in minutes."
+        },
+        "mochi.lateHour": {
+          "type": "integer",
+          "default": 23,
+          "minimum": 0,
+          "maximum": 23,
+          "markdownDescription": "The hour when late night starts, from 0 to 23. Late night lasts until 5:00. Mochi greets the night owl and keeps you company from then on."
         }
       }
     },
