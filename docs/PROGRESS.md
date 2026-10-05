@@ -4,8 +4,8 @@ Where Mochi stands, as of 2026-10-05. Jira (space MOCHI) is the source of
 truth for task status; this doc is the readable summary, plus Arjun's likes
 and dislikes. Update it at the end of each working session.
 
-**28 of 51 Jira items done** (26 tasks and 2 subtasks). 76 tests (70 unit, 6
-integration) run on every pull request.
+**32 of 51 Jira items done** (30 tasks and 2 subtasks). 111 tests (98 unit,
+13 integration) run on every pull request.
 
 ## Done
 **Vision and design (MOCHI-2), complete.** VISION.md, DECISIONS.md,
@@ -26,6 +26,17 @@ MOMENTS.md, PRESENCE.md, ARCHITECTURE.md, and BUILD_PLAN.md.
 
 **Moments (MOCHI-32), partly done.**
 - Quiet mode, live, with napping in the status bar (MOCHI-37).
+- Late-night nudge, once per night across windows while she's typing, after
+  the Late Hour setting. A light theme gets the dim offer; dark and high
+  contrast themes get company only. Never during a focus session (MOCHI-35).
+
+**Actions (MOCHI-26), partly done.**
+- Mochi confirms before doing anything she didn't directly ask for, with Undo
+  afterwards (MOCHI-31).
+- "Dim things": switches all of VS Code to Dark Modern, never touches high
+  contrast themes (MOCHI-27).
+- Focus timer: "Focusing · 18 min left" in the mood line, saved across
+  reloads, "Another round" or "Done" when time's up (MOCHI-29).
 
 **Packs and personalization (MOCHI-38), partly done.**
 - Pack format with strict checking for untrusted gifts, night-owl greetings,
@@ -48,15 +59,18 @@ MOMENTS.md, PRESENCE.md, ARCHITECTURE.md, and BUILD_PLAN.md.
   MOCHI-21 (chat UI in the panel).
 
 ## Next
-Arjun picks the order of these two:
+Work that doesn't need the panel, for Arjun to order:
 1. **MOCHI-53 Connect Claude**, with her own key in secret storage. Add
    esbuild bundling here if it brings Mochi's first runtime dependency.
-2. **Work that doesn't need the panel:** MOCHI-31 (always confirm before
-   acting), MOCHI-27 (switch the theme), MOCHI-29 (focus timer), and the
-   moments that use the status bar or nudges.
+2. **MOCHI-30 Explain an error or selected code**, through the share gate,
+   from the lightbulb next to an error or a right-click on selected code.
+3. **MOCHI-34 Noticing when I'm stuck**, with the code hints (2 minutes,
+   offered once).
+4. **MOCHI-28 Set up a Python project**, and **MOCHI-41 the private personal
+   layer** (storage first; its "Make it yours" page needs the design).
 
 Then:
-3. **After DESIGN.md is finished:** MOCHI-17, MOCHI-16, MOCHI-21, then
+5. **After DESIGN.md is finished:** MOCHI-17, MOCHI-16, MOCHI-21, then
    MOCHI-25 (streaming in the chat). The early preview for her comes after
    Milestone 3, with the default pack only.
 
@@ -71,6 +85,9 @@ Then:
   art all rights reserved. Packaging uses `--skip-license` until then.
 - CI is Linux only. Add a macOS job before any release, including the private
   build for her.
+- To test the late-night nudge before 23:00, set Late Hour to the current hour
+  in the clean profile and type in a file. A normal profile remembers "already
+  nudged tonight" until the next night.
 - GitHub's `ubuntu-latest` moves to Ubuntu 26 from 2026-10-19. Pin
   `ubuntu-24.04` if CI breaks.
 - The npm `overrides` entry for Mocha can go once `@vscode/test-cli` ships
@@ -93,6 +110,9 @@ Then:
 - **A warm redirect on homework:** "I can't do the whole assignment for you,
   but I'd love to help you with it! Let's break it down together."
 - **Napping in quiet mode**, so she can see Mochi is being quiet.
+- **Mochi doing things for her:** dimming the theme with a yes, and Undo.
+- **Precise rules written down**, like "Mochi confirms before doing anything
+  she didn't directly ask for".
 - The **clean-profile launch option** ("it slays").
 - The **Pillow Loaf icons** across light, dark, and high contrast themes.
 - Seeing **renders, diffs, and `git status`** before commits on design work.
