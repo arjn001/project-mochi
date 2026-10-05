@@ -1,4 +1,5 @@
 import * as vscode from "vscode";
+import { createMoodLine } from "./presence/statusBar";
 
 // VS Code calls this once, after it finishes starting up.
 export function activate(context: vscode.ExtensionContext): void {
@@ -19,7 +20,7 @@ export function activate(context: vscode.ExtensionContext): void {
   });
 
   // Anything added here is cleaned up when Mochi shuts down.
-  context.subscriptions.push(sayHello, open, home);
+  context.subscriptions.push(sayHello, open, home, createMoodLine());
 }
 
 // VS Code calls this when Mochi shuts down. Nothing to clean up yet.
