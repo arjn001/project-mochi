@@ -83,6 +83,8 @@
     "compile": "tsc -p ./",
     "watch": "tsc -watch -p ./",
     "build:icons": "fantasticon",
+    "vscode:prepublish": "npm run compile",
+    "package": "vsce package --skip-license",
     "test:unit": "npm run compile && mocha \"out/test/unit/**/*.test.js\"",
     "test:integration": "npm run compile && vscode-test",
     "test": "npm run test:unit && npm run test:integration"
@@ -93,6 +95,7 @@
     "@types/vscode": "1.125.0",
     "@vscode/test-cli": "^0.0.15",
     "@vscode/test-electron": "^3.1.0",
+    "@vscode/vsce": "^4.0.0",
     "fantasticon": "^4.1.0",
     "mocha": "^12.0.3",
     "typescript": "^7.0.2"

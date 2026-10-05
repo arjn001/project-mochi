@@ -1,0 +1,28 @@
+# Files left OUT of the .vsix package. Everything else goes in.
+# CI fails if src/ or out/test/ ever end up in the package.
+
+# Source code and compiled tests
+src/**
+out/test/**
+**/*.map
+tsconfig.json
+
+# Tests and the test copy of VS Code
+.vscode-test/**
+.vscode-test.mjs
+
+# Editor, CI, and tool settings
+.vscode/**
+.github/**
+.fantasticonrc.js
+.nvmrc
+.gitignore
+
+# Docs live in the repo, not in the package (README.md stays in)
+docs/**
+
+# Local files that are already ignored by git
+**/.DS_Store
+CLAUDE.md
+.jira-env
+.env*
