@@ -45,6 +45,11 @@
     ],
     "commands": [
       {
+        "command": "mochi.open",
+        "title": "Open Mochi",
+        "category": "Mochi"
+      },
+      {
         "command": "mochi.sayHello",
         "title": "Say Hello",
         "category": "Mochi"
