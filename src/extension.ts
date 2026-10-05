@@ -6,8 +6,15 @@ export function activate(context: vscode.ExtensionContext): void {
     vscode.window.showInformationMessage("Hello from Mochi!");
   });
 
+  // Mochi's home view is empty for now, so VS Code shows the welcome text
+  // from package.json. The real panel replaces this in MOCHI-16.
+  const home = vscode.window.registerTreeDataProvider("mochi.home", {
+    getTreeItem: (item: vscode.TreeItem) => item,
+    getChildren: () => [],
+  });
+
   // Anything added here is cleaned up when Mochi shuts down.
-  context.subscriptions.push(sayHello);
+  context.subscriptions.push(sayHello, home);
 }
 
 // VS Code calls this when Mochi shuts down. Nothing to clean up yet.
