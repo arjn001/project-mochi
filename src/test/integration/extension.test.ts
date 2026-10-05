@@ -26,4 +26,13 @@ describe("Mochi in VS Code", () => {
     );
     await vscode.commands.executeCommand(openMochi);
   });
+
+  it("opens Mochi's tab with the Open Mochi command", async () => {
+    const commands = await vscode.commands.getCommands(true);
+    assert.ok(
+      commands.includes("mochi.open"),
+      "The mochi.open command is not registered, so the status bar can't open Mochi."
+    );
+    await vscode.commands.executeCommand("mochi.open");
+  });
 });
