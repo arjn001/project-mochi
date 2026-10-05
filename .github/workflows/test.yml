@@ -42,3 +42,15 @@ jobs:
       # Linux runners have no screen, so VS Code runs on a virtual one.
       - name: Integration tests
         run: xvfb-run -a npm run test:integration
+
+      - name: Package the .vsix
+        run: npm run package
+
+      # Source code and compiled tests must never ship in the package.
+      - name: Check the package contents
+        run: |
+          unzip -l *.vsix
+          if unzip -l *.vsix | grep -E " extension/(src|out/test)/"; then
+            echo "::error::The .vsix contains src/ or out/test/. Check .vscodeignore."
+            exit 1
+          fi

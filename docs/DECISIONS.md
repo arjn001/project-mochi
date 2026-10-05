@@ -55,6 +55,17 @@
   errors, and a gentle corner nudge for key moments. Both stay silent in
   quiet mode.
 
+## Building and packaging
+- Mochi is packaged into a `.vsix` with `npm run package`. Source code
+  (`src/`) and compiled tests (`out/test/`) never go into the package, and CI
+  fails if they do.
+- No bundling yet (decided in MOCHI-14). Mochi has no runtime dependencies, so
+  the TypeScript compiler alone is enough. esbuild bundling gets added with
+  the first runtime dependency, most likely in MOCHI-22 or MOCHI-53.
+- No license yet. Mochi is packaged with `--skip-license` until one is chosen
+  before going public (MOCHI-59). Leaning: MIT for the code, with Mochi's
+  name, icons, and art all rights reserved.
+
 ## Process
 - Jira space MOCHI: each category is a "User Stories" epic with its user
   story in the description, and Tasks under it.
