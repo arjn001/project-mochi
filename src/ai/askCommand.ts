@@ -23,6 +23,17 @@ function selectedCode(): Attachment[] {
   return [{ kind: "selection", label, text: doc.getText(editor.selection) }];
 }
 
+// Opens VS Code's own Copilot setup ("Use AI Features with Copilot for
+// free..."), which signs her in to GitHub and turns Copilot on. Until the
+// welcome's "Pick a brain" exists (MOCHI-42).
+async function setUpCopilot(): Promise<void> {
+  try {
+    await vscode.commands.executeCommand("workbench.action.chat.triggerSetup");
+  } catch {
+    await vscode.commands.executeCommand("workbench.action.chat.open");
+  }
+}
+
 export function registerAskCommand(provider: Provider): vscode.Disposable {
   const output = vscode.window.createOutputChannel("Mochi");
 
@@ -42,8 +53,7 @@ export function registerAskCommand(provider: Provider): vscode.Disposable {
     if (result.status === "noBrain") {
       const setUp = "Set one up";
       if ((await vscode.window.showInformationMessage(NO_BRAIN, setUp)) === setUp) {
-        // Until the welcome's "Pick a brain" exists (MOCHI-42).
-        await vscode.commands.executeCommand("workbench.extensions.search", "@id:GitHub.copilot-chat");
+        await setUpCopilot();
       }
       return;
     }
