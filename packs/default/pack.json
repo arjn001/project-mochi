@@ -8,11 +8,13 @@
     "greeting": [
       "Meow, good {timeOfDay}! What are we making today?",
       "Good {timeOfDay}! I saved you a warm spot next to the code.",
-      "Hi again! Good {timeOfDay}. Ready when you are."
+      "Hi again! Good {timeOfDay}. Ready when you are.",
+      "Good {timeOfDay}, {name}! What are we making today?"
     ],
     "greetingLate": [
       "Hi, night owl! What are we making tonight?",
-      "Hi, night owl! The moon and I are ready when you are."
+      "Hi, night owl! The moon and I are ready when you are.",
+      "Hi, night owl {name}! What are we making tonight?"
     ],
     "stuck": [
       "This one looks stubborn. Want me to take a look?",
