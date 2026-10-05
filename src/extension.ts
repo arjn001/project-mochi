@@ -1,8 +1,15 @@
 import * as vscode from "vscode";
-import { createMoodLine } from "./presence/statusBar";
+import { createMoodLine, showMood } from "./presence/statusBar";
+import { onSpeakUpChange, readSpeakUp } from "./settings";
+
+// What activate() hands back. The integration tests use it to see what the
+// mood line says, since VS Code doesn't let tests read the status bar.
+export interface MochiApi {
+  moodText(): string;
+}
 
 // VS Code calls this once, after it finishes starting up.
-export function activate(context: vscode.ExtensionContext): void {
+export function activate(context: vscode.ExtensionContext): MochiApi {
   const sayHello = vscode.commands.registerCommand("mochi.sayHello", () => {
     vscode.window.showInformationMessage("Hello from Mochi!");
   });
@@ -19,8 +26,15 @@ export function activate(context: vscode.ExtensionContext): void {
     getChildren: () => [],
   });
 
+  // The mood line follows the speak-up setting, and naps in quiet mode.
+  const mood = createMoodLine();
+  showMood(mood, readSpeakUp());
+  const followSpeakUp = onSpeakUpChange((level) => showMood(mood, level));
+
   // Anything added here is cleaned up when Mochi shuts down.
-  context.subscriptions.push(sayHello, open, home, createMoodLine());
+  context.subscriptions.push(sayHello, open, home, mood, followSpeakUp);
+
+  return { moodText: () => mood.text };
 }
 
 // VS Code calls this when Mochi shuts down. Nothing to clean up yet.
