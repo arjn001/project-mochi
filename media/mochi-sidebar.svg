@@ -1,9 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#d7dae0" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
-  <!-- PLACEHOLDER: a temporary cat outline until the real icon from the
-       visual identity (MOCHI-50) replaces it. Tracked in MOCHI-58.
-       Must stay a single-color outline: VS Code tints it to match the theme. -->
-  <path d="M5 9.5V3.5l4.5 3.6a9 9 0 0 1 5 0L19 3.5v6a7.5 7.5 0 0 1 1.5 4.3c0 4-3.8 6.7-8.5 6.7s-8.5-2.7-8.5-6.7A7.5 7.5 0 0 1 5 9.5z"/>
-  <circle cx="9" cy="13" r="0.9" fill="#d7dae0" stroke="none"/>
-  <circle cx="15" cy="13" r="0.9" fill="#d7dae0" stroke="none"/>
-  <path d="M10.8 16.2c.4.4.8.6 1.2.6s.8-.2 1.2-.6"/>
-</svg>

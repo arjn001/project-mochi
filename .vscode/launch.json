@@ -8,6 +8,16 @@
       "args": ["--extensionDevelopmentPath=${workspaceFolder}"],
       "outFiles": ["${workspaceFolder}/out/**/*.js"],
       "preLaunchTask": "watch"
+    },
+    {
+      // A throwaway profile: no other extensions, default settings. Theme and
+      // setting changes stay in the test window. Closer to a fresh install.
+      "name": "Run Mochi (clean profile)",
+      "type": "extensionHost",
+      "request": "launch",
+      "args": ["--profile-temp", "--extensionDevelopmentPath=${workspaceFolder}"],
+      "outFiles": ["${workspaceFolder}/out/**/*.js"],
+      "preLaunchTask": "watch"
     }
   ]
 }

@@ -15,6 +15,9 @@
   "categories": [
     "Other"
   ],
+  "activationEvents": [
+    "onStartupFinished"
+  ],
   "main": "./out/extension.js",
   "contributes": {
     "viewsContainers": {
@@ -22,7 +25,7 @@
         {
           "id": "mochi",
           "title": "Mochi",
-          "icon": "media/mochi-sidebar.svg"
+          "icon": "media/icons/mochi-here.svg"
         }
       ]
     },
@@ -42,15 +45,44 @@
     ],
     "commands": [
       {
+        "command": "mochi.open",
+        "title": "Open Mochi",
+        "category": "Mochi"
+      },
+      {
         "command": "mochi.sayHello",
         "title": "Say Hello",
         "category": "Mochi"
       }
-    ]
+    ],
+    "icons": {
+      "mochi-here": {
+        "description": "Mochi is here",
+        "default": {
+          "fontPath": "media/font/mochi-icons.woff",
+          "fontCharacter": "\\E001"
+        }
+      },
+      "mochi-purring": {
+        "description": "Mochi is purring",
+        "default": {
+          "fontPath": "media/font/mochi-icons.woff",
+          "fontCharacter": "\\E002"
+        }
+      },
+      "mochi-napping": {
+        "description": "Mochi is napping",
+        "default": {
+          "fontPath": "media/font/mochi-icons.woff",
+          "fontCharacter": "\\E003"
+        }
+      }
+    }
   },
   "scripts": {
     "compile": "tsc -p ./",
     "watch": "tsc -watch -p ./",
+    "build:icons": "fantasticon",
     "test:unit": "npm run compile && mocha \"out/test/unit/**/*.test.js\"",
     "test:integration": "npm run compile && vscode-test",
     "test": "npm run test:unit && npm run test:integration"
@@ -61,6 +93,7 @@
     "@types/vscode": "1.125.0",
     "@vscode/test-cli": "^0.0.15",
     "@vscode/test-electron": "^3.1.0",
+    "fantasticon": "^4.1.0",
     "mocha": "^12.0.3",
     "typescript": "^7.0.2"
   },
