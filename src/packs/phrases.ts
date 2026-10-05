@@ -1,14 +1,12 @@
 // Picks what Mochi says from a pack. Plain code with no VS Code dependency.
+import { DEFAULT_LATE_HOUR, isLate } from "../moments/lateNight";
 import { Moment, Pack, fill, usesName } from "./format";
-
-// After this hour, and until early morning, it's late night (see MOMENTS.md).
-export const LATE_HOUR = 23;
-const MORNING_HOUR = 5;
 
 export type TimeOfDay = "morning" | "afternoon" | "evening" | "late";
 
-export function timeOfDay(hour: number, lateHour: number = LATE_HOUR): TimeOfDay {
-  if (hour >= lateHour || hour < MORNING_HOUR) {
+// The late hour is a setting, 23:00 by default (see moments/lateNight.ts).
+export function timeOfDay(hour: number, lateHour: number = DEFAULT_LATE_HOUR): TimeOfDay {
+  if (isLate(hour, lateHour)) {
     return "late";
   }
   if (hour < 12) {
@@ -33,8 +31,8 @@ export function pickPhrase(
 
 // The greeting for when VS Code opens. After the late-night hour it's a
 // night-owl greeting, because "Good night" sounds like goodbye.
-export function greeting(pack: Pack, now: Date, random?: () => number): string {
-  const time = timeOfDay(now.getHours());
+export function greeting(pack: Pack, now: Date, random?: () => number, lateHour?: number): string {
+  const time = timeOfDay(now.getHours(), lateHour);
   return time === "late"
     ? pickPhrase(pack, "greetingLate", {}, random)
     : pickPhrase(pack, "greeting", { timeOfDay: time }, random);
