@@ -1,5 +1,7 @@
 import * as assert from "node:assert";
 import * as vscode from "vscode";
+import { offer } from "../../actions/confirm";
+import { dimAction } from "../../actions/theme";
 import { BuiltInAi } from "../../ai/builtInAi";
 import type { MochiApi } from "../../extension";
 
@@ -48,6 +50,51 @@ describe("Mochi in VS Code", () => {
       // The test copy of VS Code has no Copilot, so there's no brain here.
       const available = await new BuiltInAi().isAvailable();
       assert.strictEqual(typeof available, "boolean");
+    });
+  });
+
+  describe("dimming the theme", () => {
+    const workbench = () => vscode.workspace.getConfiguration("workbench");
+    const theme = () => workbench().inspect<string>("colorTheme")?.globalValue;
+
+    // Theme changes reach VS Code a moment later.
+    async function themeKindBecomes(kind: vscode.ColorThemeKind): Promise<void> {
+      for (let i = 0; i < 50 && vscode.window.activeColorTheme.kind !== kind; i++) {
+        await new Promise((resolve) => setTimeout(resolve, 100));
+      }
+    }
+
+    // A fake "her" who presses the given buttons in turn.
+    const presses = (...answers: (string | undefined)[]) => async () => answers.shift();
+
+    beforeEach(async () => {
+      await workbench().update("colorTheme", "Light Modern", vscode.ConfigurationTarget.Global);
+      await themeKindBecomes(vscode.ColorThemeKind.Light);
+    });
+
+    afterEach(async () => {
+      await workbench().update("colorTheme", undefined, vscode.ConfigurationTarget.Global);
+    });
+
+    it("switches all of VS Code to a darker theme after she says yes", async () => {
+      assert.strictEqual(await offer(dimAction(), presses("Dim things", undefined)), "done");
+      assert.strictEqual(theme(), "Dark Modern");
+    });
+
+    it("leaves the theme alone when she says Not now", async () => {
+      assert.strictEqual(await offer(dimAction(), presses("Not now")), "declined");
+      assert.strictEqual(theme(), "Light Modern");
+    });
+
+    it("puts her old theme back with Undo", async () => {
+      assert.strictEqual(await offer(dimAction(), presses("Dim things", "Undo")), "undone");
+      assert.strictEqual(theme(), "Light Modern");
+    });
+
+    it("doesn't offer when the theme is already dark", async () => {
+      await workbench().update("colorTheme", "Dark Modern", vscode.ConfigurationTarget.Global);
+      await themeKindBecomes(vscode.ColorThemeKind.Dark);
+      assert.strictEqual(await offer(dimAction(), presses(undefined)), "skipped");
     });
   });
 

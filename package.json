@@ -55,6 +55,11 @@
         "category": "Mochi"
       },
       {
+        "command": "mochi.dim",
+        "title": "Dim things (darker theme)",
+        "category": "Mochi"
+      },
+      {
         "command": "mochi.sayHello",
         "title": "Say Hello",
         "category": "Mochi"
