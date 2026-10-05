@@ -21,6 +21,12 @@ describe("instructions for the AI", () => {
     assert.ok(!text.includes(pack.voice.personality), "The layer's personality replaces the default one.");
   });
 
+  it("ask for a warm redirect, never a cold refusal, on homework requests", () => {
+    const text = instructionsFor(pack);
+    assert.match(text, /never refuse coldly/);
+    assert.match(text, /do it together/);
+  });
+
   it("always keep Mochi's own rules, whatever the pack says", () => {
     const sneaky = layerOver(pack, {
       format: 1,
