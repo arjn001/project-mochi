@@ -7,6 +7,7 @@ import { BuiltInAi } from "./ai/builtInAi";
 import { instructionsFor } from "./ai/instructions";
 import { loadDefaultPack } from "./packs/defaultPack";
 import { registerFocus } from "./focus/focusCommands";
+import { watchLateNight } from "./moments/lateNightWatcher";
 import { FocusTimer } from "./focus/timer";
 import { createMoodLine, showMood } from "./presence/statusBar";
 import { onSpeakUpChange, readSpeakUp } from "./settings";
@@ -55,11 +56,12 @@ export function activate(context: vscode.ExtensionContext): MochiApi {
   const ask = registerAskCommand(new BuiltInAi(), () => instructionsFor(pack));
 
   // Actions always ask first (MOCHI-31). The late-night nudge offers the
-  // same one later (MOCHI-35).
+  // same one, in the pack's words.
   const dim = vscode.commands.registerCommand("mochi.dim", () => offer(dimAction(), choose));
+  const lateNight = watchLateNight(pack, timer, context.globalState);
 
   // Anything added here is cleaned up when Mochi shuts down.
-  context.subscriptions.push(sayHello, open, home, mood, followSpeakUp, focus, timer, ask, dim);
+  context.subscriptions.push(sayHello, open, home, mood, followSpeakUp, focus, timer, ask, dim, lateNight);
 
   return { moodText: () => mood.text };
 }
