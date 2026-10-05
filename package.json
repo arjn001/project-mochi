@@ -50,6 +50,11 @@
         "category": "Mochi"
       },
       {
+        "command": "mochi.ask",
+        "title": "Ask (preview)",
+        "category": "Mochi"
+      },
+      {
         "command": "mochi.sayHello",
         "title": "Say Hello",
         "category": "Mochi"
