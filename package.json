@@ -54,7 +54,30 @@
         "title": "Say Hello",
         "category": "Mochi"
       }
-    ]
+    ],
+    "icons": {
+      "mochi-here": {
+        "description": "Mochi is here",
+        "default": {
+          "fontPath": "media/font/mochi-icons.woff",
+          "fontCharacter": "\\E001"
+        }
+      },
+      "mochi-purring": {
+        "description": "Mochi is purring",
+        "default": {
+          "fontPath": "media/font/mochi-icons.woff",
+          "fontCharacter": "\\E002"
+        }
+      },
+      "mochi-napping": {
+        "description": "Mochi is napping",
+        "default": {
+          "fontPath": "media/font/mochi-icons.woff",
+          "fontCharacter": "\\E003"
+        }
+      }
+    }
   },
   "scripts": {
     "compile": "tsc -p ./",
