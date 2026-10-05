@@ -74,6 +74,9 @@ The default lines are in `packs/default/pack.json` (format in PACKS.md).
   slow blink from me."
 - **Never corporate, guilty, or lecturing.** A unit test checks the default
   lines for this.
+- **Late-night nudge:** once per night, while she's typing, after the late
+  hour (a setting, 23:00 by default). A light theme gets the dim offer; dark
+  and high contrast themes get a company-only line.
 - **Late night is company, not a parent:** "Late-night coding buddy,
   reporting for duty. Cozier theme?" No lectures about water or sleep.
 - **Greetings by time of day:** morning, afternoon, or evening. From 23:00
