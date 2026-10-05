@@ -17,10 +17,17 @@ export function createMoodLine(): vscode.StatusBarItem {
   return item;
 }
 
-// Updates the mood line. In quiet mode it always naps (see mood.ts).
-export function showMood(item: vscode.StatusBarItem, speakUp: unknown, mood?: Mood): void {
-  const line = moodLine(speakUp, mood);
+// Updates the mood line (see mood.ts for what wins). During a focus session,
+// clicking it offers to stop the session instead of just opening Mochi.
+export function showMood(
+  item: vscode.StatusBarItem,
+  speakUp: unknown,
+  mood?: Mood,
+  focusMinutesLeft?: number
+): void {
+  const line = moodLine(speakUp, mood, focusMinutesLeft);
   item.text = line.text;
   item.tooltip = line.tooltip;
   item.accessibilityInformation = { label: line.label, role: "button" };
+  item.command = focusMinutesLeft === undefined ? "mochi.open" : "mochi.focus.menu";
 }

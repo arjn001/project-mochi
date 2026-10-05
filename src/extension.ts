@@ -6,6 +6,8 @@ import { registerAskCommand } from "./ai/askCommand";
 import { BuiltInAi } from "./ai/builtInAi";
 import { instructionsFor } from "./ai/instructions";
 import { loadDefaultPack } from "./packs/defaultPack";
+import { registerFocus } from "./focus/focusCommands";
+import { FocusTimer } from "./focus/timer";
 import { createMoodLine, showMood } from "./presence/statusBar";
 import { onSpeakUpChange, readSpeakUp } from "./settings";
 
@@ -33,10 +35,17 @@ export function activate(context: vscode.ExtensionContext): MochiApi {
     getChildren: () => [],
   });
 
-  // The mood line follows the speak-up setting, and naps in quiet mode.
+  // The focus timer keeps its end time in globalState, so a session
+  // survives a reload.
+  const timer = new FocusTimer(context.globalState);
+
+  // The mood line follows the speak-up setting and the focus timer.
   const mood = createMoodLine();
-  showMood(mood, readSpeakUp());
-  const followSpeakUp = onSpeakUpChange((level) => showMood(mood, level));
+  const refreshMood = () => showMood(mood, readSpeakUp(), undefined, timer.minutesLeft());
+  refreshMood();
+  const followSpeakUp = onSpeakUpChange(refreshMood);
+  const focus = registerFocus(timer, refreshMood);
+  void timer.restore();
 
   // Mochi's personality comes from the pack. The personal layer goes on top
   // of the default pack later (MOCHI-41).
@@ -50,7 +59,7 @@ export function activate(context: vscode.ExtensionContext): MochiApi {
   const dim = vscode.commands.registerCommand("mochi.dim", () => offer(dimAction(), choose));
 
   // Anything added here is cleaned up when Mochi shuts down.
-  context.subscriptions.push(sayHello, open, home, mood, followSpeakUp, ask, dim);
+  context.subscriptions.push(sayHello, open, home, mood, followSpeakUp, focus, timer, ask, dim);
 
   return { moodText: () => mood.text };
 }
