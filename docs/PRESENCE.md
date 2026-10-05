@@ -62,6 +62,11 @@ What this means for later:
 - **Quiet:** only the status bar mood. No hints in the code, no nudges.
 - **Gentle (default):** all four places, used sparingly.
 - **Chatty:** all four places, with more greetings and small talk.
+- **In quiet mode, napping always wins over any other mood.** The mood line
+  shows "Mochi is napping" with the tooltip "Quiet mode. Click to open
+  Mochi.", so she can see at a glance that Mochi is being quiet.
+- Changing the level takes effect right away, with no reload. A project can
+  have its own level, which wins over her user setting.
 
 ## Look
 A soft illustrated cat with a few moods, in original art.

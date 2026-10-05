@@ -1,8 +1,8 @@
 import * as vscode from "vscode";
+import { Mood, moodLine } from "./mood";
 
 // Mochi's mood line on the right of the status bar. Always visible, and
-// clicking it opens Mochi's tab. The mood is fixed for now; moods from the
-// pack and the moments come later.
+// clicking it opens Mochi's tab.
 export function createMoodLine(): vscode.StatusBarItem {
   const item = vscode.window.createStatusBarItem(
     "mochi.mood",
@@ -12,15 +12,15 @@ export function createMoodLine(): vscode.StatusBarItem {
 
   // Shown when someone right-clicks the status bar to hide items.
   item.name = "Mochi mood";
-  item.text = "$(mochi-purring) Mochi is purring";
-  item.tooltip = "Open Mochi";
   item.command = "mochi.open";
-  // Read by screen readers instead of the icon and text.
-  item.accessibilityInformation = {
-    label: "Mochi is purring. Open Mochi.",
-    role: "button",
-  };
-
   item.show();
   return item;
+}
+
+// Updates the mood line. In quiet mode it always naps (see mood.ts).
+export function showMood(item: vscode.StatusBarItem, speakUp: unknown, mood?: Mood): void {
+  const line = moodLine(speakUp, mood);
+  item.text = line.text;
+  item.tooltip = line.tooltip;
+  item.accessibilityInformation = { label: line.label, role: "button" };
 }
