@@ -1,4 +1,7 @@
 import * as vscode from "vscode";
+import { choose } from "./actions/choose";
+import { offer } from "./actions/confirm";
+import { dimAction } from "./actions/theme";
 import { registerAskCommand } from "./ai/askCommand";
 import { BuiltInAi } from "./ai/builtInAi";
 import { instructionsFor } from "./ai/instructions";
@@ -42,8 +45,12 @@ export function activate(context: vscode.ExtensionContext): MochiApi {
   // Talking to Mochi, through VS Code's built-in AI for now.
   const ask = registerAskCommand(new BuiltInAi(), () => instructionsFor(pack));
 
+  // Actions always ask first (MOCHI-31). The late-night nudge offers the
+  // same one later (MOCHI-35).
+  const dim = vscode.commands.registerCommand("mochi.dim", () => offer(dimAction(), choose));
+
   // Anything added here is cleaned up when Mochi shuts down.
-  context.subscriptions.push(sayHello, open, home, mood, followSpeakUp, ask);
+  context.subscriptions.push(sayHello, open, home, mood, followSpeakUp, ask, dim);
 
   return { moodText: () => mood.text };
 }
