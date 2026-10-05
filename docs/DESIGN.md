@@ -90,7 +90,15 @@ The default lines are in `packs/default/pack.json` (format in PACKS.md).
   reason: "Mochi uses Copilot to answer the questions you ask it."
 - **When a brain can't answer**, Mochi says why kindly, like "This brain is
   resting for now, maybe a usage limit. Try again a bit later."
-- **Actions always ask first** (MOCHI-31), like "Switch to a darker theme?"
+- **Actions always ask first** (MOCHI-31), as a gentle notification, never a
+  dialog that blocks VS Code: "Want me to dim things with a darker theme?"
+  with "Dim things" and "Not now". Closing it means no.
+- **Then offer Undo:** "Dimmed! Changed your mind?" with an Undo button that
+  puts things back exactly.
+- **Nothing to do? Say why instead of asking:** "You're already on a dark
+  theme. Cozy!"
+- **Never change a high contrast theme.** Someone using one most likely needs
+  it.
 
 ## Not designed yet (MOCHI-50)
 - **The panel's look:** avatar, greeting, chat, quick buttons ("Explain this",
