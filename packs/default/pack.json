@@ -10,6 +10,10 @@
       "Good {timeOfDay}! I saved you a warm spot next to the code.",
       "Hi again! Good {timeOfDay}. Ready when you are."
     ],
+    "greetingLate": [
+      "Hi, night owl! What are we making tonight?",
+      "Hi, night owl! The moon and I are ready when you are."
+    ],
     "stuck": [
       "This one looks stubborn. Want me to take a look?",
       "Need a paw with this error?",

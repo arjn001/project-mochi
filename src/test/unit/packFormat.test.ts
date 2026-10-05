@@ -7,6 +7,7 @@ const complete: Pack = {
   voice: { personality: "Warm and playful." },
   phrases: {
     greeting: ["Good {timeOfDay}! What are we making?"],
+    greetingLate: ["Hi, night owl!"],
     stuck: ["Want me to take a look?"],
     lateNight: ["It's late. Some water?"],
     celebrate: ["Yay, you finished {thing}!"],
@@ -82,7 +83,25 @@ describe("pack format", () => {
     it("with placeholders a moment can't use", () => {
       assert.match(errorsFor({ format: 1, phrases: { stuck: ["{thing} again?"] } }), /\{thing\}, which stuck/);
       assert.match(errorsFor({ format: 1, phrases: { greeting: ["Hi {apiKey}"] } }), /\{apiKey\}/);
+      assert.match(errorsFor({ format: 1, phrases: { stuck: ["Need help, {name}?"] } }), /\{name\}, which stuck/);
     });
+
+    it("with a bad user name, or unknown user fields", () => {
+      assert.match(errorsFor({ format: 1, user: { name: "A\nB" } }), /"user.name" must be one line/);
+      assert.match(errorsFor({ format: 1, user: { name: "x".repeat(31) } }), /more than the 30/);
+      assert.match(errorsFor({ format: 1, user: { email: "x@y.z" } }), /unknown field "email"/);
+    });
+
+    it("when every line of a moment needs her name", () => {
+      assert.match(
+        errorsFor({ format: 1, phrases: { greeting: ["Hi, {name}!"] } }),
+        /at least one phrase without \{name\}/
+      );
+    });
+  });
+
+  it("accepts greetings that use her name, next to ones that don't", () => {
+    assert.ok(checkLayer({ format: 1, user: { name: "Sam" }, phrases: { greeting: ["Hi, {name}!", "Hi!"] } }).ok);
   });
 
   describe("layering", () => {
@@ -99,6 +118,11 @@ describe("pack format", () => {
       assert.deepStrictEqual(result.phrases.celebrate, ["Woohoo!"]);
     });
 
+    it("carries her name from the layer", () => {
+      assert.strictEqual(layerOver(complete, { format: 1, user: { name: "Sam" } }).user?.name, "Sam");
+      assert.strictEqual(layerOver(complete, { format: 1 }).user, undefined);
+    });
+
     it("doesn't change the pack underneath", () => {
       layerOver(complete, { format: 1, name: "Momo" });
       assert.strictEqual(complete.name, "Mochi");
@@ -107,7 +131,7 @@ describe("pack format", () => {
 
   describe("filling placeholders", () => {
     it("fills known values and leaves the rest untouched", () => {
-      assert.strictEqual(fill("Good {timeOfDay}, I'm {name}!", { timeOfDay: "evening", name: "Mochi" }),
+      assert.strictEqual(fill("Good {timeOfDay}, I'm {companion}!", { timeOfDay: "evening", companion: "Mochi" }),
         "Good evening, I'm Mochi!");
       assert.strictEqual(fill("Yay, {thing}!", {}), "Yay, {thing}!");
     });

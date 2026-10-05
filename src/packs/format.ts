@@ -7,16 +7,20 @@
 
 export const PACK_FORMAT = 1;
 
-// The moments Mochi has lines for (see MOMENTS.md).
-export const MOMENTS = ["greeting", "stuck", "lateNight", "celebrate"] as const;
+// The moments Mochi has lines for (see MOMENTS.md). greetingLate replaces
+// greeting after the late-night hour, since "Good night" sounds like goodbye.
+export const MOMENTS = ["greeting", "greetingLate", "stuck", "lateNight", "celebrate"] as const;
 export type Moment = (typeof MOMENTS)[number];
 
-// Placeholders a phrase may use, per moment. {name} works everywhere.
+// Placeholders a phrase may use, per moment. {companion} is the companion's
+// name and works everywhere. {name} is her name, only in greetings, and a
+// phrase using it is only picked when a name is set.
 const PLACEHOLDERS: Record<Moment, readonly string[]> = {
-  greeting: ["name", "timeOfDay"],
-  stuck: ["name"],
-  lateNight: ["name"],
-  celebrate: ["name", "thing"],
+  greeting: ["companion", "name", "timeOfDay"],
+  greetingLate: ["companion", "name"],
+  stuck: ["companion"],
+  lateNight: ["companion"],
+  celebrate: ["companion", "thing"],
 };
 
 export const LIMITS = {
@@ -32,6 +36,8 @@ export interface Pack {
   name: string;
   voice: { personality: string };
   phrases: Record<Moment, string[]>;
+  // Her name, from the personal layer. The default pack never sets it.
+  user?: { name?: string };
 }
 
 // A layer, like the personal layer. Anything left out falls back to the pack
@@ -41,6 +47,7 @@ export interface PackLayer {
   name?: string;
   voice?: { personality?: string };
   phrases?: Partial<Record<Moment, string[]>>;
+  user?: { name?: string };
 }
 
 export type Checked<T> = { ok: true; value: T } | { ok: false; errors: string[] };
@@ -66,21 +73,37 @@ function checkText(value: unknown, max: number, where: string, errors: string[])
   }
 }
 
+function checkName(value: unknown, where: string, errors: string[]): void {
+  checkText(value, LIMITS.name, where, errors);
+  if (typeof value === "string" && value.includes("\n")) {
+    errors.push(`${where} must be one line.`);
+  }
+}
+
+export const usesName = (phrase: string): boolean => phrase.includes("{name}");
+
 // Checks a layer. Use checkPack for something that must be complete.
 export function checkLayer(input: unknown): Checked<PackLayer> {
   const errors: string[] = [];
   if (!isObject(input)) {
     return { ok: false, errors: ["A pack must be a JSON object."] };
   }
-  onlyKeys(input, ["format", "name", "voice", "phrases"], "The pack", errors);
+  onlyKeys(input, ["format", "name", "voice", "phrases", "user"], "The pack", errors);
 
   if (input.format !== PACK_FORMAT) {
     errors.push(`"format" must be ${PACK_FORMAT}.`);
   }
   if (input.name !== undefined) {
-    checkText(input.name, LIMITS.name, '"name"', errors);
-    if (typeof input.name === "string" && input.name.includes("\n")) {
-      errors.push('"name" must be one line.');
+    checkName(input.name, '"name"', errors);
+  }
+  if (input.user !== undefined) {
+    if (!isObject(input.user)) {
+      errors.push('"user" must be an object.');
+    } else {
+      onlyKeys(input.user, ["name"], '"user"', errors);
+      if (input.user.name !== undefined) {
+        checkName(input.user.name, '"user.name"', errors);
+      }
     }
   }
   if (input.voice !== undefined) {
@@ -121,6 +144,11 @@ export function checkLayer(input: unknown): Checked<PackLayer> {
             }
           }
         });
+        // Lines with {name} are skipped when no name is set, so Mochi always
+        // needs at least one line that works without it.
+        if (list.every((phrase) => typeof phrase === "string" && usesName(phrase))) {
+          errors.push(`${where} needs at least one phrase without {name}, for when no name is set.`);
+        }
       }
     }
   }
@@ -157,10 +185,11 @@ export function layerOver(base: Pack, layer: PackLayer): Pack {
     name: layer.name ?? base.name,
     voice: { personality: layer.voice?.personality ?? base.voice.personality },
     phrases: { ...base.phrases, ...layer.phrases } as Record<Moment, string[]>,
+    user: layer.user ?? base.user,
   };
 }
 
-// Fills placeholders like {name}. Unknown or missing values are left as they
+// Fills placeholders like {timeOfDay}. Unknown or missing values are left as they
 // are, so a phrase never shows "undefined".
 export function fill(phrase: string, values: Record<string, string>): string {
   return phrase.replace(/\{([^{}]*)\}/g, (match, key: string) => values[key] ?? match);

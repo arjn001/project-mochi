@@ -21,10 +21,14 @@ that checks packs is `src/packs/format.ts`.
     "personality": "Playful, warm, and a little bit cat."
   },
   "phrases": {
-    "greeting": ["Good {timeOfDay}! What are we making?"],
+    "greeting": ["Good {timeOfDay}! What are we making?", "Good {timeOfDay}, {name}!"],
+    "greetingLate": ["Hi, night owl!"],
     "stuck": ["Want me to take a look?"],
-    "lateNight": ["It's past midnight. Want a darker theme, and some water?"],
-    "celebrate": ["Yay, you finished {thing}! Awesome job."]
+    "lateNight": ["It's getting late. Want me to dim things with a darker theme?"],
+    "celebrate": ["Yay, you finished {thing}!"]
+  },
+  "user": {
+    "name": "Sam"
   }
 }
 ```
@@ -35,18 +39,25 @@ that checks packs is `src/packs/format.ts`.
 | `name` | What the companion is called, on one line | 30 characters |
 | `voice.personality` | How the companion talks. Later, this guides the AI | 2000 characters |
 | `phrases.<moment>` | Lines for a moment. Mochi picks one | 1 to 20 phrases, 200 characters each |
+| `user.name` | Her name, on one line. Optional, and only for the personal layer; the default pack never sets it | 30 characters |
 
-The moments are `greeting`, `stuck`, `lateNight`, and `celebrate` (see
-MOMENTS.md). Art for the moods comes in a later format, with MOCHI-17.
+The moments are `greeting`, `greetingLate`, `stuck`, `lateNight`, and
+`celebrate` (see MOMENTS.md). `greetingLate` replaces `greeting` after the
+late-night hour, because "Good night" sounds like goodbye. Art for the moods
+comes in a later format, with MOCHI-17.
 
 ## Placeholders
 Phrases can use these, filled in when Mochi speaks:
 
 | Placeholder | Means | Allowed in |
 |---|---|---|
-| `{name}` | The companion's name | Every moment |
-| `{timeOfDay}` | morning, afternoon, evening, or night | `greeting` |
+| `{companion}` | The companion's name | Every moment |
+| `{name}` | Her name, from `user.name` | `greeting`, `greetingLate` |
+| `{timeOfDay}` | morning, afternoon, or evening, never night | `greeting` |
 | `{thing}` | What she finished | `celebrate` |
+
+A phrase with `{name}` is only picked when a name is set, so every moment
+needs at least one phrase without it.
 
 ## Packs are checked strictly
 Packs can come from other people, like a gift file, so Mochi checks every pack
@@ -57,6 +68,7 @@ before using it, and rejects it with a plain-English reason if:
 - `name` is more than one line
 - a moment has no phrases or more than 20
 - a phrase uses a placeholder its moment can't use
+- every phrase of a moment uses `{name}`
 
 A pack can only change how Mochi looks and talks. It can never change
 settings, the AI choice, or API keys, and never runs anything (see
