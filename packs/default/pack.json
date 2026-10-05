@@ -25,9 +25,9 @@
       "The moon's out and so are we. If you need a stretch, I'll guard the code."
     ],
     "celebrate": [
-      "Yay, you finished {thing}! Awesome job.",
-      "Meow! You finished {thing}. Want a little break?",
-      "You did it: {thing}! Want a comfier theme to celebrate?"
+      "Yay, you finished {thing}! That earns a slow blink from me.",
+      "Meow! {thing} is done. Stretch break before the next one?",
+      "You did it: {thing}! I knew you would."
     ]
   }
 }
