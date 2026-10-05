@@ -16,7 +16,7 @@ describe("default pack", () => {
   });
 
   it("leaves no placeholder unfilled once Mochi speaks", () => {
-    const values = { name: "Mochi", timeOfDay: "evening", thing: "the database migration" };
+    const values = { companion: "Mochi", name: "Sam", timeOfDay: "evening", thing: "the database migration" };
     for (const moment of MOMENTS) {
       for (const phrase of loadDefaultPack().phrases[moment]) {
         assert.doesNotMatch(fill(phrase, values), /[{}]/, `"${phrase}" still has a placeholder.`);
