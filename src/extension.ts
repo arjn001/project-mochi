@@ -1,6 +1,8 @@
 import * as vscode from "vscode";
 import { registerAskCommand } from "./ai/askCommand";
 import { BuiltInAi } from "./ai/builtInAi";
+import { instructionsFor } from "./ai/instructions";
+import { loadDefaultPack } from "./packs/defaultPack";
 import { createMoodLine, showMood } from "./presence/statusBar";
 import { onSpeakUpChange, readSpeakUp } from "./settings";
 
@@ -33,8 +35,12 @@ export function activate(context: vscode.ExtensionContext): MochiApi {
   showMood(mood, readSpeakUp());
   const followSpeakUp = onSpeakUpChange((level) => showMood(mood, level));
 
+  // Mochi's personality comes from the pack. The personal layer goes on top
+  // of the default pack later (MOCHI-41).
+  const pack = loadDefaultPack();
+
   // Talking to Mochi, through VS Code's built-in AI for now.
-  const ask = registerAskCommand(new BuiltInAi());
+  const ask = registerAskCommand(new BuiltInAi(), () => instructionsFor(pack));
 
   // Anything added here is cleaned up when Mochi shuts down.
   context.subscriptions.push(sayHello, open, home, mood, followSpeakUp, ask);

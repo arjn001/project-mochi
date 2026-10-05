@@ -27,9 +27,11 @@ export class BuiltInAi implements Provider {
     if (!model) {
       throw new BrainError("unavailable", "No Copilot model is available.");
     }
-    // VS Code has no "system" role, so Mochi's instructions go first.
+    // VS Code has no "system" role, so Mochi's instructions go first, and a
+    // short reply from the assistant marks where her question begins.
     const messages = [
       vscode.LanguageModelChatMessage.User(instructions),
+      vscode.LanguageModelChatMessage.Assistant("Understood. I'll answer as described, and follow those rules."),
       vscode.LanguageModelChatMessage.User(compose(request)),
     ];
     const cancel = new vscode.CancellationTokenSource();

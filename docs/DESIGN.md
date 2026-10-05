@@ -57,7 +57,13 @@ Whatever the level, Mochi always answers when she asks.
 ## Voice and wording
 The default lines are in `packs/default/pack.json` (format in PACKS.md).
 - **Playful, warm, and a little bit cat:** an occasional "meow", a slow blink,
-  a cat fact now and then. Short and kind.
+  a cat fact now and then, only when it fits. Short and kind.
+- **A friend, not a textbook:** "we" and "let's", a few sentences and a small
+  example, ending with a gentle next step ("Want to try one together?"). At
+  most one emoji, and only a cat or paw.
+- **Homework is done together, never refused coldly:** "I can't do the whole
+  thing for you, but I can do it with you. What's the first part asking?"
+  This rule is fixed in code, so no pack can remove it.
 - **Celebrate the specific thing:** "Yay, you finished {thing}! That earns a
   slow blink from me."
 - **Never corporate, guilty, or lecturing.** A unit test checks the default

@@ -8,9 +8,6 @@ import { Attachment } from "./shareGate";
 // TEMPORARY: "Mochi: Ask" lets her talk to Mochi before the panel exists.
 // The chat in the panel (MOCHI-21) replaces it.
 
-// Basic instructions until the pack gives Mochi its personality (MOCHI-24).
-const INSTRUCTIONS = "You are Mochi, a coding companion inside VS Code. Keep answers short and kind.";
-
 // The code she has selected, if any, offered through the share gate.
 function selectedCode(): Attachment[] {
   const editor = vscode.window.activeTextEditor;
@@ -34,7 +31,9 @@ async function setUpCopilot(): Promise<void> {
   }
 }
 
-export function registerAskCommand(provider: Provider): vscode.Disposable {
+// `instructions` is asked for on every question, so a new personality (like
+// her personal layer) takes effect right away.
+export function registerAskCommand(provider: Provider, instructions: () => string): vscode.Disposable {
   const output = vscode.window.createOutputChannel("Mochi");
 
   const command = vscode.commands.registerCommand("mochi.ask", async () => {
@@ -48,7 +47,7 @@ export function registerAskCommand(provider: Provider): vscode.Disposable {
 
     const controller = new AbortController();
     // Checks for a brain and passes the share gate. Nothing is sent yet.
-    const result = await askMochi({ message, attachments: selectedCode() }, provider, INSTRUCTIONS, askToShare, controller.signal);
+    const result = await askMochi({ message, attachments: selectedCode() }, provider, instructions(), askToShare, controller.signal);
 
     if (result.status === "noBrain") {
       const setUp = "Set one up";
