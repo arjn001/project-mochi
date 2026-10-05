@@ -23,8 +23,11 @@
     ],
     "lateNight": [
       "It's getting late. Want me to dim things with a darker theme?",
-      "Late-night coding buddy, reporting for duty. Cozier theme?",
-      "The moon's out and so are we. If you need a stretch, I'll guard the code."
+      "Late-night coding buddy, reporting for duty. Cozier theme?"
+    ],
+    "lateNightCompany": [
+      "The moon's out and so are we. If you need a stretch, I'll guard the code.",
+      "Night shift together. I'm right here if you need me."
     ],
     "celebrate": [
       "Yay, you finished {thing}! That earns a slow blink from me.",
