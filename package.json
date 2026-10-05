@@ -55,6 +55,31 @@
         "category": "Mochi"
       }
     ],
+    "configuration": {
+      "title": "Mochi",
+      "properties": {
+        "mochi.speakUp": {
+          "type": "string",
+          "enum": [
+            "quiet",
+            "gentle",
+            "chatty"
+          ],
+          "enumItemLabels": [
+            "Quiet",
+            "Gentle",
+            "Chatty"
+          ],
+          "enumDescriptions": [
+            "Mochi stays in the status bar and only talks when you open it.",
+            "Mochi offers help and kind words now and then.",
+            "Mochi says hello more often, with fun facts and small talk."
+          ],
+          "default": "gentle",
+          "markdownDescription": "How often Mochi speaks up on its own. Mochi always answers when you open it."
+        }
+      }
+    },
     "icons": {
       "mochi-here": {
         "description": "Mochi is here",
