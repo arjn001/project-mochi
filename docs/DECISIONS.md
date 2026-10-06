@@ -10,6 +10,14 @@
   default pack and a private personal layer that never ships publicly.
 - Settings are always editable through a "Make it yours" page.
 
+## Where Mochi runs
+- Desktop only in version 1, on purpose: VS Code on Windows, macOS, and
+  Linux, including remote setups (SSH, WSL, dev containers, Codespaces),
+  where Mochi runs on the machine that has her files.
+- Not VS Code for the Web (vscode.dev, github.dev). Mochi has no web entry
+  point, so it doesn't load there. Whether to support it is decided later
+  (MOCHI-62).
+
 ## Name and ID
 - Marketplace display name: "Mochi Companion". Plain "Mochi" is already taken
   by another AI coding extension.
@@ -97,6 +105,21 @@
 - On a Mac without the developer tools, `/usr/bin/python3` is only a
   placeholder that pops up an installer, so Mochi skips it instead of acting
   without asking.
+- Mochi looks again whenever she saves a `.py` file, `requirements.txt`, or
+  `pyproject.toml`, so a folder that was empty when she opened it still gets
+  the offer once she starts writing Python. After not finding Python, it
+  waits 10 minutes before looking again.
+- The offer waits while she's in a focus session.
+- Mochi's automatic offer steps aside when Microsoft's Python extension will
+  ask the same thing: it's installed, its `python.createEnvironment.trigger`
+  setting isn't "off" (the default is "prompt"), and the project has a
+  requirements file. Checked against the extension's own code (2026.6.0),
+  not assumed. The command always works.
+- Course folders (`hw1/`, `hw2/`, ...) get one `.venv` at the top. Only the
+  top-level `requirements.txt` is installed, and the question names it.
+- An install can be stopped with Cancel, and a failed one mentions that no
+  internet or a restricted network is a common reason. On Linux, a failed
+  setup mentions the usual cause, a missing python3-venv package.
 
 ## Building and packaging
 - Mochi is packaged into a `.vsix` with `npm run package`. Source code
@@ -108,6 +131,12 @@
 - No license yet. Mochi is packaged with `--skip-license` until one is chosen
   before going public (MOCHI-59). Leaning: MIT for the code, with Mochi's
   name, icons, and art all rights reserved.
+
+## Writing
+- Every sentence Mochi shows lives in one place: the pack (Mochi's voice) or
+  `src/strings.ts`, never inline in code. This keeps the wording reviewable
+  and ready for other languages (MOCHI-63). It started with MOCHI-28; older
+  sentences move there as part of MOCHI-63.
 
 ## Process
 - Jira space MOCHI: each category is a "User Stories" epic with its user

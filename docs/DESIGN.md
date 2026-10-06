@@ -140,7 +140,15 @@ The default lines are in `packs/default/pack.json` (format in PACKS.md).
   Restricted Mode, "This folder is in Restricted Mode, so I won't run
   anything in it. If you trust it, you can change that, and then I'd love to
   help." with "Manage Workspace Trust". Without Python: "I couldn't find
-  Python on this computer. Want to install it?" with "Get Python".
+  Python on this computer. Want to install it?" with "Get Python". With no
+  folder open: "Open your project folder first, and I'll set it up." with
+  "Open Folder".
+- **When setup goes wrong:** installing shows a Cancel button; stopping says
+  "Okay, I stopped installing. Anything that finished is still there." A
+  failed install mentions no internet or a restricted network as a common
+  reason, and a failed setup on Linux names the python3-venv package.
+- **Where sentences live:** every sentence above is in `src/strings.ts` (or
+  the pack), never inline in code.
 
 ## Not designed yet (MOCHI-50)
 - **The panel's look:** avatar, greeting, chat, quick buttons ("Explain this",
