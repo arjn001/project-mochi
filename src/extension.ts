@@ -14,6 +14,7 @@ import { registerNameCommands } from "./packs/nameCommands";
 import { PersonalLayer } from "./packs/personalLayer";
 import { greeting } from "./packs/phrases";
 import { registerFocus } from "./focus/focusCommands";
+import { rememberCoding } from "./moments/greetingWatcher";
 import { watchLateNight } from "./moments/lateNightWatcher";
 import { watchStuck } from "./moments/stuckWatcher";
 import { FocusTimer } from "./focus/timer";
@@ -85,6 +86,9 @@ export function activate(context: vscode.ExtensionContext): MochiApi {
   const dim = vscode.commands.registerCommand("mochi.dim", () => offer(dimAction(), choose));
   const lateNight = watchLateNight(pack, timer, context.globalState);
 
+  // When and where she last coded, for the greeting (MOCHI-33).
+  const coding = rememberCoding(context.globalState);
+
   // Setting up a Python project (MOCHI-28), and offering it once per
   // project, never during a focus session. Never in Restricted Mode.
   const python = registerPythonSetup(choose);
@@ -99,7 +103,7 @@ export function activate(context: vscode.ExtensionContext): MochiApi {
   }
 
   // Anything added here is cleaned up when Mochi shuts down.
-  context.subscriptions.push(names, sayHello, open, home, mood, followSpeakUp, focus, timer, surface, ask, explain, stuck, dim, lateNight, python, pythonOffer);
+  context.subscriptions.push(names, sayHello, open, home, mood, followSpeakUp, focus, timer, surface, ask, explain, stuck, dim, lateNight, coding, python, pythonOffer);
 
   return {
     moodText: () => mood.text,
