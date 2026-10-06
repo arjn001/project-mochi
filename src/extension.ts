@@ -87,6 +87,14 @@ export function activate(context: vscode.ExtensionContext): MochiApi {
   const python = registerPythonSetup(choose);
   const pythonOffer = watchPythonProjects(context.workspaceState, choose, () => timer.isRunning());
 
+  // Developer tools, only when running from source (Run > Start Debugging).
+  // They're never in the published package: out/dev/ is left out of the
+  // .vsix (.vscodeignore, checked in CI), and package.json doesn't list them.
+  if (context.extensionMode === vscode.ExtensionMode.Development) {
+    const { registerDevTools } = require("./dev/devTools") as typeof import("./dev/devTools");
+    context.subscriptions.push(registerDevTools(personal));
+  }
+
   // Anything added here is cleaned up when Mochi shuts down.
   context.subscriptions.push(names, sayHello, open, home, mood, followSpeakUp, focus, timer, surface, ask, explain, stuck, dim, lateNight, python, pythonOffer);
 
