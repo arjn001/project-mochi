@@ -6,10 +6,10 @@ function describe(attachment: Attachment): string {
   switch (attachment.kind) {
     case "selection":
       return `Selected code from ${attachment.label}`;
-    case "errors":
-      return `Errors in ${attachment.label}`;
     case "file":
       return `The open file ${attachment.label}`;
+    case "errorContext":
+      return `Lines ${attachment.from} to ${attachment.to} of ${attachment.label}, with the error on line ${attachment.errorLine}`;
   }
 }
 

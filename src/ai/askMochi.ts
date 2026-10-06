@@ -1,14 +1,17 @@
 // What happens when she asks Mochi something. Plain code with no VS Code
 // dependency, so the whole flow can be unit tested with a fake brain.
 import { Provider } from "./provider";
-import { Ask, Request, throughShareGate } from "./shareGate";
+import { Ask, GatedRequest, Request, throughShareGate } from "./shareGate";
 
 export type Asked =
   // No brain is set up or available. Mochi offers to set one up.
   | { status: "noBrain" }
   // She cancelled at the share gate, or there was nothing to send.
   | { status: "notSent" }
-  | { status: "answer"; text: AsyncIterable<string> };
+  // Something came from a file that usually holds secrets.
+  | { status: "refused"; reason: string }
+  // `request` is what was sent, for follow-ups like a hint (see followUp).
+  | { status: "answer"; text: AsyncIterable<string>; request: GatedRequest };
 
 export async function askMochi(
   request: Request,
@@ -20,11 +23,11 @@ export async function askMochi(
   if (!provider || !(await provider.isAvailable())) {
     return { status: "noBrain" };
   }
-  const gated = await throughShareGate(request, provider.name, askToShare);
-  if (!gated) {
-    return { status: "notSent" };
+  const gate = await throughShareGate(request, provider.name, askToShare);
+  if (gate.status !== "sent") {
+    return gate;
   }
-  return { status: "answer", text: provider.send(gated, instructions, signal) };
+  return { status: "answer", text: provider.send(gate.request, instructions, signal), request: gate.request };
 }
 
 // The one prompt when there's no brain (see DECISIONS.md: no nagging).
