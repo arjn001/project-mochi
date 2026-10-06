@@ -11,16 +11,10 @@ session.
 update isn't listed.*
 
 - **Open pull requests:** none.
-- **In progress:**
-  - MOCHI-28 Set up a Python project: a follow-up pull request for remote
-    setups (SSH, WSL, containers) and multi-root workspaces, stacked on
-    this one.
-  - MOCHI-50 Design the visual identity, by Arjun.
-- **Next:** mark MOCHI-28 Done in Jira once both of its pull requests are
-  merged. Then the next task from "Next" below: MOCHI-53, MOCHI-41, or
-  MOCHI-33.
+- **In progress:** MOCHI-50 Design the visual identity, by Arjun.
+- **Next:** mark MOCHI-28 Done in Jira once this lands on `main`. Then the
+  next task from "Next" below: MOCHI-53, MOCHI-41, or MOCHI-33.
 - **Waiting on:**
-  - Arjun to try Python setup by hand and merge MOCHI-28.
   - Arjun to pick the next task.
   - MOCHI-53 needs a Claude API key to test with (billed per use, separate
     from a Claude subscription).
@@ -28,7 +22,7 @@ update isn't listed.*
     DESIGN.md being finished (MOCHI-50).
 
 **31 of 53 Jira tasks and subtasks done**, counting MOCHI-28. 2 of the 8
-categories are complete. 181 tests (161 unit, 20 integration) run on every
+categories are complete. 185 tests (165 unit, 20 integration) run on every
 pull request.
 
 ## Done
@@ -78,7 +72,8 @@ MOMENTS.md, PRESENCE.md, ARCHITECTURE.md, and BUILD_PLAN.md.
   project on its own, including when she saves her first Python file in an
   empty folder, and steps aside when the Python extension will ask. Never
   in Restricted Mode or during focus, and projects using conda, Pipenv,
-  Poetry, or uv are left alone (MOCHI-28).
+  Poetry, or uv are left alone. Works in remote setups (SSH, WSL,
+  containers) and asks which folder in multi-root workspaces (MOCHI-28).
 
 **Packs and personalization (MOCHI-38), partly done.**
 - Pack format with strict checking for untrusted gifts, night-owl greetings,
