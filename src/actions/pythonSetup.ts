@@ -15,8 +15,11 @@ import {
   blockerMessage,
   countRequirements,
   isMacPlaceholder,
+  isPythonProjectFile,
   parsePythonVersion,
   pythonCandidates,
+  pythonExtensionWillPrompt,
+  shouldLookForPython,
   shouldOffer,
   shouldOfferGitignore,
   venvCommand,
@@ -286,33 +289,64 @@ async function looksLikePython(folder: vscode.WorkspaceFolder, project: Project)
   return (await vscode.workspace.findFiles(new vscode.RelativePattern(folder, "**/*.py"), skip, 1)).length > 0;
 }
 
+// What the watcher remembers while VS Code is open.
+interface Watch {
+  state: vscode.Memento;
+  choose: Choose;
+  isFocusing: () => boolean;
+  // When Mochi last looked for Python and didn't find it.
+  lastMissAt?: number;
+}
+
+async function lookForPython(watch: Watch): Promise<FoundPython | undefined> {
+  if (!shouldLookForPython(watch.lastMissAt, Date.now())) {
+    return undefined;
+  }
+  const python = await findPython();
+  watch.lastMissAt = python ? undefined : Date.now();
+  return python;
+}
+
 // Offers to set up one folder, if it's time. True if Mochi offered.
-async function offerFor(folder: vscode.WorkspaceFolder, state: vscode.Memento, choose: Choose): Promise<boolean> {
-  const offered = state.get<string[]>(OFFERED, []);
+async function offerFor(folder: vscode.WorkspaceFolder, watch: Watch): Promise<boolean> {
+  const offered = watch.state.get<string[]>(OFFERED, []);
+  // Cheapest check first, so saving files in a project Mochi already
+  // offered for costs nothing.
+  if (offered.includes(folder.uri.toString())) {
+    return false;
+  }
   const project = await readProject(folder.uri);
   const check = {
     project,
     speakUp: readSpeakUp(),
-    offeredBefore: offered.includes(folder.uri.toString()),
+    offeredBefore: false,
     looksLikePython: await looksLikePython(folder, project),
+    focusing: watch.isFocusing(),
+    pythonExtensionWillPrompt: pythonExtensionWillPrompt({
+      installed: vscode.extensions.getExtension("ms-python.python") !== undefined,
+      trigger: vscode.workspace.getConfiguration("python", folder.uri).get("createEnvironment.trigger"),
+      topLevel: project.topLevel,
+    }),
   };
   // Everything else first, so Python is only looked for when it matters.
   if (!shouldOffer({ ...check, pythonFound: true })) {
     return false;
   }
-  const python = await findPython();
+  const python = await lookForPython(watch);
   if (!python) {
     return false;
   }
   // Saved before asking, so it's never offered twice, whatever she answers.
-  await state.update(OFFERED, [...offered, folder.uri.toString()]);
-  await offer(setUpAction(folder, python, choose), choose);
+  await watch.state.update(OFFERED, [...offered, folder.uri.toString()]);
+  await offer(setUpAction(folder, python, watch.choose), watch.choose);
   return true;
 }
 
-// Offers once per project when she opens one that needs setting up, and
-// again when she trusts a folder or adds one. One offer at a time.
-export function watchPythonProjects(state: vscode.Memento, choose: Choose): vscode.Disposable {
+// Offers once per project: when she opens one that needs setting up, trusts
+// or adds a folder, or saves a Python file (so a folder that was empty when
+// she opened it still gets the offer). One offer at a time.
+export function watchPythonProjects(state: vscode.Memento, choose: Choose, isFocusing: () => boolean): vscode.Disposable {
+  const watch: Watch = { state, choose, isFocusing };
   let busy = false;
   const check = async () => {
     if (busy) {
@@ -321,10 +355,13 @@ export function watchPythonProjects(state: vscode.Memento, choose: Choose): vsco
     busy = true;
     try {
       for (const folder of vscode.workspace.workspaceFolders ?? []) {
-        if (await offerFor(folder, state, choose)) {
+        if (await offerFor(folder, watch)) {
           break;
         }
       }
+    } catch {
+      // Mochi started this on its own, so a problem (like a folder deleted
+      // mid-check) stays quiet instead of popping up an error.
     } finally {
       busy = false;
     }
@@ -332,6 +369,16 @@ export function watchPythonProjects(state: vscode.Memento, choose: Choose): vsco
   void check();
   return vscode.Disposable.from(
     vscode.workspace.onDidGrantWorkspaceTrust(check),
-    vscode.workspace.onDidChangeWorkspaceFolders(check)
+    vscode.workspace.onDidChangeWorkspaceFolders(check),
+    vscode.workspace.onDidSaveTextDocument((doc) => {
+      if (isPythonProjectFile(doc.fileName)) {
+        void check();
+      }
+    }),
+    vscode.workspace.onDidCreateFiles((event) => {
+      if (event.files.some((file) => isPythonProjectFile(file.path))) {
+        void check();
+      }
+    })
   );
 }

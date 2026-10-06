@@ -5,6 +5,10 @@ import {
   blocker,
   blockerMessage,
   countRequirements,
+  createFailedMessage,
+  isPythonProjectFile,
+  pythonExtensionWillPrompt,
+  shouldLookForPython,
   isMacPlaceholder,
   parsePythonVersion,
   pythonCandidates,
@@ -31,6 +35,8 @@ const offerCheck = (overrides: Partial<OfferCheck> = {}): OfferCheck => ({
   offeredBefore: false,
   looksLikePython: true,
   pythonFound: true,
+  focusing: false,
+  pythonExtensionWillPrompt: false,
   ...overrides,
 });
 
@@ -106,8 +112,42 @@ describe("setting up a Python project", () => {
       assert.strictEqual(shouldOffer(offerCheck({ pythonFound: false })), false);
     });
 
+    it("waits while she's in a focus session", () => {
+      assert.strictEqual(shouldOffer(offerCheck({ focusing: true })), false);
+    });
+
+    it("looks again when she saves a Python file, so an empty folder filled later still gets the offer", () => {
+      assert.ok(isPythonProjectFile("/Users/her/homework/hello.py"));
+      assert.ok(isPythonProjectFile("C:\\Users\\her\\homework\\requirements.txt"));
+      assert.ok(isPythonProjectFile("pyproject.toml"));
+      assert.ok(!isPythonProjectFile("notes.md"));
+    });
+
+    it("waits 10 minutes before looking for Python again after not finding it", () => {
+      const minute = 60_000;
+      assert.ok(shouldLookForPython(undefined, 0));
+      assert.ok(!shouldLookForPython(0, 9 * minute));
+      assert.ok(shouldLookForPython(0, 10 * minute));
+    });
+
     it("doesn't offer when there's already an environment", () => {
       assert.strictEqual(shouldOffer(offerCheck({ project: project({ envFolders: ["venv"] }) })), false);
+    });
+  });
+
+  describe("the Python extension", () => {
+    const ext = { installed: true, trigger: "prompt", topLevel: ["main.py", "requirements.txt"] };
+
+    it("steps aside when the Python extension will offer the same thing", () => {
+      assert.strictEqual(pythonExtensionWillPrompt(ext), true);
+      assert.strictEqual(pythonExtensionWillPrompt({ ...ext, topLevel: ["main.py", "requirements-dev.txt"] }), true);
+      assert.strictEqual(shouldOffer(offerCheck({ pythonExtensionWillPrompt: true })), false);
+    });
+
+    it("still offers when the Python extension won't", () => {
+      assert.strictEqual(pythonExtensionWillPrompt({ ...ext, installed: false }), false);
+      assert.strictEqual(pythonExtensionWillPrompt({ ...ext, trigger: "off" }), false);
+      assert.strictEqual(pythonExtensionWillPrompt({ ...ext, topLevel: ["main.py"] }), false, "It only prompts for requirements files.");
     });
   });
 
@@ -132,6 +172,11 @@ describe("setting up a Python project", () => {
       assert.strictEqual(withVenvIgnored(undefined), ".venv/\n");
       assert.strictEqual(withVenvIgnored("node_modules/\n"), "node_modules/\n.venv/\n");
       assert.strictEqual(withVenvIgnored("node_modules/"), "node_modules/\n.venv/\n");
+    });
+
+    it("keeps Windows line endings", () => {
+      assert.strictEqual(withVenvIgnored("node_modules/\r\n"), "node_modules/\r\n.venv/\r\n");
+      assert.strictEqual(withVenvIgnored("a\r\nb"), "a\r\nb\r\n.venv/\r\n");
     });
   });
 
@@ -167,6 +212,11 @@ describe("setting up a Python project", () => {
         "Your Python project is all set up in .venv! Next time you can do this yourself with python3 -m venv .venv"
       );
       assert.strictEqual(venvCommand({ command: "py", args: ["-3"] }), "py -3 -m venv .venv");
+    });
+
+    it("names the likely cause on Linux when creating .venv fails", () => {
+      assert.match(createFailedMessage("linux"), /python3-venv/);
+      assert.doesNotMatch(createFailedMessage("darwin"), /python3-venv/);
     });
 
     it("counts the packages in requirements.txt, not comments or options", () => {

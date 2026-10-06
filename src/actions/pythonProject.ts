@@ -74,6 +74,10 @@ export interface OfferCheck {
   // Has .py files, requirements.txt, or pyproject.toml.
   looksLikePython: boolean;
   pythonFound: boolean;
+  // A focus session she started. The offer waits until it ends.
+  focusing: boolean;
+  // The Python extension will ask about the same thing, so Mochi steps aside.
+  pythonExtensionWillPrompt: boolean;
 }
 
 // Whether Mochi offers on its own to set up this project.
@@ -82,9 +86,43 @@ export function shouldOffer(check: OfferCheck): boolean {
     check.looksLikePython &&
     check.pythonFound &&
     !check.offeredBefore &&
+    !check.focusing &&
+    !check.pythonExtensionWillPrompt &&
     blocker(check.project) === undefined &&
     maySpeak({ place: "nudge" }, check.speakUp)
   );
+}
+
+export interface PythonExtension {
+  installed: boolean;
+  // Its python.createEnvironment.trigger setting: "prompt" (the default) or
+  // "off".
+  trigger: unknown;
+  // The names of the files at the top of the project.
+  topLevel: string[];
+}
+
+// Whether Microsoft's Python extension will offer to create an environment
+// itself. Checked against its code (version 2026.6.0): it prompts when its
+// trigger isn't "off" and the project has a requirements file (and, like
+// Mochi, no environment and no other tool).
+export function pythonExtensionWillPrompt(ext: PythonExtension): boolean {
+  return ext.installed && ext.trigger !== "off" && ext.topLevel.some((name) => /^requirements.*\.txt$/i.test(name));
+}
+
+// Saving one of these makes Mochi look again, so a folder that was empty
+// when she opened it still gets the offer once she starts writing Python.
+export function isPythonProjectFile(fileName: string): boolean {
+  const name = fileName.split(/[\\/]/).pop() ?? "";
+  return name.endsWith(".py") || name === "requirements.txt" || name === "pyproject.toml";
+}
+
+// After not finding Python, Mochi waits this long before looking again, so
+// saving a file doesn't start a program every time.
+export const PYTHON_RECHECK_MS = 10 * 60_000;
+
+export function shouldLookForPython(lastMissAt: number | undefined, now: number): boolean {
+  return lastMissAt === undefined || now - lastMissAt >= PYTHON_RECHECK_MS;
 }
 
 // How to run Python on her system, in the order Mochi tries them.
@@ -157,9 +195,16 @@ export function shouldOfferGitignore(check: GitignoreCheck): boolean {
   return check.inGitRepo && !check.ignored && !venvIgnoresItself(check.version);
 }
 
-// .gitignore with .venv/ added at the end, on its own line.
+// .gitignore with .venv/ added at the end, on its own line, keeping the
+// file's own line endings (Windows files often use \r\n).
 export function withVenvIgnored(existing: string | undefined): string {
   const before = existing ?? "";
-  const gap = before === "" || before.endsWith("\n") ? "" : "\n";
-  return `${before}${gap}${VENV}/\n`;
+  const eol = before.includes("\r\n") ? "\r\n" : "\n";
+  const gap = before === "" || before.endsWith("\n") ? "" : eol;
+  return `${before}${gap}${VENV}/${eol}`;
 }
+
+// What to say when creating .venv fails. On Linux (including WSL), the
+// usual reason is a missing python3-venv package.
+export const createFailedMessage = (platform: string) =>
+  platform === "linux" ? pythonStrings.createFailedLinux : pythonStrings.createFailed;
