@@ -63,6 +63,14 @@
   errors, and a gentle corner nudge for key moments. Both stay silent in
   quiet mode.
 
+## Noticing when she's stuck
+- An error is "offered once" per VS Code session: Mochi remembers it in
+  memory only, and never saves anything about her code to disk.
+- Why: private by default, and if the same error is still there a day later,
+  a fresh offer is helpful, not nagging.
+- An error is identified by its message plus the code on and around its line,
+  never by line number, so an error that moves isn't offered again.
+
 ## Building and packaging
 - Mochi is packaged into a `.vsix` with `npm run package`. Source code
   (`src/`) and compiled tests (`out/test/`) never go into the package, and CI

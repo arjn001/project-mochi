@@ -102,6 +102,9 @@ The default lines are in `packs/default/pack.json` (format in PACKS.md).
   fix?" offers the next steps, only when she picks them. The answer shows in
   the "Mochi" output panel without taking focus from her editor, until the
   panel chat exists.
+- **Code hint:** plain "Need a paw?" in italics at the end of the error's
+  line, with no emoji (they look different on every system). Its hover
+  offers "Explain with Mochi".
 - **No brain yet:** one gentle line, only when she asks something: "I'd need a
   brain to answer that. Want to set one up?" with a "Set one up" button. No
   other nagging.

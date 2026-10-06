@@ -16,10 +16,16 @@ her click.
 - **Never:** a wall of text, a list of tips, or guilt about time away.
 
 ## Stuck on errors
-- **Trigger:** errors stay in a file for 2 minutes without getting fewer.
-- **What Mochi does:** offers help once, softly ("want me to take a look?").
-  After that it doesn't offer again for those errors and waits for her to ask.
-- **Never:** say she's wrong, keep offering, or read her code without a click.
+- **Trigger:** an error (not a warning) stays in the file she's editing for 2
+  minutes, while she's actively typing in it.
+- **What Mochi does:** shows a soft "Need a paw?" at the end of the error's
+  line. Hovering it offers "Explain with Mochi", which explains on the
+  learning ladder: explain first, then a hint or the fix only if she asks.
+- **Offered once per session:** an error is known by its message and the code
+  around it, so it isn't offered again even if it moves. Nothing about her
+  code is saved to disk.
+- **Never:** in quiet mode, on warnings, in other files, say she's wrong,
+  keep offering, or read her code without a click.
 
 ## Coding late
 - **Trigger:** she's typing after the late hour, a setting that's 23:00 by
