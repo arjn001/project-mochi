@@ -4,6 +4,7 @@
 // Packs can come from strangers (gift files, later community packs), so
 // checking is strict: unknown fields are rejected, every text has a length
 // limit, and phrases may only use known placeholders.
+import { packStrings } from "../strings";
 
 export const PACK_FORMAT = 1;
 
@@ -28,7 +29,11 @@ const PLACEHOLDERS: Record<Moment, readonly string[]> = {
 
 export const LIMITS = {
   name: 30,
+  // Only complete packs that ship with Mochi set the personality.
   personality: 2000,
+  // A layer's style notes are untrusted (a gift becomes the personal layer)
+  // and reach the AI, so they're kept short.
+  style: 400,
   phrase: 200,
   phrasesPerMoment: 20,
 };
@@ -37,7 +42,9 @@ export const LIMITS = {
 export interface Pack {
   format: typeof PACK_FORMAT;
   name: string;
-  voice: { personality: string };
+  // personality ships with the pack. style comes from a personal layer: tone
+  // and style notes only, framed to the AI as data (see ai/instructions.ts).
+  voice: { personality: string; style?: string };
   phrases: Record<Moment, string[]>;
   // Her name, from the personal layer. The default pack never sets it.
   user?: { name?: string };
@@ -48,7 +55,7 @@ export interface Pack {
 export interface PackLayer {
   format: typeof PACK_FORMAT;
   name?: string;
-  voice?: { personality?: string };
+  voice?: { personality?: string; style?: string };
   phrases?: Partial<Record<Moment, string[]>>;
   user?: { name?: string };
 }
@@ -66,6 +73,11 @@ function onlyKeys(obj: Record<string, unknown>, allowed: readonly string[], wher
   }
 }
 
+// Invisible characters that flip the direction of the text after them, so
+// text can display differently from what it really says. The marks used in
+// right-to-left names (U+200E, U+200F) are fine.
+export const TEXT_DIRECTION = /[\u202A-\u202E\u2066-\u2069]/;
+
 function checkText(value: unknown, max: number, where: string, errors: string[]): void {
   if (typeof value !== "string" || value.trim() === "") {
     errors.push(`${where} must be some text.`);
@@ -73,6 +85,8 @@ function checkText(value: unknown, max: number, where: string, errors: string[])
     errors.push(`${where} is ${value.length} characters, more than the ${max} allowed.`);
   } else if (/[\u0000-\u0008\u000B-\u001F\u007F]/.test(value)) {
     errors.push(`${where} contains hidden control characters.`);
+  } else if (TEXT_DIRECTION.test(value)) {
+    errors.push(packStrings.textDirection(where));
   }
 }
 
@@ -113,9 +127,12 @@ export function checkLayer(input: unknown): Checked<PackLayer> {
     if (!isObject(input.voice)) {
       errors.push('"voice" must be an object.');
     } else {
-      onlyKeys(input.voice, ["personality"], '"voice"', errors);
+      onlyKeys(input.voice, ["personality", "style"], '"voice"', errors);
       if (input.voice.personality !== undefined) {
         checkText(input.voice.personality, LIMITS.personality, '"voice.personality"', errors);
+      }
+      if (input.voice.style !== undefined) {
+        checkText(input.voice.style, LIMITS.style, '"voice.style"', errors);
       }
     }
   }
@@ -180,13 +197,27 @@ export function checkPack(input: unknown): Checked<Pack> {
   return errors.length ? { ok: false, errors } : { ok: true, value: layer.value as Pack };
 }
 
+// Checks a personal layer, or a gift that will become one. These come from
+// people, not from Mochi, so they can add style notes but never replace
+// Mochi's personality.
+export function checkPersonalLayer(input: unknown): Checked<PackLayer> {
+  const layer = checkLayer(input);
+  if (layer.ok && layer.value.voice?.personality !== undefined) {
+    return { ok: false, errors: [packStrings.noPersonality] };
+  }
+  return layer;
+}
+
 // Lays a layer over a pack. Whatever the layer sets wins; for phrases, a
 // moment's whole list is replaced, so her own lines never mix with defaults.
 export function layerOver(base: Pack, layer: PackLayer): Pack {
   return {
     format: PACK_FORMAT,
     name: layer.name ?? base.name,
-    voice: { personality: layer.voice?.personality ?? base.voice.personality },
+    voice: {
+      personality: layer.voice?.personality ?? base.voice.personality,
+      style: layer.voice?.style ?? base.voice.style,
+    },
     phrases: { ...base.phrases, ...layer.phrases } as Record<Moment, string[]>,
     user: layer.user ?? base.user,
   };

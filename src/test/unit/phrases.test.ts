@@ -51,6 +51,14 @@ describe("phrases", () => {
   });
 
   describe("her name", () => {
+    it("is filled in once, as plain text, even if it looks like a placeholder", () => {
+      const evening = new Date(2026, 9, 5, 19, 0);
+      for (const name of ["{name}", "{thing}", "{timeOfDay}", "{companion}"]) {
+        const named = layerOver(pack, { format: 1, user: { name }, phrases: { greeting: ["Good {timeOfDay}, {name}!", "Hi!"] } });
+        assert.strictEqual(greeting(named, evening, () => 0), `Good evening, ${name}!`);
+      }
+    });
+
     it("is never used, or left as {name}, when no name is set", () => {
       for (const time of [at(9), at(23, 30)]) {
         for (const line of everyPick((random) => greeting(pack, time, random))) {

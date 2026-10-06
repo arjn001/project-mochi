@@ -5,6 +5,13 @@
 // Sentences written before this rule still live in their own files; they
 // move here as part of MOCHI-63.
 
+// Why a pack, personal layer, or gift was rejected.
+export const packStrings = {
+  noPersonality:
+    'A personal layer can\'t replace Mochi\'s personality. Use "voice.style" for tone and style notes instead.',
+  textDirection: (where: string) => `${where} contains invisible characters that change the direction of the text.`,
+};
+
 export const pythonStrings = {
   noFolder: "Open your project folder first, and I'll set it up.",
   openFolder: "Open Folder",
