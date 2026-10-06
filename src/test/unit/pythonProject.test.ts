@@ -5,16 +5,16 @@ import {
   blocker,
   blockerMessage,
   countRequirements,
-  doneMessage,
-  installQuestion,
   isMacPlaceholder,
   parsePythonVersion,
   pythonCandidates,
   shouldOffer,
   shouldOfferGitignore,
+  venvCommand,
   venvPython,
   withVenvIgnored,
 } from "../../actions/pythonProject";
+import { pythonStrings } from "../../strings";
 
 // A trusted project with Python files and nothing set up yet.
 const project = (overrides: Partial<Project> = {}): Project => ({
@@ -163,10 +163,10 @@ describe("setting up a Python project", () => {
   describe("what Mochi says", () => {
     it("teaches the command that matches her system", () => {
       assert.strictEqual(
-        doneMessage({ command: "python3", args: [] }),
+        pythonStrings.done(venvCommand({ command: "python3", args: [] })),
         "Your Python project is all set up in .venv! Next time you can do this yourself with python3 -m venv .venv"
       );
-      assert.match(doneMessage({ command: "py", args: ["-3"] }), /with py -3 -m venv \.venv$/);
+      assert.strictEqual(venvCommand({ command: "py", args: ["-3"] }), "py -3 -m venv .venv");
     });
 
     it("counts the packages in requirements.txt, not comments or options", () => {
@@ -176,8 +176,8 @@ describe("setting up a Python project", () => {
     });
 
     it("asks before installing, with the number of packages", () => {
-      assert.strictEqual(installQuestion(3), "This project lists 3 packages in requirements.txt. Install them too?");
-      assert.strictEqual(installQuestion(1), "This project lists 1 package in requirements.txt. Install it too?");
+      assert.strictEqual(pythonStrings.installQuestion(3), "This project lists 3 packages in requirements.txt. Install them too?");
+      assert.strictEqual(pythonStrings.installQuestion(1), "This project lists 1 package in requirements.txt. Install it too?");
     });
   });
 });

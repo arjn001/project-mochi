@@ -5,6 +5,7 @@
 // Installing requirements.txt downloads and runs code she didn't directly
 // ask for, so Mochi asks first. Same for changing .gitignore.
 import { maySpeak } from "../moments/gatekeeper";
+import { pythonStrings } from "../strings";
 
 // Where Mochi creates the virtual environment. The standard name, which the
 // Python extension finds on its own.
@@ -53,34 +54,15 @@ export function blocker(project: Project): Blocker | undefined {
   return undefined;
 }
 
-export const pythonTexts = {
-  noFolder: "Open your project folder first, and I'll set it up.",
-  untrusted:
-    "This folder is in Restricted Mode, so I won't run anything in it. If you trust it, you can change that, and then I'd love to help.",
-  manageTrust: "Manage Workspace Trust",
-  noPython: "I couldn't find Python on this computer. Want to install it?",
-  getPython: "Get Python",
-  offer:
-    "This looks like a Python project. Want me to set up a virtual environment? It keeps this project's packages in their own box.",
-  offerYes: "Set it up",
-  creating: `Setting up a virtual environment in ${VENV}...`,
-  createFailed: `Hmm, setting up ${VENV} didn't work. The terminal shows what happened.`,
-  installYes: "Install",
-  installing: "Installing the packages from requirements.txt...",
-  installFailed: "Some packages didn't install. The terminal shows what happened.",
-  gitignore: `This project uses git. Want me to add ${VENV} to .gitignore, so it stays out of your commits?`,
-  gitignoreYes: "Add it",
-};
-
 // What Mochi says instead of setting up.
 export function blockerMessage(b: Blocker): string {
   switch (b.kind) {
     case "untrusted":
-      return pythonTexts.untrusted;
+      return pythonStrings.untrusted;
     case "otherTool":
-      return `This project uses ${b.tool} (I spotted ${b.file}), so I'll let ${b.tool} handle its environment.`;
+      return pythonStrings.otherTool(b.tool, b.file);
     case "hasEnvironment":
-      return `This project already has a virtual environment (${b.folder}). You're all set!`;
+      return pythonStrings.hasEnvironment(b.folder);
   }
 }
 
@@ -147,9 +129,6 @@ export function venvCommand(python: PythonCommand): string {
   return [python.command, ...python.args, "-m", "venv", VENV].join(" ");
 }
 
-export const doneMessage = (python: PythonCommand) =>
-  `Your Python project is all set up in ${VENV}! Next time you can do this yourself with ${venvCommand(python)}`;
-
 // The venv's own Python, inside .venv.
 export function venvPython(platform: string): string[] {
   return platform === "win32" ? [VENV, "Scripts", "python.exe"] : [VENV, "bin", "python"];
@@ -163,11 +142,6 @@ export function countRequirements(text: string): number {
     .map((line) => line.replace(/(^|\s)#.*$/, "").trim())
     .filter((line) => line !== "" && (!line.startsWith("-") || /^(-e|--editable)\s/.test(line))).length;
 }
-
-export const installQuestion = (count: number) =>
-  count === 1
-    ? "This project lists 1 package in requirements.txt. Install it too?"
-    : `This project lists ${count} packages in requirements.txt. Install them too?`;
 
 // Python 3.13 and newer put a .gitignore inside .venv, so it ignores itself.
 export const venvIgnoresItself = (v: Version) => v.major > 3 || (v.major === 3 && v.minor >= 13);

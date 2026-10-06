@@ -3,6 +3,7 @@ import * as fs from "node:fs";
 import * as path from "node:path";
 import * as vscode from "vscode";
 import { readSpeakUp } from "../settings";
+import { pythonStrings } from "../strings";
 import { Choose, UNDO, Undo, defineAction, offer } from "./confirm";
 import {
   ENV_FOLDERS,
@@ -13,14 +14,12 @@ import {
   blocker,
   blockerMessage,
   countRequirements,
-  doneMessage,
-  installQuestion,
   isMacPlaceholder,
   parsePythonVersion,
   pythonCandidates,
-  pythonTexts,
   shouldOffer,
   shouldOfferGitignore,
+  venvCommand,
   venvPython,
   withVenvIgnored,
 } from "./pythonProject";
@@ -141,16 +140,16 @@ async function offerInstall(folder: vscode.WorkspaceFolder, choose: Choose): Pro
   }
   const python = path.join(folder.uri.fsPath, ...venvPython(process.platform));
   const install = defineAction({
-    question: installQuestion(count),
-    yes: pythonTexts.installYes,
+    question: pythonStrings.installQuestion(count),
+    yes: pythonStrings.installYes,
     // No Undo here, so offer() never shows a done message.
     done: "",
     act: async () => {
-      const ok = await withProgress(pythonTexts.installing, () =>
+      const ok = await withProgress(pythonStrings.installing, () =>
         runStep(folder, "Install packages", python, ["-m", "pip", "install", "-r", "requirements.txt"])
       );
       if (!ok) {
-        void vscode.window.showWarningMessage(pythonTexts.installFailed);
+        void vscode.window.showWarningMessage(pythonStrings.installFailed);
       }
       return undefined;
     },
@@ -169,8 +168,8 @@ async function offerGitignore(folder: vscode.WorkspaceFolder, version: Version, 
   }
   const file = vscode.Uri.joinPath(folder.uri, ".gitignore");
   const ignore = defineAction({
-    question: pythonTexts.gitignore,
-    yes: pythonTexts.gitignoreYes,
+    question: pythonStrings.gitignore,
+    yes: pythonStrings.gitignoreYes,
     // No Undo here, so offer() never shows a done message.
     done: "",
     act: async () => {
@@ -187,11 +186,11 @@ async function offerGitignore(folder: vscode.WorkspaceFolder, version: Version, 
 // Creates .venv, then offers the packages and .gitignore. Returns how to
 // undo it, or undefined if creating .venv didn't work.
 async function setUp(folder: vscode.WorkspaceFolder, python: FoundPython, choose: Choose): Promise<Undo | undefined> {
-  const created = await withProgress(pythonTexts.creating, () =>
+  const created = await withProgress(pythonStrings.creating, () =>
     runStep(folder, `Create ${VENV}`, python.command, [...python.args, "-m", "venv", VENV])
   );
   if (!created) {
-    void vscode.window.showWarningMessage(pythonTexts.createFailed);
+    void vscode.window.showWarningMessage(pythonStrings.createFailed);
     return undefined;
   }
   await offerInstall(folder, choose);
@@ -203,7 +202,7 @@ async function setUp(folder: vscode.WorkspaceFolder, python: FoundPython, choose
 }
 
 async function tellNoPython(): Promise<void> {
-  if ((await vscode.window.showInformationMessage(pythonTexts.noPython, pythonTexts.getPython)) === pythonTexts.getPython) {
+  if ((await vscode.window.showInformationMessage(pythonStrings.noPython, pythonStrings.getPython)) === pythonStrings.getPython) {
     await vscode.env.openExternal(vscode.Uri.parse("https://www.python.org/downloads/"));
   }
 }
@@ -213,7 +212,7 @@ async function tellBlocked(message: string, untrusted: boolean): Promise<void> {
     void vscode.window.showInformationMessage(message);
     return;
   }
-  if ((await vscode.window.showInformationMessage(message, pythonTexts.manageTrust)) === pythonTexts.manageTrust) {
+  if ((await vscode.window.showInformationMessage(message, pythonStrings.manageTrust)) === pythonStrings.manageTrust) {
     await vscode.commands.executeCommand("workbench.trust.manage");
   }
 }
@@ -232,7 +231,7 @@ export async function setUpPython(folder: vscode.WorkspaceFolder, choose: Choose
     return;
   }
   const undo = await setUp(folder, python, choose);
-  if (undo && (await choose(doneMessage(python), [UNDO])) === UNDO) {
+  if (undo && (await choose(pythonStrings.done(venvCommand(python)), [UNDO])) === UNDO) {
     await undo();
   }
 }
@@ -240,9 +239,9 @@ export async function setUpPython(folder: vscode.WorkspaceFolder, choose: Choose
 // When Mochi offers on its own, it asks first, like every action.
 export function setUpAction(folder: vscode.WorkspaceFolder, python: FoundPython, choose: Choose) {
   return defineAction({
-    question: pythonTexts.offer,
-    yes: pythonTexts.offerYes,
-    done: doneMessage(python),
+    question: pythonStrings.offer,
+    yes: pythonStrings.offerYes,
+    done: pythonStrings.done(venvCommand(python)),
     act: () => setUp(folder, python, choose),
   });
 }
@@ -261,11 +260,11 @@ export function registerPythonSetup(choose: Choose): vscode.Disposable {
   return vscode.commands.registerCommand("mochi.setUpPython", async () => {
     // Checked first, so Restricted Mode never even looks for a folder to run in.
     if (!vscode.workspace.isTrusted) {
-      void tellBlocked(pythonTexts.untrusted, true);
+      void tellBlocked(pythonStrings.untrusted, true);
       return;
     }
     if (!vscode.workspace.workspaceFolders?.length) {
-      void vscode.window.showInformationMessage(pythonTexts.noFolder);
+      void vscode.window.showInformationMessage(pythonStrings.noFolder);
       return;
     }
     const folder = await pickFolder();
