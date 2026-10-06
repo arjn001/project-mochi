@@ -65,7 +65,7 @@ export const pythonTexts = {
   offerYes: "Set it up",
   creating: `Setting up a virtual environment in ${VENV}...`,
   createFailed: `Hmm, setting up ${VENV} didn't work. The terminal shows what happened.`,
-  installYes: "Install them",
+  installYes: "Install",
   installing: "Installing the packages from requirements.txt...",
   installFailed: "Some packages didn't install. The terminal shows what happened.",
   gitignore: `This project uses git. Want me to add ${VENV} to .gitignore, so it stays out of your commits?`,
