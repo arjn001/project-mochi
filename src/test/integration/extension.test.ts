@@ -196,6 +196,33 @@ describe("Mochi in VS Code", () => {
     });
   });
 
+  describe("the greeting when VS Code opens", () => {
+    const settings = () => vscode.workspace.getConfiguration("mochi");
+    async function greeter() {
+      return ((await vscode.extensions.getExtension<MochiApi>("arjungyawali.mochi-companion")!.activate()) as MochiApi)
+        .greeter!;
+    }
+
+    afterEach(async () => settings().update("speakUp", undefined, vscode.ConfigurationTarget.Global));
+
+    it("says hello, with no project line when no folder is open", async () => {
+      const text = await (await greeter()).greet({ force: true });
+      assert.match(text ?? "", /^(Meow, good|Good|Hi)/);
+      assert.doesNotMatch(text ?? "", /Back to|Picking up/);
+    });
+
+    it("greets only once a day, across windows", async () => {
+      const g = await greeter();
+      await g.greet();
+      assert.strictEqual(await g.greet(), undefined, "Already greeted today.");
+    });
+
+    it("never greets on its own in quiet mode", async () => {
+      await settings().update("speakUp", "quiet", vscode.ConfigurationTarget.Global);
+      assert.strictEqual(await (await greeter()).greet(), undefined);
+    });
+  });
+
   describe("focus session", () => {
     const settings = () => vscode.workspace.getConfiguration("mochi");
 

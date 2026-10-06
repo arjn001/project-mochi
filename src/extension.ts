@@ -25,9 +25,11 @@ import { onSpeakUpChange, readSpeakUp } from "./settings";
 // mood line says, since VS Code doesn't let tests read the status bar.
 export interface MochiApi {
   moodText(): string;
-  // Her personal layer, only in the integration tests (Test mode). Other
-  // extensions can read Mochi's exports, so it's never handed out otherwise.
+  // Her personal layer and the greeter, only in the integration tests (Test
+  // mode). Other extensions can read Mochi's exports, so they're never
+  // handed out otherwise.
   personal?: PersonalLayer;
+  greeter?: Greeter;
 }
 
 // VS Code calls this once, after it finishes starting up.
@@ -109,6 +111,7 @@ export function activate(context: vscode.ExtensionContext): MochiApi {
   return {
     moodText: () => mood.text,
     personal: context.extensionMode === vscode.ExtensionMode.Test ? personal : undefined,
+    greeter: context.extensionMode === vscode.ExtensionMode.Test ? greeter : undefined,
   };
 }
 
