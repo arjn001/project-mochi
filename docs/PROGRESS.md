@@ -11,9 +11,14 @@ session.
 update isn't listed.*
 
 - **Open pull requests:** none.
-- **In progress:** MOCHI-50 Design the visual identity, by Arjun.
-- **Next:** mark MOCHI-28 Done in Jira once it's merged. Then the next task
-  from "Next" below: MOCHI-53, MOCHI-41, or MOCHI-33.
+- **In progress:**
+  - MOCHI-28 Set up a Python project: a follow-up pull request for remote
+    setups (SSH, WSL, containers) and multi-root workspaces, stacked on
+    this one.
+  - MOCHI-50 Design the visual identity, by Arjun.
+- **Next:** mark MOCHI-28 Done in Jira once both of its pull requests are
+  merged. Then the next task from "Next" below: MOCHI-53, MOCHI-41, or
+  MOCHI-33.
 - **Waiting on:**
   - Arjun to try Python setup by hand and merge MOCHI-28.
   - Arjun to pick the next task.
@@ -22,8 +27,8 @@ update isn't listed.*
   - The panel work (MOCHI-16, MOCHI-17, MOCHI-21, MOCHI-25) waits on
     DESIGN.md being finished (MOCHI-50).
 
-**31 of 49 Jira tasks and subtasks done**, counting MOCHI-28. 2 of the 8
-categories are complete. 174 tests (154 unit, 20 integration) run on every
+**31 of 53 Jira tasks and subtasks done**, counting MOCHI-28. 2 of the 8
+categories are complete. 181 tests (161 unit, 20 integration) run on every
 pull request.
 
 ## Done
@@ -70,8 +75,10 @@ MOMENTS.md, PRESENCE.md, ARCHITECTURE.md, and BUILD_PLAN.md.
   `.venv` in the terminal panel, then asks before installing
   `requirements.txt` or adding `.venv` to `.gitignore`, and ends with the
   command to do it herself next time, plus Undo. Mochi also offers once per
-  project on its own. Never in Restricted Mode, and projects using conda,
-  Pipenv, Poetry, or uv are left alone (MOCHI-28).
+  project on its own, including when she saves her first Python file in an
+  empty folder, and steps aside when the Python extension will ask. Never
+  in Restricted Mode or during focus, and projects using conda, Pipenv,
+  Poetry, or uv are left alone (MOCHI-28).
 
 **Packs and personalization (MOCHI-38), partly done.**
 - Pack format with strict checking for untrusted gifts, night-owl greetings,
@@ -103,7 +110,10 @@ Work that doesn't need the panel, for Arjun to order:
    it shows before then needs deciding.
 
 Then:
-4. **After DESIGN.md is finished:** MOCHI-17, MOCHI-16, MOCHI-21, then
+4. **Before publishing (Release):** MOCHI-60 Windows and macOS in CI,
+   MOCHI-61 "Mochi: Report a problem", MOCHI-62 decide on web support, and
+   MOCHI-63 localization.
+5. **After DESIGN.md is finished:** MOCHI-17, MOCHI-16, MOCHI-21, then
    MOCHI-25 (streaming in the chat). The early preview for her comes after
    Milestone 3, with the default pack only.
 
@@ -118,6 +128,11 @@ Then:
   MOCHI-30's answer shows in the panel; it's the output panel for now.
 - Mochi now runs in Restricted Mode, in a limited way (MOCHI-28). Anything
   new that runs a program in her folder must check workspace trust first.
+- Every new sentence goes in `src/strings.ts` or the pack. Older sentences
+  still inline in code (focus, explaining, asking, late night) move there in
+  MOCHI-63.
+- Plans follow the checklist in CLAUDE.md (her journeys, changes over time,
+  other systems and setups, failures, a fresh-user test).
 - No bundling yet; add esbuild with the first runtime dependency.
 - No license yet (MOCHI-59). Leaning: MIT for code, Mochi's name, icons, and
   art all rights reserved. Packaging uses `--skip-license` until then.
