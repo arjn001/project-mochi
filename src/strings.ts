@@ -5,6 +5,22 @@
 // Sentences written before this rule still live in their own files; they
 // move here as part of MOCHI-63.
 
+// Her personal layer: her name and her own touches.
+export const personalStrings = {
+  unreadable:
+    "I couldn't load your personal touches, so I'm my usual self for now. They're kept safe, not deleted.",
+  askName: "What should I call you?",
+  askNamePlaceholder: "Your name or a nickname",
+  nameEmpty: "Type a name, or press Escape to keep things as they are.",
+  nameTooLong: (max: number) => `That's a little long. Up to ${max} characters, please.`,
+  nameOneLine: "Just one line, please.",
+  nameHidden: "That has hidden characters in it. Could you type it again?",
+  // `name` is shown as plain text, exactly as she typed it.
+  niceToMeet: (name: string) => `Nice to meet you, ${name}! I'll use your name when I say hello.`,
+  forgotName: "Okay, I've forgotten your name. You can tell me again anytime.",
+  noNameYet: "I don't know your name yet, so there's nothing to forget.",
+};
+
 // Why a pack, personal layer, or gift was rejected.
 export const packStrings = {
   noPersonality:
