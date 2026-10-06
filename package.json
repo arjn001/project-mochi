@@ -18,6 +18,12 @@
   "activationEvents": [
     "onStartupFinished"
   ],
+  "capabilities": {
+    "untrustedWorkspaces": {
+      "supported": "limited",
+      "description": "In Restricted Mode, Mochi never runs anything in the folder, like setting up a Python project."
+    }
+  },
   "main": "./out/extension.js",
   "contributes": {
     "viewsContainers": {
@@ -70,6 +76,11 @@
         "category": "Mochi"
       },
       {
+        "command": "mochi.setUpPython",
+        "title": "Set up a Python project",
+        "category": "Mochi"
+      },
+      {
         "command": "mochi.focus",
         "title": "Start a focus session",
         "category": "Mochi"
@@ -113,6 +124,20 @@
         }
       ]
     },
+    "taskDefinitions": [
+      {
+        "type": "mochi",
+        "required": [
+          "step"
+        ],
+        "properties": {
+          "step": {
+            "type": "string",
+            "description": "Which setup step Mochi is running."
+          }
+        }
+      }
+    ],
     "configuration": {
       "title": "Mochi",
       "properties": {
