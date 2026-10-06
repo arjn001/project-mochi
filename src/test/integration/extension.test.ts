@@ -53,6 +53,37 @@ describe("Mochi in VS Code", () => {
     });
   });
 
+  describe("explaining", () => {
+    const diagnostics = vscode.languages.createDiagnosticCollection("mochi-test");
+    afterEach(() => diagnostics.clear());
+
+    async function lightbulbFor(severity: vscode.DiagnosticSeverity): Promise<string[]> {
+      const doc = await vscode.workspace.openTextDocument({ content: "x = 1\nprint(y)\n", language: "python" });
+      const range = new vscode.Range(1, 6, 1, 7);
+      diagnostics.set(doc.uri, [new vscode.Diagnostic(range, "NameError: name 'y' is not defined", severity)]);
+      const actions = await vscode.commands.executeCommand<vscode.CodeAction[]>(
+        "vscode.executeCodeActionProvider",
+        doc.uri,
+        range
+      );
+      return (actions ?? []).map((a) => a.title);
+    }
+
+    it("registers the explain commands", async () => {
+      const commands = await vscode.commands.getCommands(true);
+      assert.ok(commands.includes("mochi.explainError"));
+      assert.ok(commands.includes("mochi.explainSelection"));
+    });
+
+    it("offers Explain with Mochi in the lightbulb next to an error", async () => {
+      assert.ok((await lightbulbFor(vscode.DiagnosticSeverity.Error)).includes("Explain with Mochi"));
+    });
+
+    it("doesn't offer it for warnings", async () => {
+      assert.ok(!(await lightbulbFor(vscode.DiagnosticSeverity.Warning)).includes("Explain with Mochi"));
+    });
+  });
+
   describe("dimming the theme", () => {
     const workbench = () => vscode.workspace.getConfiguration("workbench");
     const theme = () => workbench().inspect<string>("colorTheme")?.globalValue;
