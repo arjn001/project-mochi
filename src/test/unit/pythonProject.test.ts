@@ -6,6 +6,7 @@ import {
   blockerMessage,
   countRequirements,
   createFailedMessage,
+  foldersInOrder,
   isPythonProjectFile,
   pythonExtensionWillPrompt,
   remoteLabel,
@@ -203,6 +204,17 @@ describe("setting up a Python project", () => {
     it("finds the venv's own Python on each system", () => {
       assert.deepStrictEqual(venvPython("darwin"), [".venv", "bin", "python"]);
       assert.deepStrictEqual(venvPython("win32"), [".venv", "Scripts", "python.exe"]);
+    });
+  });
+
+  describe("multi-root workspaces", () => {
+    it("lists the folder she's working in first, and keeps the rest in order", () => {
+      assert.deepStrictEqual(foldersInOrder(["web", "api", "notes"], "api"), ["api", "web", "notes"]);
+    });
+
+    it("keeps the order when she isn't in any of them", () => {
+      assert.deepStrictEqual(foldersInOrder(["web", "api"], undefined), ["web", "api"]);
+      assert.deepStrictEqual(foldersInOrder(["web", "api"], "elsewhere"), ["web", "api"]);
     });
   });
 

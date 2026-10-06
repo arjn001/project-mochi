@@ -12,6 +12,8 @@ export const pythonStrings = {
     "This folder is in Restricted Mode, so I won't run anything in it. If you trust it, you can change that, and then I'd love to help.",
   manageTrust: "Manage Workspace Trust",
   cantRead: "I couldn't look inside this project folder. Is it still there?",
+  pickFolder: "Which project should I set up?",
+  workingHere: "where you're working now",
   noPython: "I couldn't find Python on this computer. Want to install it?",
   getPython: "Get Python",
   // Mochi runs on the machine with her files, so in a remote setup Python

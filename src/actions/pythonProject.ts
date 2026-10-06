@@ -125,6 +125,15 @@ export function shouldLookForPython(lastMissAt: number | undefined, now: number)
   return lastMissAt === undefined || now - lastMissAt >= PYTHON_RECHECK_MS;
 }
 
+// The folders to choose from in a multi-root workspace, with the one she's
+// working in first. Mochi always asks when there's more than one, since
+// setting up the wrong folder would put .venv in the wrong place.
+export function foldersInOrder<T>(folders: readonly T[], active: T | undefined): T[] {
+  return active !== undefined && folders.includes(active)
+    ? [active, ...folders.filter((f) => f !== active)]
+    : [...folders];
+}
+
 // What to call the machine Mochi is running on in a remote setup, from
 // VS Code's remote name. Undefined when she's working locally.
 export function remoteLabel(remoteName: string | undefined): string | undefined {

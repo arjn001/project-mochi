@@ -15,6 +15,7 @@ import {
   blockerMessage,
   countRequirements,
   createFailedMessage,
+  foldersInOrder,
   isMacPlaceholder,
   isPythonProjectFile,
   parsePythonVersion,
@@ -307,14 +308,24 @@ export function setUpAction(folder: vscode.WorkspaceFolder, python: FoundPython,
   });
 }
 
-// The folder she's working in: the active file's, the only one, or her pick.
+// The only folder, or her pick when there are several. Only folder names
+// are shown, never full paths.
 async function pickFolder(): Promise<vscode.WorkspaceFolder | undefined> {
-  const active = vscode.window.activeTextEditor?.document.uri;
   const folders = vscode.workspace.workspaceFolders ?? [];
-  if (active && vscode.workspace.getWorkspaceFolder(active)) {
-    return vscode.workspace.getWorkspaceFolder(active);
+  if (folders.length <= 1) {
+    return folders[0];
   }
-  return folders.length <= 1 ? folders[0] : vscode.window.showWorkspaceFolderPick({ placeHolder: "Which project should I set up?" });
+  const editor = vscode.window.activeTextEditor;
+  const active = editor ? vscode.workspace.getWorkspaceFolder(editor.document.uri) : undefined;
+  const picked = await vscode.window.showQuickPick(
+    foldersInOrder(folders, active).map((folder) => ({
+      label: folder.name,
+      description: folder === active ? pythonStrings.workingHere : undefined,
+      folder,
+    })),
+    { placeHolder: pythonStrings.pickFolder }
+  );
+  return picked?.folder;
 }
 
 export function registerPythonSetup(choose: Choose): vscode.Disposable {
