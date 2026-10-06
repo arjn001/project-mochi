@@ -11,6 +11,7 @@ import { instructionsFor } from "./ai/instructions";
 import { loadDefaultPack } from "./packs/defaultPack";
 import { registerFocus } from "./focus/focusCommands";
 import { watchLateNight } from "./moments/lateNightWatcher";
+import { watchStuck } from "./moments/stuckWatcher";
 import { FocusTimer } from "./focus/timer";
 import { createMoodLine, showMood } from "./presence/statusBar";
 import { onSpeakUpChange, readSpeakUp } from "./settings";
@@ -62,13 +63,16 @@ export function activate(context: vscode.ExtensionContext): MochiApi {
   const ask = registerAskCommand(conversation);
   const explain = registerExplain(conversation, surface);
 
+  // A gentle "Need a paw?" next to an error she's been stuck on (MOCHI-34).
+  const stuck = watchStuck();
+
   // Actions always ask first (MOCHI-31). The late-night nudge offers the
   // same one, in the pack's words.
   const dim = vscode.commands.registerCommand("mochi.dim", () => offer(dimAction(), choose));
   const lateNight = watchLateNight(pack, timer, context.globalState);
 
   // Anything added here is cleaned up when Mochi shuts down.
-  context.subscriptions.push(sayHello, open, home, mood, followSpeakUp, focus, timer, surface, ask, explain, dim, lateNight);
+  context.subscriptions.push(sayHello, open, home, mood, followSpeakUp, focus, timer, surface, ask, explain, stuck, dim, lateNight);
 
   return { moodText: () => mood.text };
 }
