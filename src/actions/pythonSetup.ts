@@ -2,6 +2,7 @@ import { execFile } from "node:child_process";
 import * as fs from "node:fs";
 import * as path from "node:path";
 import * as vscode from "vscode";
+import { readSpeakUp } from "../settings";
 import { Choose, UNDO, Undo, defineAction, offer } from "./confirm";
 import {
   ENV_FOLDERS,
@@ -18,6 +19,7 @@ import {
   parsePythonVersion,
   pythonCandidates,
   pythonTexts,
+  shouldOffer,
   shouldOfferGitignore,
   venvPython,
   withVenvIgnored,
@@ -271,4 +273,66 @@ export function registerPythonSetup(choose: Choose): vscode.Disposable {
       await setUpPython(folder, choose);
     }
   });
+}
+
+// The projects Mochi has offered to set up, kept per workspace. Only folder
+// addresses, nothing about her code.
+const OFFERED = "mochi.pythonSetupOffered";
+
+async function looksLikePython(folder: vscode.WorkspaceFolder, project: Project): Promise<boolean> {
+  if (project.topLevel.includes("requirements.txt") || project.topLevel.includes("pyproject.toml")) {
+    return true;
+  }
+  const skip = "**/{.venv,venv,env,node_modules,.git}/**";
+  return (await vscode.workspace.findFiles(new vscode.RelativePattern(folder, "**/*.py"), skip, 1)).length > 0;
+}
+
+// Offers to set up one folder, if it's time. True if Mochi offered.
+async function offerFor(folder: vscode.WorkspaceFolder, state: vscode.Memento, choose: Choose): Promise<boolean> {
+  const offered = state.get<string[]>(OFFERED, []);
+  const project = await readProject(folder.uri);
+  const check = {
+    project,
+    speakUp: readSpeakUp(),
+    offeredBefore: offered.includes(folder.uri.toString()),
+    looksLikePython: await looksLikePython(folder, project),
+  };
+  // Everything else first, so Python is only looked for when it matters.
+  if (!shouldOffer({ ...check, pythonFound: true })) {
+    return false;
+  }
+  const python = await findPython();
+  if (!python) {
+    return false;
+  }
+  // Saved before asking, so it's never offered twice, whatever she answers.
+  await state.update(OFFERED, [...offered, folder.uri.toString()]);
+  await offer(setUpAction(folder, python, choose), choose);
+  return true;
+}
+
+// Offers once per project when she opens one that needs setting up, and
+// again when she trusts a folder or adds one. One offer at a time.
+export function watchPythonProjects(state: vscode.Memento, choose: Choose): vscode.Disposable {
+  let busy = false;
+  const check = async () => {
+    if (busy) {
+      return;
+    }
+    busy = true;
+    try {
+      for (const folder of vscode.workspace.workspaceFolders ?? []) {
+        if (await offerFor(folder, state, choose)) {
+          break;
+        }
+      }
+    } finally {
+      busy = false;
+    }
+  };
+  void check();
+  return vscode.Disposable.from(
+    vscode.workspace.onDidGrantWorkspaceTrust(check),
+    vscode.workspace.onDidChangeWorkspaceFolders(check)
+  );
 }

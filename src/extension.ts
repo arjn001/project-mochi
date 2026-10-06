@@ -1,7 +1,7 @@
 import * as vscode from "vscode";
 import { choose } from "./actions/choose";
 import { offer } from "./actions/confirm";
-import { registerPythonSetup } from "./actions/pythonSetup";
+import { registerPythonSetup, watchPythonProjects } from "./actions/pythonSetup";
 import { dimAction } from "./actions/theme";
 import { registerAskCommand } from "./ai/askCommand";
 import { Conversation } from "./ai/conversation";
@@ -72,11 +72,13 @@ export function activate(context: vscode.ExtensionContext): MochiApi {
   const dim = vscode.commands.registerCommand("mochi.dim", () => offer(dimAction(), choose));
   const lateNight = watchLateNight(pack, timer, context.globalState);
 
-  // Setting up a Python project (MOCHI-28). Never in Restricted Mode.
+  // Setting up a Python project (MOCHI-28), and offering it once per
+  // project. Never in Restricted Mode.
   const python = registerPythonSetup(choose);
+  const pythonOffer = watchPythonProjects(context.workspaceState, choose);
 
   // Anything added here is cleaned up when Mochi shuts down.
-  context.subscriptions.push(sayHello, open, home, mood, followSpeakUp, focus, timer, surface, ask, explain, stuck, dim, lateNight, python);
+  context.subscriptions.push(sayHello, open, home, mood, followSpeakUp, focus, timer, surface, ask, explain, stuck, dim, lateNight, python, pythonOffer);
 
   return { moodText: () => mood.text };
 }
