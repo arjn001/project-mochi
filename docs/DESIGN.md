@@ -88,10 +88,20 @@ The default lines are in `packs/default/pack.json` (format in PACKS.md).
   in the personal layer.
 
 ## Prompts and dialogs
-- **Sharing:** a modal dialog that names the AI and lists what would be
-  shared: "Share the errors in homework.py with Copilot?" Buttons: Share,
+- **Sharing:** a modal dialog that names the AI and says exactly what would
+  be shared: "Share lines 9 to 15 of homework.py (the error on line 12) with
+  Copilot?" Buttons: Share,
   Send without it, and Cancel. Detail line: "Nothing leaves your computer
   unless you choose Share."
+- **Secrets:** nothing from `.env` or key files is ever shared, and Mochi
+  says why. Text that looks like a password or API key adds "Careful: this
+  looks like it might contain a password or API key." to the question.
+- **Explaining, on a learning ladder:** "Explain with Mochi" in the lightbulb
+  next to an error, or "Mochi: Explain this" on selected code. Explain comes
+  first (what it means, why, where to look). Then "Want a hint, or the
+  fix?" offers the next steps, only when she picks them. The answer shows in
+  the "Mochi" output panel without taking focus from her editor, until the
+  panel chat exists.
 - **No brain yet:** one gentle line, only when she asks something: "I'd need a
   brain to answer that. Want to set one up?" with a "Set one up" button. No
   other nagging.
