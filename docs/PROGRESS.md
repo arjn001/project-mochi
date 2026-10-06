@@ -2,7 +2,24 @@
 
 Where Mochi stands, as of 2026-10-05. Jira (space MOCHI) is the source of
 truth for task status; this doc is the readable summary, plus Arjun's likes
-and dislikes. Update it at the end of each working session.
+and dislikes. "Current state" is updated at the end of every task, as part
+of that task's last commit. The rest is updated at the end of each working
+session.
+
+## Current state
+*As of the last commit of the latest task, so the pull request carrying this
+update isn't listed.*
+
+- **Open pull requests:** none.
+- **In progress:** MOCHI-50 Design the visual identity, by Arjun.
+- **Next:** mark MOCHI-30 and MOCHI-34 Done in Jira (both merged). Then the
+  next task from "Next" below: MOCHI-53, MOCHI-28, MOCHI-41, or MOCHI-33.
+- **Waiting on:**
+  - Arjun to pick the next task.
+  - MOCHI-53 needs a Claude API key to test with (billed per use, separate
+    from a Claude subscription).
+  - The panel work (MOCHI-16, MOCHI-17, MOCHI-21, MOCHI-25) waits on
+    DESIGN.md being finished (MOCHI-50).
 
 **30 of 49 Jira tasks and subtasks done**, counting MOCHI-30 and MOCHI-34
 (merged, still to be marked Done in Jira). 2 of the 8 categories are
