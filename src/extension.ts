@@ -14,10 +14,11 @@ import { registerNameCommands } from "./packs/nameCommands";
 import { PersonalLayer } from "./packs/personalLayer";
 import { greeting } from "./packs/phrases";
 import { registerFocus } from "./focus/focusCommands";
-import { rememberCoding } from "./moments/greetingWatcher";
+import { Greeter, rememberCoding } from "./moments/greetingWatcher";
 import { watchLateNight } from "./moments/lateNightWatcher";
 import { watchStuck } from "./moments/stuckWatcher";
 import { FocusTimer } from "./focus/timer";
+import { notificationGreeting } from "./presence/greetingSurface";
 import { createMoodLine, showMood } from "./presence/statusBar";
 import { onSpeakUpChange, readLateHour, readSpeakUp } from "./settings";
 
@@ -54,7 +55,7 @@ export function activate(context: vscode.ExtensionContext): MochiApi {
   refreshMood();
   const followSpeakUp = onSpeakUpChange(refreshMood);
   const focus = registerFocus(timer, refreshMood);
-  void timer.restore();
+  const restored = timer.restore();
 
   // Mochi's personality comes from the default pack, with her personal layer
   // on top (MOCHI-41). pack() is read fresh each time Mochi speaks, so a
@@ -86,13 +87,20 @@ export function activate(context: vscode.ExtensionContext): MochiApi {
   const dim = vscode.commands.registerCommand("mochi.dim", () => offer(dimAction(), choose));
   const lateNight = watchLateNight(pack, timer, context.globalState);
 
-  // When and where she last coded, for the greeting (MOCHI-33).
+  // The greeting when VS Code opens, once a day (MOCHI-33). It waits for a
+  // saved focus session to be picked up, so it knows if she's focusing.
+  const greeter = new Greeter(context.globalState, pack, () => timer.isRunning(), notificationGreeting);
+  const greeted = restored.then(() => greeter.greet());
+  // When and where she last coded, for tomorrow's greeting.
   const coding = rememberCoding(context.globalState);
 
   // Setting up a Python project (MOCHI-28), and offering it once per
   // project, never during a focus session. Never in Restricted Mode.
   const python = registerPythonSetup(choose);
-  const pythonOffer = watchPythonProjects(context.workspaceState, choose, () => timer.isRunning());
+  // The Python offer waits until after the greeting, so two notes don't
+  // arrive at once.
+  const afterGreeting = greeted.then((text) => (text ? new Promise((done) => setTimeout(done, 5_000)) : undefined));
+  const pythonOffer = watchPythonProjects(context.workspaceState, choose, () => timer.isRunning(), afterGreeting);
 
   // Developer tools, only when running from source (Run > Start Debugging).
   // They're never in the published package: out/dev/ is left out of the
