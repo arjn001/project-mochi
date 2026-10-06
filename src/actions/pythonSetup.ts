@@ -14,6 +14,7 @@ import {
   blocker,
   blockerMessage,
   countRequirements,
+  createFailedMessage,
   isMacPlaceholder,
   isPythonProjectFile,
   parsePythonVersion,
@@ -91,9 +92,17 @@ export async function readProject(folder: vscode.Uri): Promise<Project> {
   return { trusted: vscode.workspace.isTrusted, topLevel, envFolders };
 }
 
+type StepResult = "done" | "failed" | "stopped";
+
 // Runs one step as a VS Code task, so she can watch it in the terminal
-// panel. True if it worked.
-async function runStep(folder: vscode.WorkspaceFolder, name: string, command: string, args: string[]): Promise<boolean> {
+// panel. Cancelling the token stops it.
+async function runStep(
+  folder: vscode.WorkspaceFolder,
+  name: string,
+  command: string,
+  args: string[],
+  token?: vscode.CancellationToken
+): Promise<StepResult> {
   const id = `${name}-${Date.now()}`;
   const task = new vscode.Task(
     { type: "mochi", step: id },
@@ -106,6 +115,7 @@ async function runStep(folder: vscode.WorkspaceFolder, name: string, command: st
 
   return new Promise((resolve) => {
     let exitCode: number | undefined;
+    let stopped = false;
     const ours = (e: { execution: vscode.TaskExecution }) => e.execution.task.definition.step === id;
     const processEnded = vscode.tasks.onDidEndTaskProcess((e) => {
       if (ours(e)) {
@@ -116,19 +126,30 @@ async function runStep(folder: vscode.WorkspaceFolder, name: string, command: st
       if (ours(e)) {
         processEnded.dispose();
         taskEnded.dispose();
-        resolve(exitCode === 0);
+        resolve(stopped ? "stopped" : exitCode === 0 ? "done" : "failed");
       }
     });
-    vscode.tasks.executeTask(task).then(undefined, () => {
-      processEnded.dispose();
-      taskEnded.dispose();
-      resolve(false);
-    });
+    vscode.tasks.executeTask(task).then(
+      (execution) =>
+        token?.onCancellationRequested(() => {
+          stopped = true;
+          execution.terminate();
+        }),
+      () => {
+        processEnded.dispose();
+        taskEnded.dispose();
+        resolve("failed");
+      }
+    );
   });
 }
 
-const withProgress = <T>(title: string, work: () => Thenable<T>) =>
-  vscode.window.withProgress({ location: vscode.ProgressLocation.Notification, title }, work);
+// A progress notification while a step runs. A cancellable one gets a
+// Cancel button, for long installs or slow networks.
+const withProgress = <T>(title: string, cancellable: boolean, work: (token: vscode.CancellationToken) => Thenable<T>) =>
+  vscode.window.withProgress({ location: vscode.ProgressLocation.Notification, title, cancellable }, (_progress, token) =>
+    work(token)
+  );
 
 // Installing downloads and runs code she didn't directly ask for, so it's
 // offered, never assumed.
@@ -148,11 +169,13 @@ async function offerInstall(folder: vscode.WorkspaceFolder, choose: Choose): Pro
     // No Undo here, so offer() never shows a done message.
     done: "",
     act: async () => {
-      const ok = await withProgress(pythonStrings.installing, () =>
-        runStep(folder, "Install packages", python, ["-m", "pip", "install", "-r", "requirements.txt"])
+      const result = await withProgress(pythonStrings.installing, true, (token) =>
+        runStep(folder, "Install packages", python, ["-m", "pip", "install", "-r", "requirements.txt"], token)
       );
-      if (!ok) {
+      if (result === "failed") {
         void vscode.window.showWarningMessage(pythonStrings.installFailed);
+      } else if (result === "stopped") {
+        void vscode.window.showInformationMessage(pythonStrings.installStopped);
       }
       return undefined;
     },
@@ -179,7 +202,11 @@ async function offerGitignore(folder: vscode.WorkspaceFolder, version: Version, 
       const before = (await exists(file))
         ? Buffer.from(await vscode.workspace.fs.readFile(file)).toString("utf8")
         : undefined;
-      await vscode.workspace.fs.writeFile(file, Buffer.from(withVenvIgnored(before), "utf8"));
+      try {
+        await vscode.workspace.fs.writeFile(file, Buffer.from(withVenvIgnored(before), "utf8"));
+      } catch {
+        void vscode.window.showWarningMessage(pythonStrings.gitignoreFailed);
+      }
       return undefined;
     },
   });
@@ -189,11 +216,11 @@ async function offerGitignore(folder: vscode.WorkspaceFolder, version: Version, 
 // Creates .venv, then offers the packages and .gitignore. Returns how to
 // undo it, or undefined if creating .venv didn't work.
 async function setUp(folder: vscode.WorkspaceFolder, python: FoundPython, choose: Choose): Promise<Undo | undefined> {
-  const created = await withProgress(pythonStrings.creating, () =>
+  const created = await withProgress(pythonStrings.creating, false, () =>
     runStep(folder, `Create ${VENV}`, python.command, [...python.args, "-m", "venv", VENV])
   );
-  if (!created) {
-    void vscode.window.showWarningMessage(pythonStrings.createFailed);
+  if (created !== "done") {
+    void vscode.window.showWarningMessage(createFailedMessage(process.platform));
     return undefined;
   }
   await offerInstall(folder, choose);
@@ -223,7 +250,14 @@ async function tellBlocked(message: string, untrusted: boolean): Promise<void> {
 // She asked for this from the Command Palette, so creating .venv isn't
 // confirmed again (see PRESENCE.md). Undo is offered after.
 export async function setUpPython(folder: vscode.WorkspaceFolder, choose: Choose): Promise<void> {
-  const b = blocker(await readProject(folder.uri));
+  let project: Project;
+  try {
+    project = await readProject(folder.uri);
+  } catch {
+    void vscode.window.showWarningMessage(pythonStrings.cantRead);
+    return;
+  }
+  const b = blocker(project);
   if (b) {
     void tellBlocked(blockerMessage(b), b.kind === "untrusted");
     return;
@@ -266,8 +300,13 @@ export function registerPythonSetup(choose: Choose): vscode.Disposable {
       void tellBlocked(pythonStrings.untrusted, true);
       return;
     }
+    // A single file opened without a folder: a venv needs a project folder.
     if (!vscode.workspace.workspaceFolders?.length) {
-      void vscode.window.showInformationMessage(pythonStrings.noFolder);
+      void vscode.window.showInformationMessage(pythonStrings.noFolder, pythonStrings.openFolder).then((choice) => {
+        if (choice === pythonStrings.openFolder) {
+          void vscode.commands.executeCommand("workbench.action.files.openFolder");
+        }
+      });
       return;
     }
     const folder = await pickFolder();
