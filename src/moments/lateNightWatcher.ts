@@ -12,8 +12,9 @@ import { lateNightNudge, nightOf } from "./lateNight";
 const LAST_NUDGED = "mochi.lastNudgedNight";
 
 // Checked when she types, so the nudge only comes while she's coding, and
-// at most once a minute.
-export function watchLateNight(pack: Pack, timer: FocusTimer, state: vscode.Memento): vscode.Disposable {
+// at most once a minute. pack() gives the current pack, with her personal
+// layer, at the moment Mochi speaks.
+export function watchLateNight(pack: () => Pack, timer: FocusTimer, state: vscode.Memento): vscode.Disposable {
   let lastCheck = 0;
 
   return vscode.workspace.onDidChangeTextDocument((event) => {
@@ -29,7 +30,7 @@ export function watchLateNight(pack: Pack, timer: FocusTimer, state: vscode.Meme
   });
 }
 
-async function check(now: Date, pack: Pack, timer: FocusTimer, state: vscode.Memento): Promise<void> {
+async function check(now: Date, pack: () => Pack, timer: FocusTimer, state: vscode.Memento): Promise<void> {
   const nudge = lateNightNudge({
     now,
     lateHour: readLateHour(),
@@ -45,8 +46,8 @@ async function check(now: Date, pack: Pack, timer: FocusTimer, state: vscode.Mem
   await state.update(LAST_NUDGED, nightOf(now));
 
   if (nudge === "dim") {
-    await offer(dimAction(pickPhrase(pack, "lateNight")), choose);
+    await offer(dimAction(pickPhrase(pack(), "lateNight")), choose);
   } else {
-    await vscode.window.showInformationMessage(pickPhrase(pack, "lateNightCompany"));
+    await vscode.window.showInformationMessage(pickPhrase(pack(), "lateNightCompany"));
   }
 }

@@ -46,11 +46,12 @@ jobs:
       - name: Package the .vsix
         run: npm run package
 
-      # Source code and compiled tests must never ship in the package.
+      # Source code, compiled tests, and developer-only tools must never ship
+      # in the package.
       - name: Check the package contents
         run: |
           unzip -l *.vsix
-          if unzip -l *.vsix | grep -E " extension/(src|out/test)/"; then
-            echo "::error::The .vsix contains src/ or out/test/. Check .vscodeignore."
+          if unzip -l *.vsix | grep -E " extension/(src|out/test|out/dev)/"; then
+            echo "::error::The .vsix contains src/, out/test/, or out/dev/. Check .vscodeignore."
             exit 1
           fi

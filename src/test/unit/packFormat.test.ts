@@ -1,5 +1,5 @@
 import * as assert from "node:assert";
-import { LIMITS, Pack, checkLayer, checkPack, fill, layerOver } from "../../packs/format";
+import { LIMITS, Pack, checkLayer, checkPack, checkPersonalLayer, fill, layerOver } from "../../packs/format";
 
 const complete: Pack = {
   format: 1,
@@ -65,6 +65,16 @@ describe("pack format", () => {
       );
     });
 
+    it("with style notes longer than 400 characters", () => {
+      assert.match(errorsFor({ format: 1, voice: { style: "a".repeat(LIMITS.style + 1) } }), /more than the 400/);
+      assert.ok(checkLayer({ format: 1, voice: { style: "a".repeat(LIMITS.style) } }).ok);
+    });
+
+    it("with invisible characters that change the direction of the text", () => {
+      assert.match(errorsFor({ format: 1, user: { name: "Sam\u202Ecod.exe" } }), /change the direction of the text/);
+      assert.match(errorsFor({ format: 1, voice: { style: "Calm \u2066and kind" } }), /direction/);
+    });
+
     it("with too many phrases", () => {
       const many = Array.from({ length: LIMITS.phrasesPerMoment + 1 }, (_, i) => `Line ${i}`);
       assert.match(errorsFor({ format: 1, phrases: { stuck: many } }), /21 phrases, more than the 20/);
@@ -101,6 +111,25 @@ describe("pack format", () => {
     });
   });
 
+  it("accepts names in any language, including right-to-left ones", () => {
+    for (const name of ["Sam", "Zoë", "さくら", "Лена", "سارا", "\u200Fנועה"]) {
+      assert.ok(checkLayer({ format: 1, user: { name } }).ok, `${name} should be accepted.`);
+    }
+  });
+
+  describe("personal layers and gifts", () => {
+    it("can add style notes, her name, and her own lines", () => {
+      const layer = { format: 1, voice: { style: "Sleepy and sweet." }, user: { name: "Sam" }, phrases: { stuck: ["Paw?"] } };
+      assert.ok(checkPersonalLayer(layer).ok);
+    });
+
+    it("can't replace Mochi's personality", () => {
+      const result = checkPersonalLayer({ format: 1, voice: { personality: "Something else entirely." } });
+      assert.ok(!result.ok);
+      assert.match(result.errors.join("\n"), /voice\.style/);
+    });
+  });
+
   it("accepts greetings that use her name, next to ones that don't", () => {
     assert.ok(checkLayer({ format: 1, user: { name: "Sam" }, phrases: { greeting: ["Hi, {name}!", "Hi!"] } }).ok);
   });
@@ -112,6 +141,12 @@ describe("pack format", () => {
       assert.deepStrictEqual(result.phrases.stuck, ["Need a paw?"]);
       assert.deepStrictEqual(result.phrases.greeting, complete.phrases.greeting);
       assert.strictEqual(result.voice.personality, complete.voice.personality);
+    });
+
+    it("adds a layer's style notes next to the pack's personality", () => {
+      const result = layerOver(complete, { format: 1, voice: { style: "Sleepy." } });
+      assert.strictEqual(result.voice.personality, complete.voice.personality);
+      assert.strictEqual(result.voice.style, "Sleepy.");
     });
 
     it("replaces a moment's whole list instead of mixing lines", () => {

@@ -80,6 +80,23 @@
 - An error is identified by its message plus the code on and around its line,
   never by line number, so an error that moves isn't offered again.
 
+## Her personal layer
+- Kept in Mochi's private global state, on her own computer, even in remote
+  setups. Not in settings, the repo, or her project, so a project can never
+  change Mochi's voice.
+- Not synced through Settings Sync in version 1, to keep it on her machine.
+- Her name is never sent to the AI. It's only used in Mochi's own lines. A
+  later opt-in to share it may come with "Make it yours" (MOCHI-43).
+- The voice is untrusted, since a gift becomes this layer: it can only add
+  style notes (400 characters), framed to the AI as style, never as
+  instructions, and Mochi's rules always come from code (see ARCHITECTURE.md).
+- A damaged or too-new layer falls back to the default pack with one kind
+  message per session, and is kept, never deleted.
+- "What should I call you?" and "Forget my name" exist now. Until the greeting
+  (MOCHI-33), "Mochi: Say Hello" shows the real greeting as a preview.
+- A loader for trying a whole layer from a JSON file exists only when Mochi
+  runs from source. It's never in the published package (checked in CI).
+
 ## Setting up a Python project
 - Mochi creates a virtual environment in `.venv`, the standard name the
   Python extension finds on its own. The steps run as VS Code tasks in the

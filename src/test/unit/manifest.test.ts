@@ -35,4 +35,18 @@ describe("package.json", () => {
         `or below, or raise engines.vscode.`
     );
   });
+
+  it("lists no developer-only commands, so they never show in the published build", () => {
+    const commands: { command: string }[] = readJson("package.json").contributes.commands;
+    assert.deepStrictEqual(
+      commands.filter((c) => c.command.startsWith("mochi.dev")).map((c) => c.command),
+      [],
+      "Developer tools are registered only in development mode, never listed in package.json."
+    );
+  });
+
+  it("leaves the developer tools out of the package", () => {
+    const ignored = fs.readFileSync(path.join(root, ".vscodeignore"), "utf8").split(/\r?\n/);
+    assert.ok(ignored.includes("out/dev/**"), ".vscodeignore must leave out/dev/ out of the .vsix.");
+  });
 });

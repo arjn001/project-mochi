@@ -99,6 +99,16 @@
         "category": "Mochi"
       },
       {
+        "command": "mochi.setName",
+        "title": "What should I call you?",
+        "category": "Mochi"
+      },
+      {
+        "command": "mochi.forgetName",
+        "title": "Forget my name",
+        "category": "Mochi"
+      },
+      {
         "command": "mochi.sayHello",
         "title": "Say Hello",
         "category": "Mochi"

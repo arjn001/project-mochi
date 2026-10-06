@@ -154,6 +154,14 @@ The default lines are in `packs/default/pack.json` (format in PACKS.md).
   "Okay, I stopped installing. Anything that finished is still there." A
   failed install mentions no internet or a restricted network as a common
   reason, and a failed setup on Linux names the python3-venv package.
+- **Her name:** "Mochi: What should I call you?" opens an input box ("Your
+  name or a nickname"), which explains kindly what's wrong ("That's a little
+  long. Up to 30 characters, please."). Then "Nice to meet you, Sam! I'll
+  use your name when I say hello." "Mochi: Forget my name" says "Okay, I've
+  forgotten your name. You can tell me again anytime."
+- **If her personal touches can't be loaded:** "I couldn't load your
+  personal touches, so I'm my usual self for now. They're kept safe, not
+  deleted." Once per session.
 - **Where sentences live:** every sentence above is in `src/strings.ts` (or
   the pack), never inline in code.
 

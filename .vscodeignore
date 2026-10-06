@@ -1,9 +1,10 @@
 # Files left OUT of the .vsix package. Everything else goes in.
-# CI fails if src/ or out/test/ ever end up in the package.
+# CI fails if src/, out/test/, or out/dev/ ever end up in the package.
 
-# Source code and compiled tests
+# Source code, compiled tests, and developer-only tools
 src/**
 out/test/**
+out/dev/**
 **/*.map
 tsconfig.json
 
