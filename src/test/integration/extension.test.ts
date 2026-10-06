@@ -168,6 +168,34 @@ describe("Mochi in VS Code", () => {
     });
   });
 
+  describe("her personal layer", () => {
+    async function mochi(): Promise<MochiApi> {
+      return (await vscode.extensions.getExtension<MochiApi>("arjungyawali.mochi-companion")!.activate()) as MochiApi;
+    }
+
+    afterEach(async () => (await mochi()).personal!.clear());
+
+    it("registers What should I call you? and Forget my name", async () => {
+      const commands = await vscode.commands.getCommands(true);
+      assert.ok(commands.includes("mochi.setName"));
+      assert.ok(commands.includes("mochi.forgetName"));
+    });
+
+    it("keeps her name in Mochi's private storage and uses it right away", async () => {
+      const personal = (await mochi()).personal!;
+      assert.ok((await personal.setName("Sam")).ok);
+      assert.strictEqual(personal.pack().user?.name, "Sam");
+
+      await vscode.commands.executeCommand("mochi.forgetName");
+      assert.strictEqual(personal.pack().user?.name, undefined);
+    });
+
+    it("never loads the developer tools outside development mode", async () => {
+      const commands = await vscode.commands.getCommands(true);
+      assert.ok(!commands.includes("mochi.dev.menu"), "The developer tools must only exist when running from source.");
+    });
+  });
+
   describe("focus session", () => {
     const settings = () => vscode.workspace.getConfiguration("mochi");
 

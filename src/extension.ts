@@ -24,6 +24,9 @@ import { onSpeakUpChange, readLateHour, readSpeakUp } from "./settings";
 // mood line says, since VS Code doesn't let tests read the status bar.
 export interface MochiApi {
   moodText(): string;
+  // Her personal layer, only in the integration tests (Test mode). Other
+  // extensions can read Mochi's exports, so it's never handed out otherwise.
+  personal?: PersonalLayer;
 }
 
 // VS Code calls this once, after it finishes starting up.
@@ -98,7 +101,10 @@ export function activate(context: vscode.ExtensionContext): MochiApi {
   // Anything added here is cleaned up when Mochi shuts down.
   context.subscriptions.push(names, sayHello, open, home, mood, followSpeakUp, focus, timer, surface, ask, explain, stuck, dim, lateNight, python, pythonOffer);
 
-  return { moodText: () => mood.text };
+  return {
+    moodText: () => mood.text,
+    personal: context.extensionMode === vscode.ExtensionMode.Test ? personal : undefined,
+  };
 }
 
 // VS Code calls this when Mochi shuts down. Nothing to clean up yet.
