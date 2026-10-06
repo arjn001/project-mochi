@@ -1,6 +1,6 @@
 # Progress
 
-Where Mochi stands, as of 2026-10-05. Jira (space MOCHI) is the source of
+Where Mochi stands, as of 2026-10-06. Jira (space MOCHI) is the source of
 truth for task status; this doc is the readable summary, plus Arjun's likes
 and dislikes. "Current state" is updated at the end of every task, as part
 of that task's last commit. The rest is updated at the end of each working
@@ -12,18 +12,19 @@ update isn't listed.*
 
 - **Open pull requests:** none.
 - **In progress:** MOCHI-50 Design the visual identity, by Arjun.
-- **Next:** mark MOCHI-30 and MOCHI-34 Done in Jira (both merged). Then the
-  next task from "Next" below: MOCHI-53, MOCHI-28, MOCHI-41, or MOCHI-33.
+- **Next:** mark MOCHI-28 Done in Jira once it's merged. Then the next task
+  from "Next" below: MOCHI-53, MOCHI-41, or MOCHI-33.
 - **Waiting on:**
+  - Arjun to try Python setup by hand and merge MOCHI-28.
   - Arjun to pick the next task.
   - MOCHI-53 needs a Claude API key to test with (billed per use, separate
     from a Claude subscription).
   - The panel work (MOCHI-16, MOCHI-17, MOCHI-21, MOCHI-25) waits on
     DESIGN.md being finished (MOCHI-50).
 
-**30 of 49 Jira tasks and subtasks done**, counting MOCHI-30 and MOCHI-34
-(merged, still to be marked Done in Jira). 2 of the 8 categories are
-complete. 141 tests (125 unit, 16 integration) run on every pull request.
+**31 of 49 Jira tasks and subtasks done**, counting MOCHI-28. 2 of the 8
+categories are complete. 174 tests (154 unit, 20 integration) run on every
+pull request.
 
 ## Done
 **Vision and design (MOCHI-2), complete.** VISION.md, DECISIONS.md,
@@ -65,6 +66,12 @@ MOMENTS.md, PRESENCE.md, ARCHITECTURE.md, and BUILD_PLAN.md.
   plus 3 lines each side, never `.env` or key files, and warns about text
   that looks like a password. Answers show in the "Mochi" output panel
   without taking focus, until the panel chat exists (MOCHI-30).
+- Setting up a Python project: "Mochi: Set up a Python project" creates
+  `.venv` in the terminal panel, then asks before installing
+  `requirements.txt` or adding `.venv` to `.gitignore`, and ends with the
+  command to do it herself next time, plus Undo. Mochi also offers once per
+  project on its own. Never in Restricted Mode, and projects using conda,
+  Pipenv, Poetry, or uv are left alone (MOCHI-28).
 
 **Packs and personalization (MOCHI-38), partly done.**
 - Pack format with strict checking for untrusted gifts, night-owl greetings,
@@ -90,14 +97,13 @@ MOMENTS.md, PRESENCE.md, ARCHITECTURE.md, and BUILD_PLAN.md.
 Work that doesn't need the panel, for Arjun to order:
 1. **MOCHI-53 Connect Claude**, with her own key in secret storage. Add
    esbuild bundling here if it brings Mochi's first runtime dependency.
-2. **MOCHI-28 Set up a Python project.**
-3. **MOCHI-41 The private personal layer**, storage first; its "Make it
+2. **MOCHI-41 The private personal layer**, storage first; its "Make it
    yours" page needs the design.
-4. **MOCHI-33 Greeting when VS Code opens.** Its home is the panel, so where
+3. **MOCHI-33 Greeting when VS Code opens.** Its home is the panel, so where
    it shows before then needs deciding.
 
 Then:
-5. **After DESIGN.md is finished:** MOCHI-17, MOCHI-16, MOCHI-21, then
+4. **After DESIGN.md is finished:** MOCHI-17, MOCHI-16, MOCHI-21, then
    MOCHI-25 (streaming in the chat). The early preview for her comes after
    Milestone 3, with the default pack only.
 
@@ -110,6 +116,8 @@ Then:
 - PRESENCE.md and ARCHITECTURE.md still quote the old code hint ("Want me
   to explain this error?"); it's "Need a paw?" now. BUILD_PLAN.md says
   MOCHI-30's answer shows in the panel; it's the output panel for now.
+- Mochi now runs in Restricted Mode, in a limited way (MOCHI-28). Anything
+  new that runs a program in her folder must check workspace trust first.
 - No bundling yet; add esbuild with the first runtime dependency.
 - No license yet (MOCHI-59). Leaning: MIT for code, Mochi's name, icons, and
   art all rights reserved. Packaging uses `--skip-license` until then.
