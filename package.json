@@ -55,6 +55,16 @@
         "category": "Mochi"
       },
       {
+        "command": "mochi.explainError",
+        "title": "Explain this error",
+        "category": "Mochi"
+      },
+      {
+        "command": "mochi.explainSelection",
+        "title": "Explain this",
+        "category": "Mochi"
+      },
+      {
         "command": "mochi.dim",
         "title": "Dim things (darker theme)",
         "category": "Mochi"
@@ -93,6 +103,13 @@
         {
           "command": "mochi.focus.menu",
           "when": "false"
+        }
+      ],
+      "editor/context": [
+        {
+          "command": "mochi.explainSelection",
+          "when": "editorHasSelection",
+          "group": "mochi@1"
         }
       ]
     },
