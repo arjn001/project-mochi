@@ -71,6 +71,33 @@
 - An error is identified by its message plus the code on and around its line,
   never by line number, so an error that moves isn't offered again.
 
+## Setting up a Python project
+- Mochi creates a virtual environment in `.venv`, the standard name the
+  Python extension finds on its own. The steps run as VS Code tasks in the
+  terminal panel, so she sees the real commands, and success ends with the
+  one she can type herself ("python3 -m venv .venv").
+- From the Command Palette, creating `.venv` isn't confirmed again: she asked
+  for it, and Undo moves `.venv` to the Trash.
+- Installing `requirements.txt` is always asked first ("This project lists 3
+  packages in requirements.txt. Install them too?"), since it downloads and
+  runs code she didn't directly ask for.
+- Adding `.venv` to `.gitignore` is asked first too, and only offered in a
+  git repo that doesn't ignore it yet, on Python older than 3.13 (newer
+  versions make `.venv` ignore itself).
+- Never in Restricted Mode: in a folder she hasn't trusted, Mochi never runs
+  setup or installs and never offers, and explains kindly if she asks. Mochi
+  supports Restricted Mode in a limited way for this, instead of switching
+  off completely there.
+- Projects that use conda (`environment.yml`), Pipenv (`Pipfile`), Poetry
+  (`poetry.lock`), or uv (`uv.lock`) are left to that tool. An environment is
+  already there if `.venv/`, `venv/`, or `env/` has a `pyvenv.cfg`.
+- Mochi offers on its own once per project, ever, only when Python is
+  installed. It remembers which project folders it offered for, and nothing
+  about the code in them.
+- On a Mac without the developer tools, `/usr/bin/python3` is only a
+  placeholder that pops up an installer, so Mochi skips it instead of acting
+  without asking.
+
 ## Building and packaging
 - Mochi is packaged into a `.vsix` with `npm run package`. Source code
   (`src/`) and compiled tests (`out/test/`) never go into the package, and CI

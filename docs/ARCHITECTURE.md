@@ -143,10 +143,13 @@ file, so unwrapping treats it as untrusted input:
 | API keys | VS Code secret storage |
 | Last time she coded, last project, tonight's nudge shown | Mochi's private state |
 | Personal layer | Mochi's private storage |
+| Projects already offered Python setup (folder addresses only) | Mochi's per-project state |
 
 ## Privacy
 - Nothing Mochi attaches on its own (code, errors, the open file) reaches an
   AI without passing the share gate and her click.
+- In Restricted Mode (a folder she hasn't trusted), Mochi never runs
+  anything in the folder.
 - Mochi collects no telemetry. Nothing about how she uses it is sent anywhere.
 
 ## Look and feel

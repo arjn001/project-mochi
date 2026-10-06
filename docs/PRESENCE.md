@@ -79,6 +79,10 @@ What this means for later:
   the Command Palette, that request is her yes. Mochi doesn't ask again.
 - Anything Mochi attaches to an AI request is a separate matter: it always
   goes through the share gate, even when she asked the question.
+- A request doesn't cover what comes with it. Setting up a Python project
+  creates `.venv` without asking again, but installing the packages in
+  `requirements.txt` downloads and runs code she didn't ask for, so it's
+  asked first.
 
 ## Look
 A soft illustrated cat with a few moods, in original art.
