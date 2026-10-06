@@ -173,7 +173,7 @@ it's given, which is why the guarantees that matter live in code.
 |---|---|
 | Speak-up level, AI choice, late-night hour | VS Code settings |
 | API keys | VS Code secret storage |
-| Last time she coded, last project, tonight's nudge shown | Mochi's private state |
+| Last time she coded and the project's folder name, today's greeting and tonight's nudge shown | Mochi's private state |
 | Personal layer (her name, her lines, style notes) | Mochi's private global state, on her own computer, not synced |
 | Projects already offered Python setup (folder addresses only) | Mochi's per-project state |
 

@@ -16,6 +16,14 @@
       "Hi, night owl! The moon and I are ready when you are.",
       "Hi, night owl {name}! What are we making tonight?"
     ],
+    "welcomeBack": [
+      "Welcome back! I missed you.",
+      "Oh hi! Good to see you again."
+    ],
+    "backToProject": [
+      "Back to {project}?",
+      "Picking up {project} again? I'm ready."
+    ],
     "stuck": [
       "This one looks stubborn. Want me to take a look?",
       "Need a paw with this error?",

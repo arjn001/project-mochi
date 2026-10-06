@@ -10,7 +10,7 @@ import { BuiltInAi } from "../../ai/builtInAi";
 import type { MochiApi } from "../../extension";
 
 describe("Mochi in VS Code", () => {
-  it("registers the Say Hello command", async () => {
+  it("starts up and registers its commands", async () => {
     const mochi = vscode.extensions.getExtension("arjungyawali.mochi-companion");
     assert.ok(mochi, "Mochi is not installed in the test window.");
 
@@ -18,8 +18,8 @@ describe("Mochi in VS Code", () => {
     const commands = await vscode.commands.getCommands(true);
 
     assert.ok(
-      commands.includes("mochi.sayHello"),
-      "Mochi started, but the mochi.sayHello command is not registered."
+      commands.includes("mochi.open"),
+      "Mochi started, but the mochi.open command is not registered."
     );
   });
 
@@ -193,6 +193,33 @@ describe("Mochi in VS Code", () => {
     it("never loads the developer tools outside development mode", async () => {
       const commands = await vscode.commands.getCommands(true);
       assert.ok(!commands.includes("mochi.dev.menu"), "The developer tools must only exist when running from source.");
+    });
+  });
+
+  describe("the greeting when VS Code opens", () => {
+    const settings = () => vscode.workspace.getConfiguration("mochi");
+    async function greeter() {
+      return ((await vscode.extensions.getExtension<MochiApi>("arjungyawali.mochi-companion")!.activate()) as MochiApi)
+        .greeter!;
+    }
+
+    afterEach(async () => settings().update("speakUp", undefined, vscode.ConfigurationTarget.Global));
+
+    it("says hello, with no project line when no folder is open", async () => {
+      const text = await (await greeter()).greet({ force: true });
+      assert.match(text ?? "", /^(Meow, good|Good|Hi)/);
+      assert.doesNotMatch(text ?? "", /Back to|Picking up/);
+    });
+
+    it("greets only once a day, across windows", async () => {
+      const g = await greeter();
+      await g.greet();
+      assert.strictEqual(await g.greet(), undefined, "Already greeted today.");
+    });
+
+    it("never greets on its own in quiet mode", async () => {
+      await settings().update("speakUp", "quiet", vscode.ConfigurationTarget.Global);
+      assert.strictEqual(await (await greeter()).greet(), undefined);
     });
   });
 

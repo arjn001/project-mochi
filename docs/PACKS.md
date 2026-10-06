@@ -44,12 +44,15 @@ that checks packs is `src/packs/format.ts`.
 | `phrases.<moment>` | Lines for a moment. Mochi picks one | 1 to 20 phrases, 200 characters each |
 | `user.name` | Her name, on one line. Optional, and only for the personal layer; the default pack never sets it | 30 characters |
 
-The moments are `greeting`, `greetingLate`, `stuck`, `lateNight`,
-`lateNightCompany`, and `celebrate` (see MOMENTS.md). `greetingLate` replaces
-`greeting` after the late-night hour, because "Good night" sounds like
-goodbye. `lateNight` lines offer a darker theme; `lateNightCompany` lines only
-keep her company, for themes that are already dark or high contrast. Art for the moods
-comes in a later format, with MOCHI-17.
+The moments are `greeting`, `greetingLate`, `welcomeBack`, `backToProject`,
+`stuck`, `lateNight`, `lateNightCompany`, and `celebrate` (see MOMENTS.md).
+`greetingLate` replaces `greeting` after the late-night hour, because "Good
+night" sounds like goodbye. `welcomeBack` follows the greeting after 2 or more
+days away, and never counts them; `backToProject` follows it when she opens
+the project she last coded in. `lateNight` lines offer a darker theme;
+`lateNightCompany` lines only keep her company, for themes that are already
+dark or high contrast. Art for the moods comes in a later format, with
+MOCHI-17.
 
 A personal layer sets only what it changes:
 
@@ -71,6 +74,7 @@ Phrases can use these, filled in when Mochi speaks:
 | `{name}` | Her name, from `user.name` | `greeting`, `greetingLate` |
 | `{timeOfDay}` | morning, afternoon, or evening, never night | `greeting` |
 | `{thing}` | What she finished | `celebrate` |
+| `{project}` | The project she's opening again, by folder name | `backToProject` |
 
 A phrase with `{name}` is only picked when a name is set, so every moment
 needs at least one phrase without it. Placeholders are filled in once, as

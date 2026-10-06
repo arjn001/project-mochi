@@ -12,19 +12,18 @@ update isn't listed.*
 
 - **Open pull requests:** none.
 - **In progress:** MOCHI-50 Design the visual identity, by Arjun.
-- **Next:** mark MOCHI-41 Done in Jira once it's merged. Then the next task
-  from "Next" below: MOCHI-33 (the greeting, which can now use her name) or
-  MOCHI-53.
+- **Next:** mark MOCHI-33 Done in Jira once it's merged. Then the next task
+  from "Next" below.
 - **Waiting on:**
-  - Arjun to try the personal layer by hand and merge MOCHI-41.
+  - Arjun to try the greeting by hand and merge MOCHI-33.
   - Arjun to pick the next task.
   - MOCHI-53 needs a Claude API key to test with (billed per use, separate
     from a Claude subscription).
   - The panel work (MOCHI-16, MOCHI-17, MOCHI-21, MOCHI-25) waits on
     DESIGN.md being finished (MOCHI-50).
 
-**32 of 53 Jira tasks and subtasks done**, counting MOCHI-41. 2 of the 8
-categories are complete. 210 tests (187 unit, 23 integration) run on every
+**33 of 53 Jira tasks and subtasks done**, counting MOCHI-33. 2 of the 8
+categories are complete. 227 tests (201 unit, 26 integration) run on every
 pull request.
 
 ## Done
@@ -46,6 +45,10 @@ MOMENTS.md, PRESENCE.md, ARCHITECTURE.md, and BUILD_PLAN.md.
 
 **Moments (MOCHI-32), partly done.**
 - Quiet mode, live, with napping in the status bar (MOCHI-37).
+- The greeting when VS Code opens, once a day across her windows: the time
+  of day, her name if set, a warm welcome back after 2+ days away (never
+  counting them), and "Back to homework-3?" when she reopens her last
+  project. A fading notification until the panel exists (MOCHI-33).
 - Late-night nudge, once per night across windows while she's typing, after
   the Late Hour setting. A light theme gets the dim offer; dark and high
   contrast themes get company only. Never during a focus session (MOCHI-35).
@@ -107,23 +110,24 @@ MOMENTS.md, PRESENCE.md, ARCHITECTURE.md, and BUILD_PLAN.md.
 Work that doesn't need the panel, for Arjun to order:
 1. **MOCHI-53 Connect Claude**, with her own key in secret storage. Add
    esbuild bundling here if it brings Mochi's first runtime dependency.
-2. **MOCHI-33 Greeting when VS Code opens.** It can use her name now. Its
-   home is the panel, so where it shows before then needs deciding.
 
 Then:
-3. **Before publishing (Release):** MOCHI-60 Windows and macOS in CI,
+2. **Before publishing (Release):** MOCHI-60 Windows and macOS in CI,
    MOCHI-61 "Mochi: Report a problem", MOCHI-62 decide on web support, and
    MOCHI-63 localization.
-4. **After DESIGN.md is finished:** MOCHI-17, MOCHI-16, MOCHI-21, then
+3. **After DESIGN.md is finished:** MOCHI-17, MOCHI-16, MOCHI-21, then
    MOCHI-25 (streaming in the chat). The early preview for her comes after
    Milestone 3, with the default pack only.
 
 ## Loose ends to remember
 - Remove the temporary "Mochi: Ask (preview)" command when the panel chat
-  (MOCHI-21) lands, and "Mochi: Say Hello" (now a preview of the greeting)
-  when MOCHI-33 lands.
+  (MOCHI-21) lands.
+- Not checked by hand yet: whether a change to her personal layer in one
+  window shows up in another window that's already open (it does after a
+  restart). It needs two development windows on the normal profile.
 - The development-only "Mochi dev" tools (a beaker in the development
-  window's status bar) load a whole personal layer from a JSON file. Remove
+  window's status bar) load a whole personal layer from a JSON file and
+  greet on demand. Remove
   or replace them when "Make it yours" (MOCHI-43) or gifts (MOCHI-56) land.
 - "Set one up" opens VS Code's Copilot setup for now. MOCHI-42 replaces it
   with "Pick a brain" inside Mochi's tab, plus a "Got a brain!" confirmation.

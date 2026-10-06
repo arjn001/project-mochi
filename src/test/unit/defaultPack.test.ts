@@ -16,10 +16,19 @@ describe("default pack", () => {
   });
 
   it("leaves no placeholder unfilled once Mochi speaks", () => {
-    const values = { companion: "Mochi", name: "Sam", timeOfDay: "evening", thing: "the database migration" };
+    const values = { companion: "Mochi", name: "Sam", timeOfDay: "evening", thing: "the database migration", project: "homework-3" };
     for (const moment of MOMENTS) {
       for (const phrase of loadDefaultPack().phrases[moment]) {
         assert.doesNotMatch(fill(phrase, values), /[{}]/, `"${phrase}" still has a placeholder.`);
+      }
+    }
+  });
+
+  it("never counts how long she was away (see DESIGN.md)", () => {
+    const counting = /\{days\}|\b\d+\s+(days?|weeks?|months?)\b|it's been|since you last/i;
+    for (const moment of MOMENTS) {
+      for (const phrase of loadDefaultPack().phrases[moment]) {
+        assert.doesNotMatch(phrase, counting, `"${phrase}" counts her time away.`);
       }
     }
   });

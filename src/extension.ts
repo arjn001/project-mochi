@@ -12,21 +12,24 @@ import { instructionsFor } from "./ai/instructions";
 import { loadDefaultPack } from "./packs/defaultPack";
 import { registerNameCommands } from "./packs/nameCommands";
 import { PersonalLayer } from "./packs/personalLayer";
-import { greeting } from "./packs/phrases";
 import { registerFocus } from "./focus/focusCommands";
+import { Greeter, rememberCoding } from "./moments/greetingWatcher";
 import { watchLateNight } from "./moments/lateNightWatcher";
 import { watchStuck } from "./moments/stuckWatcher";
 import { FocusTimer } from "./focus/timer";
+import { notificationGreeting } from "./presence/greetingSurface";
 import { createMoodLine, showMood } from "./presence/statusBar";
-import { onSpeakUpChange, readLateHour, readSpeakUp } from "./settings";
+import { onSpeakUpChange, readSpeakUp } from "./settings";
 
 // What activate() hands back. The integration tests use it to see what the
 // mood line says, since VS Code doesn't let tests read the status bar.
 export interface MochiApi {
   moodText(): string;
-  // Her personal layer, only in the integration tests (Test mode). Other
-  // extensions can read Mochi's exports, so it's never handed out otherwise.
+  // Her personal layer and the greeter, only in the integration tests (Test
+  // mode). Other extensions can read Mochi's exports, so they're never
+  // handed out otherwise.
   personal?: PersonalLayer;
+  greeter?: Greeter;
 }
 
 // VS Code calls this once, after it finishes starting up.
@@ -53,7 +56,7 @@ export function activate(context: vscode.ExtensionContext): MochiApi {
   refreshMood();
   const followSpeakUp = onSpeakUpChange(refreshMood);
   const focus = registerFocus(timer, refreshMood);
-  void timer.restore();
+  const restored = timer.restore();
 
   // Mochi's personality comes from the default pack, with her personal layer
   // on top (MOCHI-41). pack() is read fresh each time Mochi speaks, so a
@@ -63,12 +66,6 @@ export function activate(context: vscode.ExtensionContext): MochiApi {
   });
   const pack = () => personal.pack();
   const names = registerNameCommands(personal);
-
-  // A temporary preview of the greeting (MOCHI-33), so her name can be seen
-  // before the greeting moment exists. Removed when MOCHI-33 lands.
-  const sayHello = vscode.commands.registerCommand("mochi.sayHello", () => {
-    void vscode.window.showInformationMessage(greeting(pack(), new Date(), undefined, readLateHour()));
-  });
 
   // Talking to Mochi, through VS Code's built-in AI for now.
   // Answers show in the output panel until the panel chat exists (MOCHI-21).
@@ -85,25 +82,36 @@ export function activate(context: vscode.ExtensionContext): MochiApi {
   const dim = vscode.commands.registerCommand("mochi.dim", () => offer(dimAction(), choose));
   const lateNight = watchLateNight(pack, timer, context.globalState);
 
+  // The greeting when VS Code opens, once a day (MOCHI-33). It waits for a
+  // saved focus session to be picked up, so it knows if she's focusing.
+  const greeter = new Greeter(context.globalState, pack, () => timer.isRunning(), notificationGreeting);
+  const greeted = restored.then(() => greeter.greet());
+  // When and where she last coded, for tomorrow's greeting.
+  const coding = rememberCoding(context.globalState);
+
   // Setting up a Python project (MOCHI-28), and offering it once per
   // project, never during a focus session. Never in Restricted Mode.
   const python = registerPythonSetup(choose);
-  const pythonOffer = watchPythonProjects(context.workspaceState, choose, () => timer.isRunning());
+  // The Python offer waits until after the greeting, so two notes don't
+  // arrive at once.
+  const afterGreeting = greeted.then((text) => (text ? new Promise((done) => setTimeout(done, 5_000)) : undefined));
+  const pythonOffer = watchPythonProjects(context.workspaceState, choose, () => timer.isRunning(), afterGreeting);
 
   // Developer tools, only when running from source (Run > Start Debugging).
   // They're never in the published package: out/dev/ is left out of the
   // .vsix (.vscodeignore, checked in CI), and package.json doesn't list them.
   if (context.extensionMode === vscode.ExtensionMode.Development) {
     const { registerDevTools } = require("./dev/devTools") as typeof import("./dev/devTools");
-    context.subscriptions.push(registerDevTools(personal));
+    context.subscriptions.push(registerDevTools(personal, greeter));
   }
 
   // Anything added here is cleaned up when Mochi shuts down.
-  context.subscriptions.push(names, sayHello, open, home, mood, followSpeakUp, focus, timer, surface, ask, explain, stuck, dim, lateNight, python, pythonOffer);
+  context.subscriptions.push(names, open, home, mood, followSpeakUp, focus, timer, surface, ask, explain, stuck, dim, lateNight, coding, python, pythonOffer);
 
   return {
     moodText: () => mood.text,
     personal: context.extensionMode === vscode.ExtensionMode.Test ? personal : undefined,
+    greeter: context.extensionMode === vscode.ExtensionMode.Test ? greeter : undefined,
   };
 }
 

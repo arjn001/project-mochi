@@ -419,7 +419,13 @@ async function offerFor(folder: vscode.WorkspaceFolder, watch: Watch): Promise<b
 // Offers once per project: when she opens one that needs setting up, trusts
 // or adds a folder, or saves a Python file (so a folder that was empty when
 // she opened it still gets the offer). One offer at a time.
-export function watchPythonProjects(state: vscode.Memento, choose: Choose, isFocusing: () => boolean): vscode.Disposable {
+export function watchPythonProjects(
+  state: vscode.Memento,
+  choose: Choose,
+  isFocusing: () => boolean,
+  // The first check waits for this, like the greeting finishing.
+  startAfter: PromiseLike<unknown> = Promise.resolve()
+): vscode.Disposable {
   const watch: Watch = { state, choose, isFocusing };
   let busy = false;
   const check = async () => {
@@ -440,7 +446,7 @@ export function watchPythonProjects(state: vscode.Memento, choose: Choose, isFoc
       busy = false;
     }
   };
-  void check();
+  void Promise.resolve(startAfter).then(check, check);
   return vscode.Disposable.from(
     vscode.workspace.onDidGrantWorkspaceTrust(check),
     vscode.workspace.onDidChangeWorkspaceFolders(check),

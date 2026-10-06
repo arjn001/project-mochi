@@ -86,6 +86,15 @@ The default lines are in `packs/default/pack.json` (format in PACKS.md).
   private personal layer.
 - **No anime or pop-culture references in the default pack.** Those belong
   in the personal layer.
+- **No counting absence:** after time away, a warm "Welcome back! I missed
+  you." or "Oh hi! Good to see you again.", never "It's been 3 days." A unit
+  test checks the default lines.
+- **The greeting** (once a day, when VS Code opens): a gentle notification
+  that fades on its own, until the panel exists. Up to three short
+  sentences: "Meow, good evening! Welcome back! I missed you. Back to
+  homework-3?" The project line, "Back to {project}?" or "Picking up
+  {project} again? I'm ready.", shows only when she opens the project she
+  last coded in.
 
 ## Prompts and dialogs
 - **Sharing:** a modal dialog that names the AI and says exactly what would

@@ -92,10 +92,24 @@
   instructions, and Mochi's rules always come from code (see ARCHITECTURE.md).
 - A damaged or too-new layer falls back to the default pack with one kind
   message per session, and is kept, never deleted.
-- "What should I call you?" and "Forget my name" exist now. Until the greeting
-  (MOCHI-33), "Mochi: Say Hello" shows the real greeting as a preview.
+- "What should I call you?" and "Forget my name" exist now, and the greeting
+  (MOCHI-33) uses her name.
 - A loader for trying a whole layer from a JSON file exists only when Mochi
   runs from source. It's never in the published package (checked in CI).
+
+## The greeting
+- Once a day across all her windows, like the late-night nudge. Chatty mode
+  too. Never in quiet mode, or when a focus session is already running.
+- A warm welcome back after 2 or more days away, never with a number:
+  counting absence can feel like guilt.
+- Mochi remembers when she last coded and the project's folder name (never a
+  path or anything from her code), saving at most once a minute.
+- Shown as a fading notification until the panel exists, through a small
+  greeting surface the panel will take over.
+- On her first-ever day, the first-run welcome (MOCHI-42) replaces the
+  greeting; never both.
+- If a Python project is opening too, the Python offer waits until after the
+  greeting.
 
 ## Setting up a Python project
 - Mochi creates a virtual environment in `.venv`, the standard name the
