@@ -12,17 +12,19 @@ update isn't listed.*
 
 - **Open pull requests:** none.
 - **In progress:** MOCHI-50 Design the visual identity, by Arjun.
-- **Next:** mark MOCHI-28 Done in Jira once this lands on `main`. Then the
-  next task from "Next" below: MOCHI-53, MOCHI-41, or MOCHI-33.
+- **Next:** mark MOCHI-41 Done in Jira once it's merged. Then the next task
+  from "Next" below: MOCHI-33 (the greeting, which can now use her name) or
+  MOCHI-53.
 - **Waiting on:**
+  - Arjun to try the personal layer by hand and merge MOCHI-41.
   - Arjun to pick the next task.
   - MOCHI-53 needs a Claude API key to test with (billed per use, separate
     from a Claude subscription).
   - The panel work (MOCHI-16, MOCHI-17, MOCHI-21, MOCHI-25) waits on
     DESIGN.md being finished (MOCHI-50).
 
-**31 of 53 Jira tasks and subtasks done**, counting MOCHI-28. 2 of the 8
-categories are complete. 185 tests (165 unit, 20 integration) run on every
+**32 of 53 Jira tasks and subtasks done**, counting MOCHI-41. 2 of the 8
+categories are complete. 210 tests (187 unit, 23 integration) run on every
 pull request.
 
 ## Done
@@ -79,6 +81,12 @@ MOMENTS.md, PRESENCE.md, ARCHITECTURE.md, and BUILD_PLAN.md.
 - Pack format with strict checking for untrusted gifts, night-owl greetings,
   and her optional name (MOCHI-39). Default pack with the reviewed voice
   (MOCHI-40).
+- Her personal layer: her name ("What should I call you?", "Forget my
+  name"), her own lines, and style notes, kept on her own computer and used
+  right away with no reload. A damaged layer falls back kindly and is kept.
+  The voice is treated as untrusted: style notes only, quoted to the AI as
+  data, with Mochi's rules from code in charge, tested with a hostile voice.
+  Her name is never sent to the AI (MOCHI-41).
 
 **AI chat (MOCHI-20), partly done.**
 - Share gate that TypeScript won't let anything skip (MOCHI-23).
@@ -99,23 +107,24 @@ MOMENTS.md, PRESENCE.md, ARCHITECTURE.md, and BUILD_PLAN.md.
 Work that doesn't need the panel, for Arjun to order:
 1. **MOCHI-53 Connect Claude**, with her own key in secret storage. Add
    esbuild bundling here if it brings Mochi's first runtime dependency.
-2. **MOCHI-41 The private personal layer**, storage first; its "Make it
-   yours" page needs the design.
-3. **MOCHI-33 Greeting when VS Code opens.** Its home is the panel, so where
-   it shows before then needs deciding.
+2. **MOCHI-33 Greeting when VS Code opens.** It can use her name now. Its
+   home is the panel, so where it shows before then needs deciding.
 
 Then:
-4. **Before publishing (Release):** MOCHI-60 Windows and macOS in CI,
+3. **Before publishing (Release):** MOCHI-60 Windows and macOS in CI,
    MOCHI-61 "Mochi: Report a problem", MOCHI-62 decide on web support, and
    MOCHI-63 localization.
-5. **After DESIGN.md is finished:** MOCHI-17, MOCHI-16, MOCHI-21, then
+4. **After DESIGN.md is finished:** MOCHI-17, MOCHI-16, MOCHI-21, then
    MOCHI-25 (streaming in the chat). The early preview for her comes after
    Milestone 3, with the default pack only.
 
 ## Loose ends to remember
 - Remove the temporary "Mochi: Ask (preview)" command when the panel chat
-  (MOCHI-21) lands, and the demo "Mochi: Say Hello" command when real
-  features replace it.
+  (MOCHI-21) lands, and "Mochi: Say Hello" (now a preview of the greeting)
+  when MOCHI-33 lands.
+- The development-only "Mochi dev" tools (a beaker in the development
+  window's status bar) load a whole personal layer from a JSON file. Remove
+  or replace them when "Make it yours" (MOCHI-43) or gifts (MOCHI-56) land.
 - "Set one up" opens VS Code's Copilot setup for now. MOCHI-42 replaces it
   with "Pick a brain" inside Mochi's tab, plus a "Got a brain!" confirmation.
 - PRESENCE.md and ARCHITECTURE.md still quote the old code hint ("Want me
