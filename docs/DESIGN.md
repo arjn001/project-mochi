@@ -143,6 +143,13 @@ The default lines are in `packs/default/pack.json` (format in PACKS.md).
   Python on this computer. Want to install it?" with "Get Python". With no
   folder open: "Open your project folder first, and I'll set it up." with
   "Open Folder".
+- **Several folders open:** "Which project should I set up?", listing folder
+  names only (never paths), with the one she's working in first, marked
+  "where you're working now".
+- **Remote setups:** "I couldn't find Python in this WSL distro. It needs to
+  be installed there, not on your own computer.", plus the apt command on
+  Linux. Where there's no Trash, Undo asks "I can't move .venv to the Trash
+  here. Delete it for good?" with "Delete it" and "Keep it".
 - **When setup goes wrong:** installing shows a Cancel button; stopping says
   "Okay, I stopped installing. Anything that finished is still there." A
   failed install mentions no internet or a restricted network as a common

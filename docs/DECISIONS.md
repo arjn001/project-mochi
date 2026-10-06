@@ -13,7 +13,8 @@
 ## Where Mochi runs
 - Desktop only in version 1, on purpose: VS Code on Windows, macOS, and
   Linux, including remote setups (SSH, WSL, dev containers, Codespaces),
-  where Mochi runs on the machine that has her files.
+  where Mochi runs on the machine that has her files (`extensionKind` is
+  "workspace" in package.json).
 - Not VS Code for the Web (vscode.dev, github.dev). Mochi has no web entry
   point, so it doesn't load there. Whether to support it is decided later
   (MOCHI-62).
@@ -115,6 +116,14 @@
   setting isn't "off" (the default is "prompt"), and the project has a
   requirements file. Checked against the extension's own code (2026.6.0),
   not assumed. The command always works.
+- In a remote setup, Python, git, and the terminal are the remote ones, so
+  in WSL she gets Linux commands even on a Windows laptop. "No Python" names
+  the machine ("in this WSL distro") instead of linking downloads for the
+  wrong computer. Where there's no Trash (often on remote machines and in
+  containers), Undo asks "Delete it for good?" instead of failing.
+- In a multi-root workspace, the command always asks which folder, with the
+  one she's working in first. Setting up the wrong folder silently would put
+  `.venv` in the wrong place. The automatic offer is tracked per folder.
 - Course folders (`hw1/`, `hw2/`, ...) get one `.venv` at the top. Only the
   top-level `requirements.txt` is installed, and the question names it.
 - An install can be stopped with Cancel, and a failed one mentions that no
