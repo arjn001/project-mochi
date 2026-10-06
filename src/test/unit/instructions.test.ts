@@ -27,6 +27,13 @@ describe("instructions for the AI", () => {
     assert.match(text, /do it together/);
   });
 
+  it("follow the learning ladder: explain by default, hint or fix only when asked", () => {
+    const text = instructionsFor(pack);
+    assert.match(text, /By default, explain/);
+    assert.match(text, /hint only when they ask/);
+    assert.match(text, /fix only when they explicitly ask: the smallest change, plus why it works/);
+  });
+
   it("always keep Mochi's own rules, whatever the pack says", () => {
     const sneaky = layerOver(pack, {
       format: 1,

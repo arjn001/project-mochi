@@ -1,8 +1,6 @@
 import * as path from "node:path";
 import * as vscode from "vscode";
-import { NO_BRAIN, askMochi } from "./askMochi";
-import { askToShare } from "./askToShare";
-import { BrainError, Provider, brainProblemMessages } from "./provider";
+import { Conversation } from "./conversation";
 import { Attachment } from "./shareGate";
 
 // TEMPORARY: "Mochi: Ask" lets her talk to Mochi before the panel exists.
@@ -20,65 +18,14 @@ function selectedCode(): Attachment[] {
   return [{ kind: "selection", label, text: doc.getText(editor.selection) }];
 }
 
-// Opens VS Code's own Copilot setup ("Use AI Features with Copilot for
-// free..."), which signs her in to GitHub and turns Copilot on. Until the
-// welcome's "Pick a brain" exists (MOCHI-42).
-async function setUpCopilot(): Promise<void> {
-  try {
-    await vscode.commands.executeCommand("workbench.action.chat.triggerSetup");
-  } catch {
-    await vscode.commands.executeCommand("workbench.action.chat.open");
-  }
-}
-
-// `instructions` is asked for on every question, so a new personality (like
-// her personal layer) takes effect right away.
-export function registerAskCommand(provider: Provider, instructions: () => string): vscode.Disposable {
-  const output = vscode.window.createOutputChannel("Mochi");
-
-  const command = vscode.commands.registerCommand("mochi.ask", async () => {
+export function registerAskCommand(conversation: Conversation): vscode.Disposable {
+  return vscode.commands.registerCommand("mochi.ask", async () => {
     const message = await vscode.window.showInputBox({
       prompt: "Ask Mochi anything",
       placeHolder: "What does this error mean?",
     });
-    if (!message?.trim()) {
-      return;
+    if (message?.trim()) {
+      await conversation.ask({ message, attachments: selectedCode() }, `You: ${message}`);
     }
-
-    const controller = new AbortController();
-    // Checks for a brain and passes the share gate. Nothing is sent yet.
-    const result = await askMochi({ message, attachments: selectedCode() }, provider, instructions(), askToShare, controller.signal);
-
-    if (result.status === "noBrain") {
-      const setUp = "Set one up";
-      if ((await vscode.window.showInformationMessage(NO_BRAIN, setUp)) === setUp) {
-        await setUpCopilot();
-      }
-      return;
-    }
-    if (result.status === "notSent") {
-      return;
-    }
-
-    output.show(true);
-    output.appendLine(`You: ${message}`);
-    output.append(`Mochi (${provider.name}): `);
-    await vscode.window.withProgress(
-      { location: vscode.ProgressLocation.Notification, title: "Mochi is thinking...", cancellable: true },
-      async (_progress, token) => {
-        token.onCancellationRequested(() => controller.abort());
-        try {
-          for await (const piece of result.text) {
-            output.append(piece);
-          }
-        } catch (error) {
-          const problem = error instanceof BrainError ? error.problem : "other";
-          vscode.window.showWarningMessage(brainProblemMessages[problem]);
-        }
-        output.appendLine("\n");
-      }
-    );
   });
-
-  return vscode.Disposable.from(command, output);
 }

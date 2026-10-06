@@ -4,7 +4,14 @@ import { compose } from "../../ai/compose";
 import { Provider } from "../../ai/provider";
 import { Answer, Attachment, GatedRequest, throughShareGate } from "../../ai/shareGate";
 
-const errors: Attachment = { kind: "errors", label: "homework.py", text: "NameError: name 'x' is not defined" };
+const errors: Attachment = {
+  kind: "errorContext",
+  label: "homework.py",
+  text: "NameError: name 'x' is not defined",
+  from: 1,
+  to: 1,
+  errorLine: 1,
+};
 
 // A fake brain that answers in two pieces and remembers what reached it.
 function fakeBrain(available = true) {
@@ -55,13 +62,25 @@ describe("asking Mochi", () => {
     assert.strictEqual(received.length, 0, "Nothing may reach the brain after Cancel.");
   });
 
+  it("passes on a refusal for secret files, without asking or sending", async () => {
+    const { brain, received } = fakeBrain();
+    const result = await askMochi(
+      { message: "Why?", attachments: [{ kind: "selection", label: ".env", text: "KEY=1" }] },
+      brain,
+      "",
+      answering("share")
+    );
+    assert.strictEqual(result.status, "refused");
+    assert.strictEqual(received.length, 0);
+  });
+
   it("names the brain in the share question", async () => {
     const asked: string[] = [];
     await askMochi({ message: "Why?", attachments: [errors] }, fakeBrain().brain, "", async (q) => {
       asked.push(q);
       return "cancel";
     });
-    assert.deepStrictEqual(asked, ["Share the errors in homework.py with Fake Brain?"]);
+    assert.deepStrictEqual(asked, ["Share lines 1 to 1 of homework.py (the error on line 1) with Fake Brain?"]);
   });
 
   it("gives the brain the instructions and only what she agreed to share", async () => {
@@ -78,10 +97,11 @@ describe("asking Mochi", () => {
 
 describe("composing a request for the AI", () => {
   it("puts her message first, then each attachment in a fenced block", async () => {
-    const gated = await throughShareGate({ message: " Why does this fail? ", attachments: [errors] }, "Claude", answering("share"));
+    const gate = await throughShareGate({ message: " Why does this fail? ", attachments: [errors] }, "Claude", answering("share"));
+    assert.strictEqual(gate.status, "sent");
     assert.strictEqual(
-      compose(gated!),
-      "Why does this fail?\n\nErrors in homework.py:\n```\nNameError: name 'x' is not defined\n```"
+      gate.status === "sent" && compose(gate.request),
+      "Why does this fail?\n\nLines 1 to 1 of homework.py, with the error on line 1:\n```\nNameError: name 'x' is not defined\n```"
     );
   });
 });

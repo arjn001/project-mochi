@@ -3,6 +3,9 @@ import { choose } from "./actions/choose";
 import { offer } from "./actions/confirm";
 import { dimAction } from "./actions/theme";
 import { registerAskCommand } from "./ai/askCommand";
+import { Conversation } from "./ai/conversation";
+import { registerExplain } from "./ai/explainCommands";
+import { createOutputSurface } from "./ai/outputSurface";
 import { BuiltInAi } from "./ai/builtInAi";
 import { instructionsFor } from "./ai/instructions";
 import { loadDefaultPack } from "./packs/defaultPack";
@@ -53,7 +56,11 @@ export function activate(context: vscode.ExtensionContext): MochiApi {
   const pack = loadDefaultPack();
 
   // Talking to Mochi, through VS Code's built-in AI for now.
-  const ask = registerAskCommand(new BuiltInAi(), () => instructionsFor(pack));
+  // Answers show in the output panel until the panel chat exists (MOCHI-21).
+  const surface = createOutputSurface();
+  const conversation = new Conversation(new BuiltInAi(), () => instructionsFor(pack), surface);
+  const ask = registerAskCommand(conversation);
+  const explain = registerExplain(conversation, surface);
 
   // Actions always ask first (MOCHI-31). The late-night nudge offers the
   // same one, in the pack's words.
@@ -61,7 +68,7 @@ export function activate(context: vscode.ExtensionContext): MochiApi {
   const lateNight = watchLateNight(pack, timer, context.globalState);
 
   // Anything added here is cleaned up when Mochi shuts down.
-  context.subscriptions.push(sayHello, open, home, mood, followSpeakUp, focus, timer, ask, dim, lateNight);
+  context.subscriptions.push(sayHello, open, home, mood, followSpeakUp, focus, timer, surface, ask, explain, dim, lateNight);
 
   return { moodText: () => mood.text };
 }
