@@ -10,6 +10,14 @@
   default pack and a private personal layer that never ships publicly.
 - Settings are always editable through a "Make it yours" page.
 
+## Where Mochi runs
+- Desktop only in version 1, on purpose: VS Code on Windows, macOS, and
+  Linux, including remote setups (SSH, WSL, dev containers, Codespaces),
+  where Mochi runs on the machine that has her files.
+- Not VS Code for the Web (vscode.dev, github.dev). Mochi has no web entry
+  point, so it doesn't load there. Whether to support it is decided later
+  (MOCHI-62).
+
 ## Name and ID
 - Marketplace display name: "Mochi Companion". Plain "Mochi" is already taken
   by another AI coding extension.
@@ -71,6 +79,48 @@
 - An error is identified by its message plus the code on and around its line,
   never by line number, so an error that moves isn't offered again.
 
+## Setting up a Python project
+- Mochi creates a virtual environment in `.venv`, the standard name the
+  Python extension finds on its own. The steps run as VS Code tasks in the
+  terminal panel, so she sees the real commands, and success ends with the
+  one she can type herself ("python3 -m venv .venv").
+- From the Command Palette, creating `.venv` isn't confirmed again: she asked
+  for it, and Undo moves `.venv` to the Trash.
+- Installing `requirements.txt` is always asked first ("This project lists 3
+  packages in requirements.txt. Install them too?"), since it downloads and
+  runs code she didn't directly ask for.
+- Adding `.venv` to `.gitignore` is asked first too, and only offered in a
+  git repo that doesn't ignore it yet, on Python older than 3.13 (newer
+  versions make `.venv` ignore itself).
+- Never in Restricted Mode: in a folder she hasn't trusted, Mochi never runs
+  setup or installs and never offers, and explains kindly if she asks. Mochi
+  supports Restricted Mode in a limited way for this, instead of switching
+  off completely there.
+- Projects that use conda (`environment.yml`), Pipenv (`Pipfile`), Poetry
+  (`poetry.lock`), or uv (`uv.lock`) are left to that tool. An environment is
+  already there if `.venv/`, `venv/`, or `env/` has a `pyvenv.cfg`.
+- Mochi offers on its own once per project, ever, only when Python is
+  installed. It remembers which project folders it offered for, and nothing
+  about the code in them.
+- On a Mac without the developer tools, `/usr/bin/python3` is only a
+  placeholder that pops up an installer, so Mochi skips it instead of acting
+  without asking.
+- Mochi looks again whenever she saves a `.py` file, `requirements.txt`, or
+  `pyproject.toml`, so a folder that was empty when she opened it still gets
+  the offer once she starts writing Python. After not finding Python, it
+  waits 10 minutes before looking again.
+- The offer waits while she's in a focus session.
+- Mochi's automatic offer steps aside when Microsoft's Python extension will
+  ask the same thing: it's installed, its `python.createEnvironment.trigger`
+  setting isn't "off" (the default is "prompt"), and the project has a
+  requirements file. Checked against the extension's own code (2026.6.0),
+  not assumed. The command always works.
+- Course folders (`hw1/`, `hw2/`, ...) get one `.venv` at the top. Only the
+  top-level `requirements.txt` is installed, and the question names it.
+- An install can be stopped with Cancel, and a failed one mentions that no
+  internet or a restricted network is a common reason. On Linux, a failed
+  setup mentions the usual cause, a missing python3-venv package.
+
 ## Building and packaging
 - Mochi is packaged into a `.vsix` with `npm run package`. Source code
   (`src/`) and compiled tests (`out/test/`) never go into the package, and CI
@@ -81,6 +131,12 @@
 - No license yet. Mochi is packaged with `--skip-license` until one is chosen
   before going public (MOCHI-59). Leaning: MIT for the code, with Mochi's
   name, icons, and art all rights reserved.
+
+## Writing
+- Every sentence Mochi shows lives in one place: the pack (Mochi's voice) or
+  `src/strings.ts`, never inline in code. This keeps the wording reviewable
+  and ready for other languages (MOCHI-63). It started with MOCHI-28; older
+  sentences move there as part of MOCHI-63.
 
 ## Process
 - Jira space MOCHI: each category is a "User Stories" epic with its user

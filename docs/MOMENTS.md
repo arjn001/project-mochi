@@ -27,6 +27,19 @@ her click.
 - **Never:** in quiet mode, on warnings, in other files, say she's wrong,
   keep offering, or read her code without a click.
 
+## Opening a Python project
+- **Trigger:** she opens a folder she trusts that has Python files (or a
+  `requirements.txt` or `pyproject.toml`), no virtual environment yet, and
+  no other tool like Poetry or conda in charge. Saving her first Python file
+  in an empty folder counts too.
+- **What Mochi does:** offers once to set up a virtual environment,
+  explaining in one line what that is. After a yes, it sets up `.venv`, then
+  asks before installing packages or changing `.gitignore`.
+- **Offered once per project, ever,** whatever she answers.
+- **Never:** in quiet mode, in Restricted Mode, during a focus session,
+  without Python installed, in a project that already has an environment,
+  or when the Python extension is about to ask the same thing.
+
 ## Coding late
 - **Trigger:** she's typing after the late hour, a setting that's 23:00 by
   default. Late night lasts until 5:00.

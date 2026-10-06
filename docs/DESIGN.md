@@ -123,6 +123,32 @@ The default lines are in `packs/default/pack.json` (format in PACKS.md).
   theme. Cozy!"
 - **Never change a high contrast theme.** Someone using one most likely needs
   it.
+- **Setting up a Python project:** "Mochi: Set up a Python project" in the
+  Command Palette. The steps show in the terminal panel, with "Setting up a
+  virtual environment in .venv..." while it works. Then, each asked first:
+  "This project lists 3 packages in requirements.txt. Install them too?"
+  with "Install" and "Not now", and "This project uses git. Want me to add
+  .venv to .gitignore, so it stays out of your commits?" with "Add it". It
+  ends with a teaching line and Undo: "Your Python project is all set up in
+  .venv! Next time you can do this yourself with python3 -m venv .venv".
+- **Offering Python setup on its own:** "This looks like a Python project.
+  Want me to set up a virtual environment? It keeps this project's packages
+  in their own box." with "Set it up" and "Not now".
+- **Why Mochi won't set up:** "This project already has a virtual
+  environment (venv). You're all set!", "This project uses Poetry (I spotted
+  poetry.lock), so I'll let Poetry handle its environment.", and in
+  Restricted Mode, "This folder is in Restricted Mode, so I won't run
+  anything in it. If you trust it, you can change that, and then I'd love to
+  help." with "Manage Workspace Trust". Without Python: "I couldn't find
+  Python on this computer. Want to install it?" with "Get Python". With no
+  folder open: "Open your project folder first, and I'll set it up." with
+  "Open Folder".
+- **When setup goes wrong:** installing shows a Cancel button; stopping says
+  "Okay, I stopped installing. Anything that finished is still there." A
+  failed install mentions no internet or a restricted network as a common
+  reason, and a failed setup on Linux names the python3-venv package.
+- **Where sentences live:** every sentence above is in `src/strings.ts` (or
+  the pack), never inline in code.
 
 ## Not designed yet (MOCHI-50)
 - **The panel's look:** avatar, greeting, chat, quick buttons ("Explain this",
