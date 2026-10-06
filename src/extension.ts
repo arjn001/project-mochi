@@ -10,6 +10,7 @@ import { createOutputSurface } from "./ai/outputSurface";
 import { BuiltInAi } from "./ai/builtInAi";
 import { instructionsFor } from "./ai/instructions";
 import { loadDefaultPack } from "./packs/defaultPack";
+import { PersonalLayer } from "./packs/personalLayer";
 import { registerFocus } from "./focus/focusCommands";
 import { watchLateNight } from "./moments/lateNightWatcher";
 import { watchStuck } from "./moments/stuckWatcher";
@@ -53,14 +54,18 @@ export function activate(context: vscode.ExtensionContext): MochiApi {
   const focus = registerFocus(timer, refreshMood);
   void timer.restore();
 
-  // Mochi's personality comes from the pack. The personal layer goes on top
-  // of the default pack later (MOCHI-41).
-  const pack = loadDefaultPack();
+  // Mochi's personality comes from the default pack, with her personal layer
+  // on top (MOCHI-41). pack() is read fresh each time Mochi speaks, so a
+  // change to her layer shows up right away.
+  const personal = new PersonalLayer(context.globalState, loadDefaultPack(), (message) => {
+    void vscode.window.showWarningMessage(message);
+  });
+  const pack = () => personal.pack();
 
   // Talking to Mochi, through VS Code's built-in AI for now.
   // Answers show in the output panel until the panel chat exists (MOCHI-21).
   const surface = createOutputSurface();
-  const conversation = new Conversation(new BuiltInAi(), () => instructionsFor(pack), surface);
+  const conversation = new Conversation(new BuiltInAi(), () => instructionsFor(pack()), surface);
   const ask = registerAskCommand(conversation);
   const explain = registerExplain(conversation, surface);
 
