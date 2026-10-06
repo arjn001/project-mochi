@@ -11,8 +11,19 @@ export const PACK_FORMAT = 1;
 // The moments Mochi has lines for (see MOMENTS.md). greetingLate replaces
 // greeting after the late-night hour, since "Good night" sounds like goodbye.
 // lateNight lines offer a darker theme; lateNightCompany lines only keep her
-// company, for themes that are already dark or high contrast.
-export const MOMENTS = ["greeting", "greetingLate", "stuck", "lateNight", "lateNightCompany", "celebrate"] as const;
+// company, for themes that are already dark or high contrast. welcomeBack and
+// backToProject follow the greeting: after 2+ days away (never counting
+// them), and when she opens the project she last coded in.
+export const MOMENTS = [
+  "greeting",
+  "greetingLate",
+  "welcomeBack",
+  "backToProject",
+  "stuck",
+  "lateNight",
+  "lateNightCompany",
+  "celebrate",
+] as const;
 export type Moment = (typeof MOMENTS)[number];
 
 // Placeholders a phrase may use, per moment. {companion} is the companion's
@@ -21,6 +32,8 @@ export type Moment = (typeof MOMENTS)[number];
 const PLACEHOLDERS: Record<Moment, readonly string[]> = {
   greeting: ["companion", "name", "timeOfDay"],
   greetingLate: ["companion", "name"],
+  welcomeBack: ["companion"],
+  backToProject: ["companion", "project"],
   stuck: ["companion"],
   lateNight: ["companion"],
   lateNightCompany: ["companion"],

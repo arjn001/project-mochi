@@ -8,6 +8,8 @@ const complete: Pack = {
   phrases: {
     greeting: ["Good {timeOfDay}! What are we making?"],
     greetingLate: ["Hi, night owl!"],
+    welcomeBack: ["Welcome back!"],
+    backToProject: ["Back to {project}?"],
     stuck: ["Want me to take a look?"],
     lateNight: ["It's late. Some water?"],
     lateNightCompany: ["Still here with you."],
@@ -95,6 +97,8 @@ describe("pack format", () => {
       assert.match(errorsFor({ format: 1, phrases: { stuck: ["{thing} again?"] } }), /\{thing\}, which stuck/);
       assert.match(errorsFor({ format: 1, phrases: { greeting: ["Hi {apiKey}"] } }), /\{apiKey\}/);
       assert.match(errorsFor({ format: 1, phrases: { stuck: ["Need help, {name}?"] } }), /\{name\}, which stuck/);
+      assert.match(errorsFor({ format: 1, phrases: { welcomeBack: ["Back after {days} days!"] } }), /\{days\}/);
+      assert.match(errorsFor({ format: 1, phrases: { greeting: ["Back to {project}?"] } }), /\{project\}, which greeting/);
     });
 
     it("with a bad user name, or unknown user fields", () => {
