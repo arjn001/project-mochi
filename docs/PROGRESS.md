@@ -10,15 +10,11 @@ session.
 *As of the last commit of the latest task, so the pull request carrying this
 update isn't listed.*
 
-- **Open pull requests:** #33 MOCHI-28 Set up a Python project (this one is
-  stacked on it, so #33 merges first).
+- **Open pull requests:** none.
 - **In progress:** MOCHI-50 Design the visual identity, by Arjun.
-- **Next:** mark MOCHI-28 Done in Jira once both of its pull requests are
-  merged. Then the next task from "Next" below: MOCHI-53, MOCHI-41, or
-  MOCHI-33.
+- **Next:** mark MOCHI-28 Done in Jira once this lands on `main`. Then the
+  next task from "Next" below: MOCHI-53, MOCHI-41, or MOCHI-33.
 - **Waiting on:**
-  - Arjun to try Python setup by hand and merge both MOCHI-28 pull
-    requests, #33 first.
   - Arjun to pick the next task.
   - MOCHI-53 needs a Claude API key to test with (billed per use, separate
     from a Claude subscription).
