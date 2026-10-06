@@ -5,15 +5,23 @@ principles in VISION.md: gentle, never in the way, and nothing leaves without
 her click.
 
 ## Opening VS Code
-- **Trigger:** the extension starts up.
-- **What Mochi does:** greets her with something about her day: the time of
-  day, how long since she last coded, or what she was working on last time.
-- **Example:** "Meow, good evening! It's been two days. Back to the database
-  project?"
+- **Trigger:** VS Code opens, once a day across all her windows (a day runs
+  until 5:00).
+- **What Mochi does:** greets her with something about her day, in at most
+  three short sentences: the time of day, a warm welcome back after 2 or
+  more days away (never counting them), and the project she last coded in,
+  when she opens it again.
+- **Example:** "Meow, good evening! Welcome back! I missed you. Back to
+  homework-3?"
 - **After the late-night hour:** "Hi, night owl!" instead of a time of day,
   since "Good night" sounds like goodbye.
 - **Her name:** used in a greeting only when she has set one.
-- **Never:** a wall of text, a list of tips, or guilt about time away.
+- **Where:** a gentle notification that fades on its own, until the panel
+  exists (MOCHI-16). On her first-ever day, the first-run welcome (MOCHI-42)
+  replaces it; never both.
+- **Never:** a wall of text, a list of tips, counting or guilt about time
+  away, in quiet mode, or when a focus session is already running. Chatty
+  mode greets once a day too.
 
 ## Stuck on errors
 - **Trigger:** an error (not a warning) stays in the file she's editing for 2
@@ -81,4 +89,5 @@ Playful, warm, and a little bit cat.
 - **Doesn't sound like Mochi:**
   - Corporate: "Your task has been completed successfully."
   - Guilt: "You haven't coded in 5 days."
+  - Counting absence: "It's been 3 days." Welcome her back without numbers.
   - Lecturing: "As I explained before, you need to..."
