@@ -2,10 +2,28 @@
 
 Where Mochi stands, as of 2026-10-05. Jira (space MOCHI) is the source of
 truth for task status; this doc is the readable summary, plus Arjun's likes
-and dislikes. Update it at the end of each working session.
+and dislikes. "Current state" is updated at the end of every task, as part
+of that task's last commit. The rest is updated at the end of each working
+session.
 
-**32 of 51 Jira items done** (30 tasks and 2 subtasks). 111 tests (98 unit,
-13 integration) run on every pull request.
+## Current state
+*As of the last commit of the latest task, so the pull request carrying this
+update isn't listed.*
+
+- **Open pull requests:** none.
+- **In progress:** MOCHI-50 Design the visual identity, by Arjun.
+- **Next:** mark MOCHI-30 and MOCHI-34 Done in Jira (both merged). Then the
+  next task from "Next" below: MOCHI-53, MOCHI-28, MOCHI-41, or MOCHI-33.
+- **Waiting on:**
+  - Arjun to pick the next task.
+  - MOCHI-53 needs a Claude API key to test with (billed per use, separate
+    from a Claude subscription).
+  - The panel work (MOCHI-16, MOCHI-17, MOCHI-21, MOCHI-25) waits on
+    DESIGN.md being finished (MOCHI-50).
+
+**30 of 49 Jira tasks and subtasks done**, counting MOCHI-30 and MOCHI-34
+(merged, still to be marked Done in Jira). 2 of the 8 categories are
+complete. 141 tests (125 unit, 16 integration) run on every pull request.
 
 ## Done
 **Vision and design (MOCHI-2), complete.** VISION.md, DECISIONS.md,
@@ -29,6 +47,10 @@ MOMENTS.md, PRESENCE.md, ARCHITECTURE.md, and BUILD_PLAN.md.
 - Late-night nudge, once per night across windows while she's typing, after
   the Late Hour setting. A light theme gets the dim offer; dark and high
   contrast themes get company only. Never during a focus session (MOCHI-35).
+- Noticing when she's stuck: a plain "Need a paw?" at the end of an error's
+  line after 2 minutes, while she's typing in that file. Errors only, once
+  per session, known by message and nearby code, kept in memory only
+  (MOCHI-34).
 
 **Actions (MOCHI-26), partly done.**
 - Mochi confirms before doing anything she didn't directly ask for, with Undo
@@ -37,6 +59,12 @@ MOMENTS.md, PRESENCE.md, ARCHITECTURE.md, and BUILD_PLAN.md.
   contrast themes (MOCHI-27).
 - Focus timer: "Focusing · 18 min left" in the mood line, saved across
   reloads, "Another round" or "Done" when time's up (MOCHI-29).
+- Explaining an error or selected code, on the learning ladder: explain
+  first, then a hint or the fix only if she asks. From the lightbulb next to
+  an error or "Mochi: Explain this" on a right-click. Shares only the error
+  plus 3 lines each side, never `.env` or key files, and warns about text
+  that looks like a password. Answers show in the "Mochi" output panel
+  without taking focus, until the panel chat exists (MOCHI-30).
 
 **Packs and personalization (MOCHI-38), partly done.**
 - Pack format with strict checking for untrusted gifts, night-owl greetings,
@@ -62,12 +90,11 @@ MOMENTS.md, PRESENCE.md, ARCHITECTURE.md, and BUILD_PLAN.md.
 Work that doesn't need the panel, for Arjun to order:
 1. **MOCHI-53 Connect Claude**, with her own key in secret storage. Add
    esbuild bundling here if it brings Mochi's first runtime dependency.
-2. **MOCHI-30 Explain an error or selected code**, through the share gate,
-   from the lightbulb next to an error or a right-click on selected code.
-3. **MOCHI-34 Noticing when I'm stuck**, with the code hints (2 minutes,
-   offered once).
-4. **MOCHI-28 Set up a Python project**, and **MOCHI-41 the private personal
-   layer** (storage first; its "Make it yours" page needs the design).
+2. **MOCHI-28 Set up a Python project.**
+3. **MOCHI-41 The private personal layer**, storage first; its "Make it
+   yours" page needs the design.
+4. **MOCHI-33 Greeting when VS Code opens.** Its home is the panel, so where
+   it shows before then needs deciding.
 
 Then:
 5. **After DESIGN.md is finished:** MOCHI-17, MOCHI-16, MOCHI-21, then
@@ -80,6 +107,9 @@ Then:
   features replace it.
 - "Set one up" opens VS Code's Copilot setup for now. MOCHI-42 replaces it
   with "Pick a brain" inside Mochi's tab, plus a "Got a brain!" confirmation.
+- PRESENCE.md and ARCHITECTURE.md still quote the old code hint ("Want me
+  to explain this error?"); it's "Need a paw?" now. BUILD_PLAN.md says
+  MOCHI-30's answer shows in the panel; it's the output panel for now.
 - No bundling yet; add esbuild with the first runtime dependency.
 - No license yet (MOCHI-59). Leaning: MIT for code, Mochi's name, icons, and
   art all rights reserved. Packaging uses `--skip-license` until then.
