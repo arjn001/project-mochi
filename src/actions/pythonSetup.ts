@@ -20,6 +20,7 @@ import {
   parsePythonVersion,
   pythonCandidates,
   pythonExtensionWillPrompt,
+  remoteLabel,
   shouldLookForPython,
   shouldOffer,
   shouldOfferGitignore,
@@ -225,13 +226,36 @@ async function setUp(folder: vscode.WorkspaceFolder, python: FoundPython, choose
   }
   await offerInstall(folder, choose);
   await offerGitignore(folder, python.version, choose);
-  // Undo moves .venv to the Trash, so nothing is lost for good.
-  return async () => {
-    await vscode.workspace.fs.delete(vscode.Uri.joinPath(folder.uri, VENV), { recursive: true, useTrash: true });
-  };
+  return () => removeVenv(folder, choose);
+}
+
+// Undo moves .venv to the Trash, so nothing is lost for good. Remote
+// machines and containers often have no Trash; then Mochi asks before
+// deleting for good.
+async function removeVenv(folder: vscode.WorkspaceFolder, choose: Choose): Promise<void> {
+  const venv = vscode.Uri.joinPath(folder.uri, VENV);
+  try {
+    await vscode.workspace.fs.delete(venv, { recursive: true, useTrash: true });
+    return;
+  } catch {
+    // No Trash here, or the folder is locked. Ask below.
+  }
+  if ((await choose(pythonStrings.noTrash, [pythonStrings.deleteIt, pythonStrings.keepIt])) !== pythonStrings.deleteIt) {
+    return;
+  }
+  try {
+    await vscode.workspace.fs.delete(venv, { recursive: true, useTrash: false });
+  } catch {
+    void vscode.window.showWarningMessage(pythonStrings.undoFailed);
+  }
 }
 
 async function tellNoPython(): Promise<void> {
+  const where = remoteLabel(vscode.env.remoteName);
+  if (where) {
+    void vscode.window.showInformationMessage(pythonStrings.noPythonRemote(where, process.platform === "linux"));
+    return;
+  }
   if ((await vscode.window.showInformationMessage(pythonStrings.noPython, pythonStrings.getPython)) === pythonStrings.getPython) {
     await vscode.env.openExternal(vscode.Uri.parse("https://www.python.org/downloads/"));
   }

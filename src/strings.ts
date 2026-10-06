@@ -14,6 +14,16 @@ export const pythonStrings = {
   cantRead: "I couldn't look inside this project folder. Is it still there?",
   noPython: "I couldn't find Python on this computer. Want to install it?",
   getPython: "Get Python",
+  // Mochi runs on the machine with her files, so in a remote setup Python
+  // has to be installed there, not on her own computer.
+  noPythonRemote: (where: string, linux: boolean) =>
+    `I couldn't find Python in this ${where}. It needs to be installed there, not on your own computer.` +
+    (linux ? " On Ubuntu or Debian, that's: sudo apt install python3 python3-venv" : ""),
+  noTrash: "I can't move .venv to the Trash here. Delete it for good?",
+  deleteIt: "Delete it",
+  keepIt: "Keep it",
+  // On Windows, a terminal still using .venv keeps it locked.
+  undoFailed: "I couldn't remove .venv. If a terminal is using it, close that terminal and delete the folder yourself.",
   offer:
     "This looks like a Python project. Want me to set up a virtual environment? It keeps this project's packages in their own box.",
   offerYes: "Set it up",

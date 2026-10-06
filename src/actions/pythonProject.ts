@@ -125,6 +125,26 @@ export function shouldLookForPython(lastMissAt: number | undefined, now: number)
   return lastMissAt === undefined || now - lastMissAt >= PYTHON_RECHECK_MS;
 }
 
+// What to call the machine Mochi is running on in a remote setup, from
+// VS Code's remote name. Undefined when she's working locally.
+export function remoteLabel(remoteName: string | undefined): string | undefined {
+  switch (remoteName) {
+    case undefined:
+      return undefined;
+    case "ssh-remote":
+      return "SSH machine";
+    case "wsl":
+      return "WSL distro";
+    case "dev-container":
+    case "attached-container":
+      return "container";
+    case "codespaces":
+      return "codespace";
+    default:
+      return "remote machine";
+  }
+}
+
 // How to run Python on her system, in the order Mochi tries them.
 export interface PythonCommand {
   command: string;

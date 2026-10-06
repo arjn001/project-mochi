@@ -8,6 +8,7 @@ import {
   createFailedMessage,
   isPythonProjectFile,
   pythonExtensionWillPrompt,
+  remoteLabel,
   shouldLookForPython,
   isMacPlaceholder,
   parsePythonVersion,
@@ -202,6 +203,25 @@ describe("setting up a Python project", () => {
     it("finds the venv's own Python on each system", () => {
       assert.deepStrictEqual(venvPython("darwin"), [".venv", "bin", "python"]);
       assert.deepStrictEqual(venvPython("win32"), [".venv", "Scripts", "python.exe"]);
+    });
+  });
+
+  describe("remote setups", () => {
+    it("names the machine Mochi is running on", () => {
+      assert.strictEqual(remoteLabel(undefined), undefined);
+      assert.strictEqual(remoteLabel("ssh-remote"), "SSH machine");
+      assert.strictEqual(remoteLabel("wsl"), "WSL distro");
+      assert.strictEqual(remoteLabel("dev-container"), "container");
+      assert.strictEqual(remoteLabel("codespaces"), "codespace");
+      assert.strictEqual(remoteLabel("tunnel"), "remote machine");
+    });
+
+    it("says Python goes on that machine, with the Linux command when it fits", () => {
+      assert.strictEqual(
+        pythonStrings.noPythonRemote("WSL distro", true),
+        "I couldn't find Python in this WSL distro. It needs to be installed there, not on your own computer. On Ubuntu or Debian, that's: sudo apt install python3 python3-venv"
+      );
+      assert.doesNotMatch(pythonStrings.noPythonRemote("SSH machine", false), /apt/);
     });
   });
 

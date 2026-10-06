@@ -24,6 +24,9 @@
       "description": "In Restricted Mode, Mochi never runs anything in the folder, like setting up a Python project."
     }
   },
+  "extensionKind": [
+    "workspace"
+  ],
   "main": "./out/extension.js",
   "contributes": {
     "viewsContainers": {
