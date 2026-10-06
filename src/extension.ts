@@ -10,13 +10,15 @@ import { createOutputSurface } from "./ai/outputSurface";
 import { BuiltInAi } from "./ai/builtInAi";
 import { instructionsFor } from "./ai/instructions";
 import { loadDefaultPack } from "./packs/defaultPack";
+import { registerNameCommands } from "./packs/nameCommands";
 import { PersonalLayer } from "./packs/personalLayer";
+import { greeting } from "./packs/phrases";
 import { registerFocus } from "./focus/focusCommands";
 import { watchLateNight } from "./moments/lateNightWatcher";
 import { watchStuck } from "./moments/stuckWatcher";
 import { FocusTimer } from "./focus/timer";
 import { createMoodLine, showMood } from "./presence/statusBar";
-import { onSpeakUpChange, readSpeakUp } from "./settings";
+import { onSpeakUpChange, readLateHour, readSpeakUp } from "./settings";
 
 // What activate() hands back. The integration tests use it to see what the
 // mood line says, since VS Code doesn't let tests read the status bar.
@@ -26,10 +28,6 @@ export interface MochiApi {
 
 // VS Code calls this once, after it finishes starting up.
 export function activate(context: vscode.ExtensionContext): MochiApi {
-  const sayHello = vscode.commands.registerCommand("mochi.sayHello", () => {
-    vscode.window.showInformationMessage("Hello from Mochi!");
-  });
-
   // Opens Mochi's tab in the secondary side bar, even if that bar is closed.
   const open = vscode.commands.registerCommand("mochi.open", () =>
     vscode.commands.executeCommand("workbench.view.extension.mochi")
@@ -61,6 +59,13 @@ export function activate(context: vscode.ExtensionContext): MochiApi {
     void vscode.window.showWarningMessage(message);
   });
   const pack = () => personal.pack();
+  const names = registerNameCommands(personal);
+
+  // A temporary preview of the greeting (MOCHI-33), so her name can be seen
+  // before the greeting moment exists. Removed when MOCHI-33 lands.
+  const sayHello = vscode.commands.registerCommand("mochi.sayHello", () => {
+    void vscode.window.showInformationMessage(greeting(pack(), new Date(), undefined, readLateHour()));
+  });
 
   // Talking to Mochi, through VS Code's built-in AI for now.
   // Answers show in the output panel until the panel chat exists (MOCHI-21).
@@ -83,7 +88,7 @@ export function activate(context: vscode.ExtensionContext): MochiApi {
   const pythonOffer = watchPythonProjects(context.workspaceState, choose, () => timer.isRunning());
 
   // Anything added here is cleaned up when Mochi shuts down.
-  context.subscriptions.push(sayHello, open, home, mood, followSpeakUp, focus, timer, surface, ask, explain, stuck, dim, lateNight, python, pythonOffer);
+  context.subscriptions.push(names, sayHello, open, home, mood, followSpeakUp, focus, timer, surface, ask, explain, stuck, dim, lateNight, python, pythonOffer);
 
   return { moodText: () => mood.text };
 }
