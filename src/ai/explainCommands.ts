@@ -61,8 +61,10 @@ export function registerExplain(conversation: Conversation, surface: AnswerSurfa
 
   const onError = vscode.commands.registerCommand(
     "mochi.explainError",
-    async (uri?: vscode.Uri, line?: number, message?: string) => {
-      let doc = uri && vscode.workspace.textDocuments.find((d) => d.uri.toString() === uri.toString());
+    // `uri` is a string when it comes from a hover link ("Need a paw?").
+    async (uri?: vscode.Uri | string, line?: number, message?: string) => {
+      const target = uri?.toString();
+      let doc = target ? vscode.workspace.textDocuments.find((d) => d.uri.toString() === target) : undefined;
       if (!doc || line === undefined || message === undefined) {
         const editor = vscode.window.activeTextEditor;
         const error = editor && errorInEditor(editor);
