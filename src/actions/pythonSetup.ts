@@ -15,11 +15,13 @@ import {
   blockerMessage,
   countRequirements,
   createFailedMessage,
+  foldersInOrder,
   isMacPlaceholder,
   isPythonProjectFile,
   parsePythonVersion,
   pythonCandidates,
   pythonExtensionWillPrompt,
+  remoteLabel,
   shouldLookForPython,
   shouldOffer,
   shouldOfferGitignore,
@@ -225,13 +227,36 @@ async function setUp(folder: vscode.WorkspaceFolder, python: FoundPython, choose
   }
   await offerInstall(folder, choose);
   await offerGitignore(folder, python.version, choose);
-  // Undo moves .venv to the Trash, so nothing is lost for good.
-  return async () => {
-    await vscode.workspace.fs.delete(vscode.Uri.joinPath(folder.uri, VENV), { recursive: true, useTrash: true });
-  };
+  return () => removeVenv(folder, choose);
+}
+
+// Undo moves .venv to the Trash, so nothing is lost for good. Remote
+// machines and containers often have no Trash; then Mochi asks before
+// deleting for good.
+async function removeVenv(folder: vscode.WorkspaceFolder, choose: Choose): Promise<void> {
+  const venv = vscode.Uri.joinPath(folder.uri, VENV);
+  try {
+    await vscode.workspace.fs.delete(venv, { recursive: true, useTrash: true });
+    return;
+  } catch {
+    // No Trash here, or the folder is locked. Ask below.
+  }
+  if ((await choose(pythonStrings.noTrash, [pythonStrings.deleteIt, pythonStrings.keepIt])) !== pythonStrings.deleteIt) {
+    return;
+  }
+  try {
+    await vscode.workspace.fs.delete(venv, { recursive: true, useTrash: false });
+  } catch {
+    void vscode.window.showWarningMessage(pythonStrings.undoFailed);
+  }
 }
 
 async function tellNoPython(): Promise<void> {
+  const where = remoteLabel(vscode.env.remoteName);
+  if (where) {
+    void vscode.window.showInformationMessage(pythonStrings.noPythonRemote(where, process.platform === "linux"));
+    return;
+  }
   if ((await vscode.window.showInformationMessage(pythonStrings.noPython, pythonStrings.getPython)) === pythonStrings.getPython) {
     await vscode.env.openExternal(vscode.Uri.parse("https://www.python.org/downloads/"));
   }
@@ -283,14 +308,24 @@ export function setUpAction(folder: vscode.WorkspaceFolder, python: FoundPython,
   });
 }
 
-// The folder she's working in: the active file's, the only one, or her pick.
+// The only folder, or her pick when there are several. Only folder names
+// are shown, never full paths.
 async function pickFolder(): Promise<vscode.WorkspaceFolder | undefined> {
-  const active = vscode.window.activeTextEditor?.document.uri;
   const folders = vscode.workspace.workspaceFolders ?? [];
-  if (active && vscode.workspace.getWorkspaceFolder(active)) {
-    return vscode.workspace.getWorkspaceFolder(active);
+  if (folders.length <= 1) {
+    return folders[0];
   }
-  return folders.length <= 1 ? folders[0] : vscode.window.showWorkspaceFolderPick({ placeHolder: "Which project should I set up?" });
+  const editor = vscode.window.activeTextEditor;
+  const active = editor ? vscode.workspace.getWorkspaceFolder(editor.document.uri) : undefined;
+  const picked = await vscode.window.showQuickPick(
+    foldersInOrder(folders, active).map((folder) => ({
+      label: folder.name,
+      description: folder === active ? pythonStrings.workingHere : undefined,
+      folder,
+    })),
+    { placeHolder: pythonStrings.pickFolder }
+  );
+  return picked?.folder;
 }
 
 export function registerPythonSetup(choose: Choose): vscode.Disposable {
