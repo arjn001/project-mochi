@@ -9,7 +9,9 @@ that checks packs is `src/packs/format.ts`.
 - **Personal layer:** sits on top of the default pack. It sets only what it
   wants to change, and everything else falls back to the default. For
   phrases, a moment's whole list is replaced, so her own lines never mix with
-  the default ones.
+  the default ones. It can add style notes (`voice.style`) but never replace
+  the personality, since a gift becomes this layer (see ARCHITECTURE.md,
+  "The voice is untrusted").
 
 ## pack.json, format 1
 
@@ -37,7 +39,8 @@ that checks packs is `src/packs/format.ts`.
 |---|---|---|
 | `format` | Always `1` for now | |
 | `name` | What the companion is called, on one line | 30 characters |
-| `voice.personality` | How the companion talks. Later, this guides the AI | 2000 characters |
+| `voice.personality` | How the companion talks; guides the AI. Only complete packs that ship with Mochi; a personal layer or gift can't set it | 2000 characters |
+| `voice.style` | Tone and style notes from a personal layer, sent to the AI as quoted data, never as instructions | 400 characters |
 | `phrases.<moment>` | Lines for a moment. Mochi picks one | 1 to 20 phrases, 200 characters each |
 | `user.name` | Her name, on one line. Optional, and only for the personal layer; the default pack never sets it | 30 characters |
 
@@ -47,6 +50,17 @@ The moments are `greeting`, `greetingLate`, `stuck`, `lateNight`,
 goodbye. `lateNight` lines offer a darker theme; `lateNightCompany` lines only
 keep her company, for themes that are already dark or high contrast. Art for the moods
 comes in a later format, with MOCHI-17.
+
+A personal layer sets only what it changes:
+
+```json
+{
+  "format": 1,
+  "voice": { "style": "Extra sleepy, loves puns." },
+  "phrases": { "stuck": ["Need a paw, {companion} is here."] },
+  "user": { "name": "Sam" }
+}
+```
 
 ## Placeholders
 Phrases can use these, filled in when Mochi speaks:
@@ -59,14 +73,17 @@ Phrases can use these, filled in when Mochi speaks:
 | `{thing}` | What she finished | `celebrate` |
 
 A phrase with `{name}` is only picked when a name is set, so every moment
-needs at least one phrase without it.
+needs at least one phrase without it. Placeholders are filled in once, as
+plain text: a name like "{thing}" shows up exactly as typed.
 
 ## Packs are checked strictly
 Packs can come from other people, like a gift file, so Mochi checks every pack
 before using it, and rejects it with a plain-English reason if:
 - it has any field not listed above, at any level
 - `format` isn't `1`
-- any text is empty, too long, or contains hidden control characters
+- any text is empty, too long, or contains hidden control characters or
+  invisible characters that change the direction of the text
+- a personal layer or gift sets `voice.personality`
 - `name` is more than one line
 - a moment has no phrases or more than 20
 - a phrase uses a placeholder its moment can't use
