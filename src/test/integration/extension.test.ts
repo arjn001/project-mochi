@@ -1,6 +1,10 @@
 import * as assert from "node:assert";
+import * as fs from "node:fs";
+import * as os from "node:os";
+import * as path from "node:path";
 import * as vscode from "vscode";
 import { offer } from "../../actions/confirm";
+import { findPython, readProject } from "../../actions/pythonSetup";
 import { dimAction } from "../../actions/theme";
 import { BuiltInAi } from "../../ai/builtInAi";
 import type { MochiApi } from "../../extension";
@@ -126,6 +130,41 @@ describe("Mochi in VS Code", () => {
       await workbench().update("colorTheme", "Dark Modern", vscode.ConfigurationTarget.Global);
       await themeKindBecomes(vscode.ColorThemeKind.Dark);
       assert.strictEqual(await offer(dimAction(), presses(undefined)), "skipped");
+    });
+  });
+
+  describe("setting up a Python project", () => {
+    let folder: string;
+    beforeEach(() => {
+      folder = fs.mkdtempSync(path.join(os.tmpdir(), "mochi-python-"));
+      fs.writeFileSync(path.join(folder, "homework.py"), "print('hi')\n");
+    });
+    afterEach(() => fs.rmSync(folder, { recursive: true, force: true }));
+
+    it("registers the command, and says what to do when no folder is open", async () => {
+      const commands = await vscode.commands.getCommands(true);
+      assert.ok(commands.includes("mochi.setUpPython"), "The mochi.setUpPython command is not registered.");
+      // The test window has no folder open, so this only shows a message.
+      await vscode.commands.executeCommand("mochi.setUpPython");
+    });
+
+    it("finds an environment that's already there by its pyvenv.cfg", async () => {
+      fs.mkdirSync(path.join(folder, "venv"));
+      fs.writeFileSync(path.join(folder, "venv", "pyvenv.cfg"), "home = /usr/bin\n");
+      fs.mkdirSync(path.join(folder, "env"));
+      const project = await readProject(vscode.Uri.file(folder));
+      assert.deepStrictEqual(project.envFolders, ["venv"], "env/ has no pyvenv.cfg, so it isn't an environment.");
+    });
+
+    it("sees files from other tools at the top of the project", async () => {
+      fs.writeFileSync(path.join(folder, "poetry.lock"), "");
+      const project = await readProject(vscode.Uri.file(folder));
+      assert.ok(project.topLevel.includes("poetry.lock"));
+    });
+
+    it("looks for Python without failing, and only accepts Python 3", async () => {
+      const python = await findPython();
+      assert.ok(python === undefined || python.version.major === 3);
     });
   });
 
