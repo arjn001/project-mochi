@@ -107,11 +107,6 @@
         "command": "mochi.forgetName",
         "title": "Forget my name",
         "category": "Mochi"
-      },
-      {
-        "command": "mochi.sayHello",
-        "title": "Say Hello",
-        "category": "Mochi"
       }
     ],
     "menus": {

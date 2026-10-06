@@ -10,7 +10,7 @@ import { BuiltInAi } from "../../ai/builtInAi";
 import type { MochiApi } from "../../extension";
 
 describe("Mochi in VS Code", () => {
-  it("registers the Say Hello command", async () => {
+  it("starts up and registers its commands", async () => {
     const mochi = vscode.extensions.getExtension("arjungyawali.mochi-companion");
     assert.ok(mochi, "Mochi is not installed in the test window.");
 
@@ -18,8 +18,8 @@ describe("Mochi in VS Code", () => {
     const commands = await vscode.commands.getCommands(true);
 
     assert.ok(
-      commands.includes("mochi.sayHello"),
-      "Mochi started, but the mochi.sayHello command is not registered."
+      commands.includes("mochi.open"),
+      "Mochi started, but the mochi.open command is not registered."
     );
   });
 

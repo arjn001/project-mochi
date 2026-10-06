@@ -12,7 +12,6 @@ import { instructionsFor } from "./ai/instructions";
 import { loadDefaultPack } from "./packs/defaultPack";
 import { registerNameCommands } from "./packs/nameCommands";
 import { PersonalLayer } from "./packs/personalLayer";
-import { greeting } from "./packs/phrases";
 import { registerFocus } from "./focus/focusCommands";
 import { Greeter, rememberCoding } from "./moments/greetingWatcher";
 import { watchLateNight } from "./moments/lateNightWatcher";
@@ -20,7 +19,7 @@ import { watchStuck } from "./moments/stuckWatcher";
 import { FocusTimer } from "./focus/timer";
 import { notificationGreeting } from "./presence/greetingSurface";
 import { createMoodLine, showMood } from "./presence/statusBar";
-import { onSpeakUpChange, readLateHour, readSpeakUp } from "./settings";
+import { onSpeakUpChange, readSpeakUp } from "./settings";
 
 // What activate() hands back. The integration tests use it to see what the
 // mood line says, since VS Code doesn't let tests read the status bar.
@@ -66,12 +65,6 @@ export function activate(context: vscode.ExtensionContext): MochiApi {
   const pack = () => personal.pack();
   const names = registerNameCommands(personal);
 
-  // A temporary preview of the greeting (MOCHI-33), so her name can be seen
-  // before the greeting moment exists. Removed when MOCHI-33 lands.
-  const sayHello = vscode.commands.registerCommand("mochi.sayHello", () => {
-    void vscode.window.showInformationMessage(greeting(pack(), new Date(), undefined, readLateHour()));
-  });
-
   // Talking to Mochi, through VS Code's built-in AI for now.
   // Answers show in the output panel until the panel chat exists (MOCHI-21).
   const surface = createOutputSurface();
@@ -107,11 +100,11 @@ export function activate(context: vscode.ExtensionContext): MochiApi {
   // .vsix (.vscodeignore, checked in CI), and package.json doesn't list them.
   if (context.extensionMode === vscode.ExtensionMode.Development) {
     const { registerDevTools } = require("./dev/devTools") as typeof import("./dev/devTools");
-    context.subscriptions.push(registerDevTools(personal));
+    context.subscriptions.push(registerDevTools(personal, greeter));
   }
 
   // Anything added here is cleaned up when Mochi shuts down.
-  context.subscriptions.push(names, sayHello, open, home, mood, followSpeakUp, focus, timer, surface, ask, explain, stuck, dim, lateNight, coding, python, pythonOffer);
+  context.subscriptions.push(names, open, home, mood, followSpeakUp, focus, timer, surface, ask, explain, stuck, dim, lateNight, coding, python, pythonOffer);
 
   return {
     moodText: () => mood.text,
