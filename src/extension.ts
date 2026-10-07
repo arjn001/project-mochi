@@ -95,7 +95,7 @@ export function activate(context: vscode.ExtensionContext): MochiApi {
   // The Python offer waits until after the greeting, so two notes don't
   // arrive at once.
   const afterGreeting = greeted.then((text) => (text ? new Promise((done) => setTimeout(done, 5_000)) : undefined));
-  const pythonOffer = watchPythonProjects(context.workspaceState, choose, () => timer.isRunning(), afterGreeting);
+  const pythonOffer = watchPythonProjects(context.globalState, choose, () => timer.isRunning(), afterGreeting);
 
   // Developer tools, only when running from source (Run > Start Debugging).
   // They're never in the published package: out/dev/ is left out of the

@@ -351,9 +351,10 @@ export function registerPythonSetup(choose: Choose): vscode.Disposable {
   });
 }
 
-// The projects Mochi has offered to set up, kept per workspace. Only folder
-// addresses, nothing about her code.
-const OFFERED = "mochi.pythonSetupOffered";
+// The project folders Mochi has offered to set up (addresses only, nothing
+// about her code). Kept in Mochi's private global state, one list for all
+// projects, so "Forget everything" can clear it.
+export const OFFERED = "mochi.pythonSetupOffered";
 
 async function looksLikePython(folder: vscode.WorkspaceFolder, project: Project): Promise<boolean> {
   if (project.topLevel.includes("requirements.txt") || project.topLevel.includes("pyproject.toml")) {
