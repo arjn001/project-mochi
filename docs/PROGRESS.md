@@ -120,10 +120,10 @@ panel, for Arjun to order:
    LM Studio).
 
 Then:
-2. **Before publishing (Release):** MOCHI-60 Windows and macOS in CI,
+5. **Before publishing (Release):** MOCHI-60 Windows and macOS in CI,
    MOCHI-61 "Mochi: Report a problem", MOCHI-62 decide on web support, and
    MOCHI-63 localization.
-3. **After DESIGN.md is finished:** MOCHI-17, MOCHI-16, MOCHI-21, then
+6. **After DESIGN.md is finished:** MOCHI-17, MOCHI-16, MOCHI-21, then
    MOCHI-25 (streaming in the chat). The early preview for her comes after
    Milestone 3, with the default pack only.
 
