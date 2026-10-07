@@ -45,9 +45,10 @@ describe("package.json", () => {
     );
   });
 
-  it("leaves the developer tools out of the package", () => {
+  it("ships only the bundle: out/, with the tests and developer tools, stays out", () => {
+    assert.strictEqual(readJson("package.json").main, "./dist/extension.js");
     const ignored = fs.readFileSync(path.join(root, ".vscodeignore"), "utf8").split(/\r?\n/);
-    assert.ok(ignored.includes("out/dev/**"), ".vscodeignore must leave out/dev/ out of the .vsix.");
+    assert.ok(ignored.includes("out/**"), ".vscodeignore must leave out/ out of the .vsix.");
   });
 
   it("keeps Learning mode on by default, and only in her own settings", () => {

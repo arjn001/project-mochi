@@ -46,12 +46,17 @@ jobs:
       - name: Package the .vsix
         run: npm run package
 
-      # Source code, compiled tests, and developer-only tools must never ship
-      # in the package.
+      # The bundle is the only code that ships: no source, no compiled tests,
+      # no developer-only tools, no other JavaScript.
       - name: Check the package contents
         run: |
           unzip -l *.vsix
-          if unzip -l *.vsix | grep -E " extension/(src|out/test|out/dev)/"; then
-            echo "::error::The .vsix contains src/, out/test/, or out/dev/. Check .vscodeignore."
+          if unzip -l *.vsix | grep -E " extension/(src|out)/"; then
+            echo "::error::The .vsix contains src/ or out/. Check .vscodeignore."
+            exit 1
+          fi
+          code=$(unzip -Z1 *.vsix | grep -E '\.(js|cjs|mjs)$' || true)
+          if [ "$code" != "extension/dist/extension.js" ]; then
+            echo "::error::The only code in the .vsix must be extension/dist/extension.js. Found: $code"
             exit 1
           fi
