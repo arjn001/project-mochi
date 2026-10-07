@@ -13,23 +13,25 @@ update isn't listed.*
 - **Open pull requests:** none.
 - **In progress:** MOCHI-50 Design the visual identity, by Arjun.
 - **In progress, not yet in a pull request:**
-  - MOCHI-65 "Mochi: Forget everything": code done, docs next. Its pull
-    request opens after this one merges, so they don't clash.
-  - MOCHI-53 Connect Claude: the dev menu's "List available brains" check
-    showed Claude through Copilot works for Mochi with no key (Copilot's
-    "Auto", Claude Fable 5.1, answered). Mochi currently takes the first
-    Copilot model, GPT-4o mini; it should prefer Auto and hide Copilot's
-    helper models.
-- **Next:** MOCHI-65's pull request, then MOCHI-53.
+  - MOCHI-66 Treat warnings that crash as errors (like Pylance's "y" is not
+    defined): built and tested; its pull request opens after this one merges.
+  - MOCHI-53 Connect Claude: Claude through Copilot works for Mochi with no
+    key (Copilot's "Auto" answered). Part 1, choosing the brain (prefer
+    Auto, hide helper models and zero-limit entries, "Mochi: Choose a
+    brain", the mochi.brain setting), waits on Arjun's OK of the wording.
+    Copilot now bills every chat message in AI credits, and Free and Student
+    plans only get Auto.
+- **Next:** MOCHI-66's pull request, then MOCHI-53 Part 1.
 - **Waiting on:**
-  - Arjun to try Learning mode and merge MOCHI-64.
+  - Arjun to try Forget everything and merge MOCHI-65.
+  - Arjun to approve MOCHI-53 Part 1's wording.
   - MOCHI-53's API key route, for people without Copilot, needs a Claude API
     key to test with (billed per use, separate from a Claude subscription).
   - The panel work (MOCHI-16, MOCHI-17, MOCHI-21, MOCHI-25) waits on
     DESIGN.md being finished (MOCHI-50).
 
-**34 of 55 Jira tasks and subtasks done**, counting MOCHI-64. 2 of the 8
-categories are complete. 234 tests (207 unit, 27 integration) run on every
+**35 of 56 Jira tasks and subtasks done**, counting MOCHI-65. 2 of the 8
+categories are complete. 241 tests (213 unit, 28 integration) run on every
 pull request.
 
 ## Done
@@ -96,6 +98,10 @@ MOMENTS.md, PRESENCE.md, ARCHITECTURE.md, and BUILD_PLAN.md.
   The voice is treated as untrusted: style notes only, quoted to the AI as
   data, with Mochi's rules from code in charge, tested with a hostile voice.
   Her name is never sent to the AI (MOCHI-41).
+- "Mochi: Forget everything": after a dialog, clears her chats, her personal
+  layer, and everything Mochi remembers about her days (greeting memory,
+  tonight's nudge, the Python-offer list, a focus session's saved end time).
+  Never her settings or a saved AI key (MOCHI-65).
 
 **AI chat (MOCHI-20), partly done.**
 - Share gate that TypeScript won't let anything skip (MOCHI-23).
@@ -119,12 +125,10 @@ MOMENTS.md, PRESENCE.md, ARCHITECTURE.md, and BUILD_PLAN.md.
 ## Next
 How chat works is designed in docs/CHAT.md. Work that doesn't need the
 panel, for Arjun to order:
-1. **MOCHI-65 "Mochi: Forget everything"**, for the greeting memory and her
-   personal layer now; the chat joins it with MOCHI-21.
-2. **MOCHI-53 Connect Claude** with her own API key, starting with a "List
+1. **MOCHI-53 Connect Claude** with her own API key, starting with a "List
    available brains" check in the dev menu. Add esbuild bundling here if it
    brings Mochi's first runtime dependency.
-3. **MOCHI-54 OpenAI-compatible services and local model servers** (Ollama,
+2. **MOCHI-54 OpenAI-compatible services and local model servers** (Ollama,
    LM Studio).
 
 Then:
