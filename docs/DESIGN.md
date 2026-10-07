@@ -111,6 +111,12 @@ The default lines are in `packs/default/pack.json` (format in PACKS.md).
   fix?" offers the next steps, only when she picks them. The answer shows in
   the "Mochi" output panel without taking focus from her editor, until the
   panel chat exists.
+- **Learning mode** (Settings, under Mochi, on by default): "Help me learn
+  instead of handing me answers. For homework, your code, and errors, Mochi
+  explains first, gives a hint if you ask, and shows the fix only when you
+  ask for it. Turn off for direct answers, fixes included. Only you can
+  change this; a project's settings can't." With it off, "Explain with
+  Mochi" explains briefly and shows the fix right away.
 - **Code hint:** plain "Need a paw?" in italics at the end of the error's
   line, with no emoji (they look different on every system). Its hover
   offers "Explain with Mochi".

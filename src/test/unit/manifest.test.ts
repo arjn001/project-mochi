@@ -49,4 +49,10 @@ describe("package.json", () => {
     const ignored = fs.readFileSync(path.join(root, ".vscodeignore"), "utf8").split(/\r?\n/);
     assert.ok(ignored.includes("out/dev/**"), ".vscodeignore must leave out/dev/ out of the .vsix.");
   });
+
+  it("keeps Learning mode on by default, and only in her own settings", () => {
+    const setting = readJson("package.json").contributes.configuration.properties["mochi.learningMode"];
+    assert.strictEqual(setting.default, true);
+    assert.strictEqual(setting.scope, "application", "A project's settings must not be able to turn Learning mode off.");
+  });
 });
