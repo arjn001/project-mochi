@@ -55,8 +55,28 @@
   ("Share this error with Claude?").
 - The welcome explains that a ChatGPT or Claude subscription is not an API
   key. API keys are billed separately per use.
-- Local models (like Ollama) wait for the next version, since most people
-  don't have one set up.
+- Local models no longer wait: they come through VS Code's built-in AI when
+  their extension provides them (like Ollama's or AI Toolkit), and through
+  the OpenAI-compatible option with a local address (MOCHI-54). How chat
+  works, brain by brain, is in CHAT.md.
+- Mochi prefers models already in VS Code's built-in AI (Copilot and
+  extension models), with no key stored in Mochi. Keys typed into VS Code's
+  own "Manage Models" screen aren't reliably available to extensions, so for
+  people who only have an API key, Mochi stores it itself in secret storage
+  (checked 2026-10-06, sources in CHAT.md).
+- Subscriptions (ChatGPT Plus, Claude Pro/Max) can't be used in other apps;
+  Anthropic's terms say so explicitly. Mochi explains this honestly and
+  offers Copilot or an API key instead.
+- **Mochi never calls the AI on its own.** Only her message, or her click
+  (like "Explain with Mochi"), starts an AI request. Never for greetings,
+  nudges, hints, or background work.
+- **Nothing in an AI reply can make Mochi act.** Any action a reply suggests
+  (dim things, set up Python, future actions) needs her click, through the
+  normal "asks first, then Undo" flow.
+- **Learning mode**, on by default: the learning ladder for coursework-style
+  requests. Off gives direct answers. Only she can change it: it's a user
+  setting a project can't override, and packs and gifts can't touch
+  settings.
 
 ## Deferred, by design
 - Messaging between people (notes, ask for help, Live Share). The architecture
@@ -72,9 +92,29 @@
   errors, and a gentle corner nudge for key moments. Both stay silent in
   quiet mode.
 
+## What Mochi keeps on her computer
+Everything stays on her computer, in Mochi's private storage, never synced
+and never sent anywhere except to the brain she picked when she sends a
+message.
+- **Chat history:** up to 200 messages per project, for her 20 most recent
+  projects. **It can include code:** code she pastes into a message and
+  code the brain quotes in a reply are part of the conversation. "Clear
+  chat" removes a project's history. Attached code isn't saved with it; it's
+  kept only until VS Code closes.
+- **Her personal layer:** her name, her lines, and style notes.
+- **About her day, for the greeting:** when she last coded, the project's
+  folder name, and the day she was last greeted.
+- **Small reminders:** tonight's late-night nudge, which projects were
+  offered Python setup, a focus session's end time.
+- Mochi never saves code on its own: stuck hints and the share gate keep
+  nothing on disk.
+- **"Mochi: Forget everything"** clears every chat, what Mochi remembers
+  about her days, and her personal layer, after confirming. Chats are kept
+  in one private store across projects, so this reaches all of them.
+
 ## Noticing when she's stuck
 - An error is "offered once" per VS Code session: Mochi remembers it in
-  memory only, and never saves anything about her code to disk.
+  memory only, and saves nothing about it to disk.
 - Why: private by default, and if the same error is still there a day later,
   a fresh offer is helpful, not nagging.
 - An error is identified by its message plus the code on and around its line,
