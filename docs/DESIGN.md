@@ -124,7 +124,19 @@ The default lines are in `packs/default/pack.json` (format in PACKS.md).
   brain to answer that. Want to set one up?" with a "Set one up" button. No
   other nagging.
 - **Copilot permission:** VS Code shows its own one-time prompt, with Mochi's
-  reason: "Mochi uses Copilot to answer the questions you ask it."
+  reason, naming the brain: "Mochi uses Copilot · Auto to answer the
+  questions you ask it."
+- **Choosing a brain:** "Mochi: Choose a brain" opens "Which brain should
+  Mochi think with?", with "Uses your Copilot plan" as a quiet line. First
+  "Let Mochi choose" (described as "Now: Copilot · Auto"), then each brain
+  ("Copilot · GPT-5.6 Luna"), the one in use marked with a check. With no
+  brains: "Sign in to GitHub Copilot". After a pick: "Got it. I'll think
+  with Copilot · GPT-5.6 Luna from now on."
+- **When she closes the list without picking:** "I'll think once you pick a
+  brain. Mochi: Choose a brain whenever you're ready."
+- **A stand-in brain:** at the top of her next answer, once per change:
+  "Quick note: GPT-5.6 Luna isn't available right now, so I'm thinking with
+  Copilot · Auto instead. Mochi: Choose a brain changes this."
 - **When a brain can't answer**, Mochi says why kindly, like "This brain is
   resting for now, maybe a usage limit. Try again a bit later."
 - **Mochi confirms before doing anything she didn't directly ask for**

@@ -35,8 +35,9 @@ Warm, present, and never in the way. Encouraging, never scary.
   (details in MOMENTS.md)
 - Packs: a default pack plus a private personal layer
 - A "Make it yours" page
-- AI: VS Code's built-in AI by default, or Claude or any OpenAI-compatible
-  service with her own key, chosen during setup (details in DECISIONS.md)
+- AI: VS Code's built-in AI by default (through her Copilot plan), or Claude
+  or any OpenAI-compatible service with her own key, chosen during setup.
+  Mochi only thinks when she asks (details in DECISIONS.md)
 
 ## Presence
 - Home: a panel on the right side, next to the code

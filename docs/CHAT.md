@@ -14,9 +14,9 @@ never ships its own key and has no server of its own (DECISIONS.md).
 
 | She has... | What Mochi does | Cost to her |
 |---|---|---|
-| **Copilot, signed in** | Uses it through VS Code's built-in AI. VS Code asks once, "Allow Mochi to use Copilot?", the first time she asks something. That's the only step. | Her Copilot plan. Students can often get it free through GitHub Education (worth checking for her account). |
+| **Copilot, signed in** | Uses it through VS Code's built-in AI. VS Code asks once, "Allow Mochi to use Copilot?", the first time she asks something. That's the only step. | Her Copilot plan: every chat message spends GitHub AI Credits, on every plan, including Free and Student (which get Auto only). Mochi only spends them when she asks. |
 | **A model from another extension** (like the Ollama extension or AI Toolkit for local models) | Shows up in Mochi's brain list automatically, through the same built-in AI. No key in Mochi. | Whatever that extension costs; local models are free. |
-| **ChatGPT Plus or Claude Pro/Max** | Explains honestly: "Your subscription works in ChatGPT or Claude's own apps, but they don't let other apps use it. You can sign in to Copilot (free for students), or use an API key." Then offers both. | Nothing extra unless she picks an API key. |
+| **ChatGPT Plus or Claude Pro/Max** | Explains honestly: "Your subscription works in ChatGPT or Claude's own apps, but they don't let other apps use it. You can sign in to Copilot, which uses your Copilot plan, or use an API key." Then offers both. | Nothing extra unless she picks an API key. |
 | **Her own API key** (Claude, MOCHI-53; OpenAI-compatible, MOCHI-54) | "Get a key" opens the provider's website in her browser. She pastes the key, and Mochi keeps it in VS Code's secret storage (her system keychain), never in settings or files. Mochi says clearly: "This key is billed to your account each time Mochi answers." | Pay per use, billed by the provider. Separate from any subscription. |
 | **A local model server** (Ollama, LM Studio) without an extension | Through MOCHI-54: an OpenAI-compatible address like `http://localhost:11434/v1` (Ollama) or `http://localhost:1234/v1` (LM Studio), with no key. Works offline. | Free, runs on her computer. |
 | **Nothing** | Everything that doesn't need a brain still works: greetings, late-night company, quiet mode, the focus timer, the theme, Python setup, "Need a paw?" hints. When she asks something, one gentle line: "I'd need a brain to answer that. Want to set one up?" | Nothing. |
@@ -106,11 +106,23 @@ switches to that and stops asking for keys.
   above.)
 
 **The brain at the top.** The chat header shows the current brain, like
-"Copilot · Claude Sonnet". One click opens the list of every brain Mochi can
-see, plus "Add a brain...". Her choice is remembered for all projects. If
-that brain disappears (signed out, extension removed), Mochi falls back to
-the next one and says so once: "Copilot isn't available right now, so I'm
-using Ollama."
+"Copilot · Auto". One click opens "Which brain should Mochi think with?":
+"Let Mochi choose" (with its current pick, like "Now: Copilot · Auto"),
+then every brain Mochi can see, with "Uses your Copilot plan" as a quiet
+line, and the one in use marked. Until the panel exists, "Mochi: Choose a
+brain" opens the same list (MOCHI-53).
+- **Which brain:** her pick (the `mochi.brain` setting), otherwise Copilot's
+  Auto. Mochi never picks another model without her. With no Auto and no
+  pick, it shows the list when she asks; if she closes it, Mochi answers
+  with one line, "I'll think once you pick a brain. Mochi: Choose a brain
+  whenever you're ready.", and asks again next time.
+- **If her pick disappears** (signed out, extension removed, another
+  machine), Auto stands in, and the top of her next answer says so, once
+  per change: "Quick note: GPT-5.6 Luna isn't available right now, so I'm
+  thinking with Copilot · Auto instead. Mochi: Choose a brain changes this."
+- **Billing:** every Copilot chat message uses her plan's AI credits. Mochi
+  keeps no price table, since prices change; it only thinks when she asks,
+  and only sends recent messages within a size budget.
 
 **While Mochi answers.**
 - **Streaming:** the answer appears as it's written (MOCHI-25).

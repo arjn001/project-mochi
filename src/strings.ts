@@ -5,6 +5,23 @@
 // Sentences written before this rule still live in their own files; they
 // move here as part of MOCHI-63.
 
+// Choosing a brain (MOCHI-53).
+export const brainStrings = {
+  title: "Which brain should Mochi think with?",
+  usesCopilotPlan: "Uses your Copilot plan",
+  letMochiChoose: "Let Mochi choose",
+  now: (label: string) => `Now: ${label}`,
+  nowAsks: "Now: asks you first",
+  signIn: "Sign in to GitHub Copilot",
+  picked: (label: string) => `Got it. I'll think with ${label} from now on.`,
+  pickedAuto: "Got it. I'll choose for you.",
+  // When she closes the list without picking: Mochi doesn't think at all.
+  waiting: "I'll think once you pick a brain. Mochi: Choose a brain whenever you're ready.",
+  // At the top of her next answer, once per change.
+  fallback: (missing: string, used: string) =>
+    `Quick note: ${missing} isn't available right now, so I'm thinking with ${used} instead. Mochi: Choose a brain changes this.`,
+};
+
 // "Mochi: Forget everything" (MOCHI-65).
 export const forgetStrings = {
   question: "Forget everything?",

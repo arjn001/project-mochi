@@ -109,6 +109,11 @@
         "category": "Mochi"
       },
       {
+        "command": "mochi.chooseBrain",
+        "title": "Choose a brain",
+        "category": "Mochi"
+      },
+      {
         "command": "mochi.forgetEverything",
         "title": "Forget everything",
         "category": "Mochi"
@@ -173,6 +178,12 @@
           ],
           "default": "gentle",
           "markdownDescription": "How often Mochi speaks up on its own. Mochi always answers when you open it."
+        },
+        "mochi.brain": {
+          "type": "string",
+          "default": "",
+          "scope": "application",
+          "markdownDescription": "Which brain Mochi thinks with, like `copilot/auto`. Leave empty to let Mochi choose: Copilot's Auto when it's available. Use **Mochi: Choose a brain** to pick from what's available. Only you can change this; a project's settings can't."
         },
         "mochi.learningMode": {
           "type": "boolean",

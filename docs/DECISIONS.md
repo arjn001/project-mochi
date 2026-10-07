@@ -37,7 +37,8 @@
   understanding when she says she finished something.
 - The first-run welcome has one optional step, "Pick a brain", in this order:
   1. VS Code's built-in AI, through her Copilot sign-in, when it's available.
-     No key needed. VS Code shows its own one-time permission prompt.
+     No key in Mochi; it uses her Copilot plan (see "Copilot costs her
+     plan" below). VS Code shows its own one-time permission prompt.
   2. "My own Claude key", stored in VS Code's secret storage.
   3. Any OpenAI-compatible service, with an API key and an address. This
      covers ChatGPT. A stretch goal that can move after version 1.
@@ -47,6 +48,29 @@
 - The brain can be changed anytime on the "Make it yours" page.
 - We never ship our own AI key inside Mochi, and Mochi has no server of its
   own. Each user brings their own brain, through Copilot or their own key.
+- **Copilot costs her plan, so Mochi only thinks when she asks.** Since
+  2026-06-01, Copilot bills every chat message in GitHub AI Credits, by
+  tokens, at each model's API price; no chat model is free, on any plan.
+  Copilot Free and Copilot Student have an allowance of credits and get
+  models through Auto only; paid plans get 10% off when using Auto. Mochi
+  never calls the AI on its own, so it never spends her plan without her.
+  (Checked 2026-10-07: [GitHub's billing
+  post](https://github.blog/news-insights/company-news/github-copilot-is-moving-to-usage-based-billing/),
+  [usage-based billing for
+  individuals](https://docs.github.com/en/copilot/concepts/billing-and-usage/individuals/billing).)
+- **Which brain (MOCHI-53):** her pick if it's there, otherwise Copilot's
+  Auto. Mochi never picks another model without her: with no Auto and no
+  pick, it shows "Which brain should Mochi think with?" when she asks, and
+  if she closes it, it answers with one line instead of thinking. No price
+  table in Mochi; prices change too often to hardcode.
+- Her pick is the `mochi.brain` setting (like `copilot/auto`), user-level
+  only, so a project, a pack, or a gift can't change it. Empty or malformed
+  means "let Mochi choose". If her pick disappears (signed out, another
+  machine), Auto stands in and a note says so once per change, at the top
+  of her next answer, never as a pop-up.
+- Copilot's helper models (`copilot-utility...`, `copilot-dictation...`)
+  and anything with an input limit of 0 (like Copilot CLI's entry) are
+  never offered. The helper list lives in one place (`src/ai/brains.ts`).
 - All options sit behind one provider layer, so Mochi's personality comes from
   the pack, not from whichever AI answers.
 - API keys live in VS Code's secret storage, never in settings files or the
