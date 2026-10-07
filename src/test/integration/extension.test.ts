@@ -5,6 +5,7 @@ import * as path from "node:path";
 import * as vscode from "vscode";
 import { offer } from "../../actions/confirm";
 import { findPython, readProject } from "../../actions/pythonSetup";
+import { readLearningMode } from "../../settings";
 import { dimAction } from "../../actions/theme";
 import { BuiltInAi } from "../../ai/builtInAi";
 import type { MochiApi } from "../../extension";
@@ -188,10 +189,21 @@ describe("Mochi in VS Code", () => {
 
     afterEach(async () => (await mochi()).personal!.clear());
 
-    it("registers What should I call you? and Forget my name", async () => {
+    it("registers What should I call you?, Forget my name, and Forget everything", async () => {
       const commands = await vscode.commands.getCommands(true);
       assert.ok(commands.includes("mochi.setName"));
       assert.ok(commands.includes("mochi.forgetName"));
+      assert.ok(commands.includes("mochi.forgetEverything"));
+    });
+
+    it("forgets her layer and greeting memory when asked", async () => {
+      const api = await mochi();
+      await api.personal!.setName("Sam");
+      await api.personal!.forgetAll();
+      await api.greeter!.forget();
+      assert.strictEqual(api.personal!.pack().user?.name, undefined);
+      const text = await api.greeter!.greet({ force: true });
+      assert.doesNotMatch(text ?? "", /Sam|Welcome back|Back to/);
     });
 
     it("keeps her name in Mochi's private storage and uses it right away", async () => {
@@ -233,6 +245,17 @@ describe("Mochi in VS Code", () => {
     it("never greets on its own in quiet mode", async () => {
       await settings().update("speakUp", "quiet", vscode.ConfigurationTarget.Global);
       assert.strictEqual(await (await greeter()).greet(), undefined);
+    });
+  });
+
+  describe("learning mode", () => {
+    const settings = () => vscode.workspace.getConfiguration("mochi");
+    afterEach(async () => settings().update("learningMode", undefined, vscode.ConfigurationTarget.Global));
+
+    it("is on by default, and off once she turns it off", async () => {
+      assert.strictEqual(readLearningMode(), true);
+      await settings().update("learningMode", false, vscode.ConfigurationTarget.Global);
+      assert.strictEqual(readLearningMode(), false);
     });
   });
 

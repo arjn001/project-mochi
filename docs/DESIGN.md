@@ -111,6 +111,12 @@ The default lines are in `packs/default/pack.json` (format in PACKS.md).
   fix?" offers the next steps, only when she picks them. The answer shows in
   the "Mochi" output panel without taking focus from her editor, until the
   panel chat exists.
+- **Learning mode** (Settings, under Mochi, on by default): "Help me learn
+  instead of handing me answers. For homework, your code, and errors, Mochi
+  explains first, gives a hint if you ask, and shows the fix only when you
+  ask for it. Turn off for direct answers, fixes included. Only you can
+  change this; a project's settings can't." With it off, "Explain with
+  Mochi" explains briefly and shows the fix right away.
 - **Code hint:** plain "Need a paw?" in italics at the end of the error's
   line, with no emoji (they look different on every system). Its hover
   offers "Explain with Mochi".
@@ -168,6 +174,11 @@ The default lines are in `packs/default/pack.json` (format in PACKS.md).
   long. Up to 30 characters, please."). Then "Nice to meet you, Sam! I'll
   use your name when I say hello." "Mochi: Forget my name" says "Okay, I've
   forgotten your name. You can tell me again anytime."
+- **Forget everything:** a dialog, since it can't be undone: "Forget
+  everything?" with "This clears your chats, your name and personal touches,
+  and everything Mochi remembers about your days. Your settings and any
+  saved AI key stay as they are." Buttons: "Forget everything" and "Keep
+  it". After: "All clear. It's a fresh start, and I'm still right here."
 - **If her personal touches can't be loaded:** "I couldn't load your
   personal touches, so I'm my usual self for now. They're kept safe, not
   deleted." Once per session.

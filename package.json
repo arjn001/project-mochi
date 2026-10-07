@@ -107,6 +107,11 @@
         "command": "mochi.forgetName",
         "title": "Forget my name",
         "category": "Mochi"
+      },
+      {
+        "command": "mochi.forgetEverything",
+        "title": "Forget everything",
+        "category": "Mochi"
       }
     ],
     "menus": {
@@ -168,6 +173,12 @@
           ],
           "default": "gentle",
           "markdownDescription": "How often Mochi speaks up on its own. Mochi always answers when you open it."
+        },
+        "mochi.learningMode": {
+          "type": "boolean",
+          "default": true,
+          "scope": "application",
+          "markdownDescription": "Help me learn instead of handing me answers. For homework, your code, and errors, Mochi explains first, gives a hint if you ask, and shows the fix only when you ask for it. Turn off for direct answers, fixes included. Only you can change this; a project's settings can't."
         },
         "mochi.focusMinutes": {
           "type": "number",

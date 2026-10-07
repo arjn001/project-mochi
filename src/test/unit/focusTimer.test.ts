@@ -82,6 +82,21 @@ describe("focus timer", () => {
     assert.strictEqual(afterReload.minutesLeft(), 15);
   });
 
+  it("after Forget everything, keeps going but won't come back after a restart", async () => {
+    const time = fakeTime();
+    const store = fakeStore();
+    const timer = new FocusTimer(store, time.now, time.schedule);
+    await timer.start(25);
+    await timer.forgetSaved();
+    time.advanceMinutes(10);
+    assert.strictEqual(timer.minutesLeft(), 15, "The session she started keeps going.");
+    assert.strictEqual(store.data.has(STORE_KEY), false);
+
+    const afterRestart = new FocusTimer(store, time.now, time.schedule);
+    await afterRestart.restore();
+    assert.strictEqual(afterRestart.isRunning(), false);
+  });
+
   it("quietly clears a session that ended while VS Code was closed", async () => {
     const time = fakeTime();
     const store = fakeStore();
