@@ -5,6 +5,18 @@
 // Sentences written before this rule still live in their own files; they
 // move here as part of MOCHI-63.
 
+// "Mochi: Forget everything" (MOCHI-65).
+export const forgetStrings = {
+  question: "Forget everything?",
+  detail:
+    "This clears your chats, your name and personal touches, and everything Mochi remembers about your days. Your settings and any saved AI key stay as they are.",
+  yes: "Forget everything",
+  keep: "Keep it",
+  done: "All clear. It's a fresh start, and I'm still right here.",
+  partly: "I couldn't forget everything just now. Want to try again?",
+  tryAgain: "Try again",
+};
+
 // Her personal layer: her name and her own touches.
 export const personalStrings = {
   unreadable:
