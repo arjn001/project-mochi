@@ -11,25 +11,20 @@ session.
 update isn't listed.*
 
 - **Open pull requests:** none.
-- **In progress:** MOCHI-50 Design the visual identity, by Arjun.
-- **In progress, not yet in a pull request:**
-  - MOCHI-53 Connect Claude: Claude through Copilot works for Mochi with no
-    key (Copilot's "Auto" answered). Part 1, choosing the brain (prefer
-    Auto, hide helper models and zero-limit entries, "Mochi: Choose a
-    brain", the mochi.brain setting), waits on Arjun's OK of the wording.
-    Copilot now bills every chat message in AI credits, and Free and Student
-    plans only get Auto.
-- **Next:** MOCHI-53 Part 1, once its wording is approved.
+- **In progress:**
+  - MOCHI-53 Connect Claude. Part 2 (her own Claude key) is next, after
+    this pull request (Part 1, choosing the brain) merges.
+  - MOCHI-50 Design the visual identity, by Arjun.
+- **Next:** MOCHI-53 Part 2.
 - **Waiting on:**
-  - Arjun to try warnings that crash and merge MOCHI-66.
-  - Arjun to approve MOCHI-53 Part 1's wording.
-  - MOCHI-53's API key route, for people without Copilot, needs a Claude API
-    key to test with (billed per use, separate from a Claude subscription).
+  - Arjun to try Choose a brain and merge MOCHI-53 Part 1.
+  - Arjun's test Claude key (its own Console workspace with a spend limit),
+    pasted only into Mochi's hidden input box, for Part 2.
   - The panel work (MOCHI-16, MOCHI-17, MOCHI-21, MOCHI-25) waits on
     DESIGN.md being finished (MOCHI-50).
 
-**36 of 56 Jira tasks and subtasks done**, counting MOCHI-66. 2 of the 8
-categories are complete. 248 tests (219 unit, 29 integration) run on every
+**36 of 56 Jira tasks and subtasks done**. 2 of the 8
+categories are complete. 264 tests (234 unit, 30 integration) run on every
 pull request.
 
 ## Done
@@ -112,6 +107,10 @@ MOMENTS.md, PRESENCE.md, ARCHITECTURE.md, and BUILD_PLAN.md.
 - Mochi's personality from the pack, with fixed rules no pack can remove, a
   warm "let's do it together" for homework requests, and example exchanges
   that give it a real voice (MOCHI-24).
+- Choosing the brain: her pick (mochi.brain), otherwise Copilot's Auto, never
+  another model without her; "Mochi: Choose a brain"; a stand-in note once
+  per change. Copilot's helper models and zero-limit entries are hidden.
+  Mochi used to take the first Copilot model, GPT-4o mini (MOCHI-53, part 1).
 - Learning mode, on by default: the learning ladder for coursework-style
   requests, or direct answers with fixes when she turns it off. Only she can
   change it; a project's settings can't. "Explain with Mochi" follows it
@@ -126,9 +125,7 @@ MOMENTS.md, PRESENCE.md, ARCHITECTURE.md, and BUILD_PLAN.md.
 ## Next
 How chat works is designed in docs/CHAT.md. Work that doesn't need the
 panel, for Arjun to order:
-1. **MOCHI-53 Connect Claude** with her own API key, starting with a "List
-   available brains" check in the dev menu. Add esbuild bundling here if it
-   brings Mochi's first runtime dependency.
+1. **MOCHI-53 part 2:** her own Claude API key, for people without Copilot.
 2. **MOCHI-54 OpenAI-compatible services and local model servers** (Ollama,
    LM Studio).
 
