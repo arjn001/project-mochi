@@ -1,5 +1,5 @@
 import * as assert from "node:assert";
-import { errorRequest, linesAround, nextSteps, selectionRequest } from "../../ai/explain";
+import { errorRequest, firstStep, linesAround, nextSteps, selectionRequest, stepMessage } from "../../ai/explain";
 import { question } from "../../ai/shareGate";
 
 const lines = Array.from({ length: 20 }, (_, i) => `line ${i + 1}`);
@@ -55,5 +55,14 @@ describe("explaining", () => {
     const request = selectionRequest("homework.py", "print(x)");
     assert.match(request.message, /what it does and how it works/);
     assert.strictEqual(question(request.attachments, "Copilot"), "Share the selected code from homework.py with Copilot?");
+  });
+
+  describe("with Learning mode off", () => {
+    it("starts with a short explanation and the fix, with nothing to climb after", () => {
+      assert.strictEqual(firstStep(false), "direct");
+      assert.strictEqual(firstStep(true), "explain");
+      assert.match(stepMessage("direct"), /show the fix/);
+      assert.strictEqual(nextSteps("direct"), undefined);
+    });
   });
 });

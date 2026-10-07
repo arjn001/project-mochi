@@ -1,12 +1,15 @@
 import * as path from "node:path";
 import * as vscode from "vscode";
+import { isMochiError } from "../diagnostics";
 import { AnswerSurface } from "./answerSurface";
 import { Conversation } from "./conversation";
-import { CodeError, Step, errorRequest, nextSteps, selectionRequest, stepMessage } from "./explain";
+import { readLearningMode } from "../settings";
+import { CodeError, Step, errorRequest, firstStep, nextSteps, selectionRequest, stepMessage } from "./explain";
 
 const fileLabel = (doc: vscode.TextDocument) => (doc.isUntitled ? "an untitled file" : path.basename(doc.fileName));
 
-const isError = (d: vscode.Diagnostic) => d.severity === vscode.DiagnosticSeverity.Error;
+// Errors, plus warnings that crash when the code runs (MOCHI-66).
+const isError = isMochiError;
 
 // "Explain with Mochi" in the lightbulb next to an error.
 class ExplainCodeActions implements vscode.CodeActionProvider {
@@ -35,12 +38,13 @@ function errorInEditor(editor: vscode.TextEditor): vscode.Diagnostic | undefined
 
 async function explainError(conversation: Conversation, surface: AnswerSurface, error: CodeError): Promise<void> {
   const heading = `Explaining the error on line ${error.line} of ${error.file}`;
-  const approved = await conversation.ask(errorRequest("explain", error), heading);
+  // Learning mode decides where to start: explain first, or the fix.
+  let step: Step = firstStep(readLearningMode());
+  const approved = await conversation.ask(errorRequest(step, error), heading);
   if (!approved) {
     return;
   }
   // The ladder: each step only when she picks it, never skipping ahead.
-  let step: Step = "explain";
   for (let next = nextSteps(step); next; next = nextSteps(step)) {
     const pick = await surface.offerNext(next.prompt, next.choices.map((c) => c.label));
     const choice = next.choices.find((c) => c.label === pick);

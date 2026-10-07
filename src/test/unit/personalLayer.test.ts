@@ -48,6 +48,15 @@ describe("her personal layer", () => {
     assert.strictEqual(data.get(LAYER_KEY), undefined);
   });
 
+  it("forgets everything, including an unreadable layer kept aside", async () => {
+    const { personal, data } = setUp({ format: 2 });
+    await personal.setName("Sam");
+    await personal.forgetAll();
+    assert.strictEqual(data.get(LAYER_KEY), undefined);
+    assert.strictEqual(data.get(UNREADABLE_KEY), undefined);
+    assert.strictEqual(personal.pack(), base);
+  });
+
   describe("a damaged or too-new layer", () => {
     const damaged = { format: 2, user: { name: "Sam" } };
 

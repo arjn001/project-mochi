@@ -68,12 +68,23 @@ describe("noticing when she's stuck", () => {
       assert.deepStrictEqual([...later], [["a", minutes(1)], ["c", minutes(2)]]);
     });
 
-    it("counts errors only, never warnings", () => {
+    it("counts errors only, never ordinary warnings", () => {
       const all = [
-        { severity: "error" as const, message: "NameError", line: 2 },
+        { severity: "error" as const, message: "SyntaxError", line: 2 },
         { severity: "warning" as const, message: "unused variable", line: 0 },
       ];
-      assert.deepStrictEqual(onlyErrors(all).map((e) => e.message), ["NameError"]);
+      assert.deepStrictEqual(onlyErrors(all).map((e) => e.message), ["SyntaxError"]);
+    });
+
+    it("counts warnings that crash, like an undefined name", () => {
+      const undefinedName = {
+        severity: "warning" as const,
+        source: "Pylance",
+        code: "reportUndefinedVariable",
+        message: '"y" is not defined',
+        line: 2,
+      };
+      assert.deepStrictEqual(onlyErrors([undefinedName]).map((e) => e.message), ['"y" is not defined']);
     });
   });
 });
