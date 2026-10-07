@@ -1,5 +1,6 @@
 import * as path from "node:path";
 import * as vscode from "vscode";
+import { isMochiError } from "../diagnostics";
 import { readSpeakUp } from "../settings";
 import { errorKey, stuckOn, track } from "./stuck";
 
@@ -27,7 +28,8 @@ export function watchStuck(): vscode.Disposable {
     const file = doc.isUntitled ? doc.uri.toString() : path.basename(doc.fileName);
     return vscode.languages
       .getDiagnostics(doc.uri)
-      .filter((d) => d.severity === vscode.DiagnosticSeverity.Error)
+      // Errors, plus warnings that crash when the code runs (MOCHI-66).
+      .filter(isMochiError)
       .map((d) => ({ key: errorKey(file, d.message, lines, d.range.start.line), line: d.range.start.line, message: d.message }));
   };
 

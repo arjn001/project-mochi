@@ -62,10 +62,16 @@ describe("Mochi in VS Code", () => {
     const diagnostics = vscode.languages.createDiagnosticCollection("mochi-test");
     afterEach(() => diagnostics.clear());
 
-    async function lightbulbFor(severity: vscode.DiagnosticSeverity): Promise<string[]> {
+    async function lightbulbFor(
+      severity: vscode.DiagnosticSeverity,
+      from?: { source: string; code: string }
+    ): Promise<string[]> {
       const doc = await vscode.workspace.openTextDocument({ content: "x = 1\nprint(y)\n", language: "python" });
       const range = new vscode.Range(1, 6, 1, 7);
-      diagnostics.set(doc.uri, [new vscode.Diagnostic(range, "NameError: name 'y' is not defined", severity)]);
+      const problem = new vscode.Diagnostic(range, "NameError: name 'y' is not defined", severity);
+      problem.source = from?.source;
+      problem.code = from?.code;
+      diagnostics.set(doc.uri, [problem]);
       const actions = await vscode.commands.executeCommand<vscode.CodeAction[]>(
         "vscode.executeCodeActionProvider",
         doc.uri,
@@ -84,8 +90,15 @@ describe("Mochi in VS Code", () => {
       assert.ok((await lightbulbFor(vscode.DiagnosticSeverity.Error)).includes("Explain with Mochi"));
     });
 
-    it("doesn't offer it for warnings", async () => {
+    it("doesn't offer it for ordinary warnings", async () => {
       assert.ok(!(await lightbulbFor(vscode.DiagnosticSeverity.Warning)).includes("Explain with Mochi"));
+      const unusedImport = { source: "Pylance", code: "reportUnusedImport" };
+      assert.ok(!(await lightbulbFor(vscode.DiagnosticSeverity.Warning, unusedImport)).includes("Explain with Mochi"));
+    });
+
+    it("offers it for warnings that crash, like Pylance's undefined name", async () => {
+      const undefinedName = { source: "Pylance", code: "reportUndefinedVariable" };
+      assert.ok((await lightbulbFor(vscode.DiagnosticSeverity.Warning, undefinedName)).includes("Explain with Mochi"));
     });
   });
 

@@ -1,5 +1,6 @@
 import * as path from "node:path";
 import * as vscode from "vscode";
+import { isMochiError } from "../diagnostics";
 import { AnswerSurface } from "./answerSurface";
 import { Conversation } from "./conversation";
 import { readLearningMode } from "../settings";
@@ -7,7 +8,8 @@ import { CodeError, Step, errorRequest, firstStep, nextSteps, selectionRequest, 
 
 const fileLabel = (doc: vscode.TextDocument) => (doc.isUntitled ? "an untitled file" : path.basename(doc.fileName));
 
-const isError = (d: vscode.Diagnostic) => d.severity === vscode.DiagnosticSeverity.Error;
+// Errors, plus warnings that crash when the code runs (MOCHI-66).
+const isError = isMochiError;
 
 // "Explain with Mochi" in the lightbulb next to an error.
 class ExplainCodeActions implements vscode.CodeActionProvider {
