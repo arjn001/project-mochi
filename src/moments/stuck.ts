@@ -1,9 +1,10 @@
 // Noticing when she's stuck on an error (MOCHI-34). Plain code with no
 // VS Code dependency.
 //
-// Errors only (not warnings), only in the file she's editing, and only while
-// she's actively editing it. Each error is offered once per VS Code session,
-// and nothing about her code is ever saved to disk.
+// Errors (and warnings that crash, see problems.ts), only in the file she's
+// editing, and only while she's actively editing it. Each error is offered
+// once per VS Code session, and nothing about her code is ever saved to disk.
+import { Problem, countsAsError } from "../problems";
 import { maySpeak } from "./gatekeeper";
 
 // How long an error has to stay before Mochi offers a paw (see MOMENTS.md).
@@ -11,8 +12,7 @@ export const STUCK_AFTER_MS = 2 * 60_000;
 // She counts as actively editing if she typed in the file this recently.
 export const EDITING_WITHIN_MS = 5 * 60_000;
 
-export interface FileError {
-  severity: "error" | "warning" | "other";
+export interface FileError extends Problem {
   message: string;
   // Starts at 0, like VS Code.
   line: number;
@@ -59,4 +59,4 @@ export function stuckOn(check: StuckCheck): string[] {
     .map(([key]) => key);
 }
 
-export const onlyErrors = (errors: FileError[]) => errors.filter((e) => e.severity === "error");
+export const onlyErrors = (errors: FileError[]) => errors.filter(countsAsError);
