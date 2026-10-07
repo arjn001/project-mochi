@@ -12,18 +12,24 @@ update isn't listed.*
 
 - **Open pull requests:** none.
 - **In progress:** MOCHI-50 Design the visual identity, by Arjun.
-- **Next:** the next task from "Next" below. Chat is now designed
-  (docs/CHAT.md).
+- **In progress, not yet in a pull request:**
+  - MOCHI-65 "Mochi: Forget everything": code done, docs next. Its pull
+    request opens after this one merges, so they don't clash.
+  - MOCHI-53 Connect Claude: the dev menu's "List available brains" check
+    showed Claude through Copilot works for Mochi with no key (Copilot's
+    "Auto", Claude Fable 5.1, answered). Mochi currently takes the first
+    Copilot model, GPT-4o mini; it should prefer Auto and hide Copilot's
+    helper models.
+- **Next:** MOCHI-65's pull request, then MOCHI-53.
 - **Waiting on:**
-  - Arjun to merge the chat design.
-  - Arjun to pick the next task.
-  - MOCHI-53 needs a Claude API key to test with (billed per use, separate
-    from a Claude subscription).
+  - Arjun to try Learning mode and merge MOCHI-64.
+  - MOCHI-53's API key route, for people without Copilot, needs a Claude API
+    key to test with (billed per use, separate from a Claude subscription).
   - The panel work (MOCHI-16, MOCHI-17, MOCHI-21, MOCHI-25) waits on
     DESIGN.md being finished (MOCHI-50).
 
-**33 of 55 Jira tasks and subtasks done**. 2 of the 8
-categories are complete. 227 tests (201 unit, 26 integration) run on every
+**34 of 55 Jira tasks and subtasks done**, counting MOCHI-64. 2 of the 8
+categories are complete. 234 tests (207 unit, 27 integration) run on every
 pull request.
 
 ## Done
@@ -99,6 +105,10 @@ MOMENTS.md, PRESENCE.md, ARCHITECTURE.md, and BUILD_PLAN.md.
 - Mochi's personality from the pack, with fixed rules no pack can remove, a
   warm "let's do it together" for homework requests, and example exchanges
   that give it a real voice (MOCHI-24).
+- Learning mode, on by default: the learning ladder for coursework-style
+  requests, or direct answers with fixes when she turns it off. Only she can
+  change it; a project's settings can't. "Explain with Mochi" follows it
+  (MOCHI-64).
 
 ## In progress
 - **MOCHI-50 Design the visual identity**, by Arjun, separately. The icons are
@@ -109,14 +119,12 @@ MOMENTS.md, PRESENCE.md, ARCHITECTURE.md, and BUILD_PLAN.md.
 ## Next
 How chat works is designed in docs/CHAT.md. Work that doesn't need the
 panel, for Arjun to order:
-1. **MOCHI-64 Learning mode**, the setting that turns the learning ladder on
-   (default) or off, including for "Explain with Mochi".
-2. **MOCHI-65 "Mochi: Forget everything"**, for the greeting memory and her
+1. **MOCHI-65 "Mochi: Forget everything"**, for the greeting memory and her
    personal layer now; the chat joins it with MOCHI-21.
-3. **MOCHI-53 Connect Claude** with her own API key, starting with a "List
+2. **MOCHI-53 Connect Claude** with her own API key, starting with a "List
    available brains" check in the dev menu. Add esbuild bundling here if it
    brings Mochi's first runtime dependency.
-4. **MOCHI-54 OpenAI-compatible services and local model servers** (Ollama,
+3. **MOCHI-54 OpenAI-compatible services and local model servers** (Ollama,
    LM Studio).
 
 Then:

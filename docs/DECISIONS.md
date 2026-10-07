@@ -75,8 +75,10 @@
   normal "asks first, then Undo" flow.
 - **Learning mode**, on by default: the learning ladder for coursework-style
   requests. Off gives direct answers. Only she can change it: it's a user
-  setting a project can't override, and packs and gifts can't touch
-  settings.
+  setting a project can't override (`"scope": "application"`, checked by a
+  unit test), and packs and gifts can't touch settings. The always-on rules
+  (only use what she shared, plain words, say so when unsure, never refuse
+  coldly) apply either way. Explaining an error follows it too (MOCHI-64).
 
 ## Deferred, by design
 - Messaging between people (notes, ask for help, Live Share). The architecture

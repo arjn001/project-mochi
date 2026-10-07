@@ -3,16 +3,22 @@
 //
 // The learning ladder, from VISION principle 3 (explain and guide rather
 // than doing coursework): Explain is the default. A hint only if she asks,
-// and the fix only when she explicitly asks for it.
+// and the fix only when she explicitly asks for it. With Learning mode off
+// (MOCHI-64), "direct" explains briefly and shows the fix right away.
 import { Attachment, Request } from "./shareGate";
 
-export type Step = "explain" | "hint" | "fix";
+export type Step = "explain" | "hint" | "fix" | "direct";
 
 const ERROR_STEPS: Record<Step, string> = {
   explain: "Explain this error: what it means, why it happens, and where to look. Don't give the fix.",
   hint: "Give me a hint for this error: one small nudge in the right direction, not the fix.",
   fix: "Show me the fix: the smallest change that fixes it, and why it works.",
+  direct: "Explain this error briefly, then show the fix: the smallest change that fixes it, and why it works.",
 };
+
+// Where explaining an error starts: the bottom of the ladder, or straight to
+// the fix when Learning mode is off.
+export const firstStep = (learning: boolean): Step => (learning ? "explain" : "direct");
 
 // Lines shared around an error: the error line, and this many above and below.
 export const LINES_AROUND = 3;
@@ -79,6 +85,7 @@ export function nextSteps(step: Step): { prompt: string; choices: { label: strin
     case "hint":
       return { prompt: "Want to see the fix?", choices: [{ label: "Show the fix", step: "fix" }] };
     case "fix":
+    case "direct":
       return undefined;
   }
 }

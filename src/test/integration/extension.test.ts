@@ -5,6 +5,7 @@ import * as path from "node:path";
 import * as vscode from "vscode";
 import { offer } from "../../actions/confirm";
 import { findPython, readProject } from "../../actions/pythonSetup";
+import { readLearningMode } from "../../settings";
 import { dimAction } from "../../actions/theme";
 import { BuiltInAi } from "../../ai/builtInAi";
 import type { MochiApi } from "../../extension";
@@ -220,6 +221,17 @@ describe("Mochi in VS Code", () => {
     it("never greets on its own in quiet mode", async () => {
       await settings().update("speakUp", "quiet", vscode.ConfigurationTarget.Global);
       assert.strictEqual(await (await greeter()).greet(), undefined);
+    });
+  });
+
+  describe("learning mode", () => {
+    const settings = () => vscode.workspace.getConfiguration("mochi");
+    afterEach(async () => settings().update("learningMode", undefined, vscode.ConfigurationTarget.Global));
+
+    it("is on by default, and off once she turns it off", async () => {
+      assert.strictEqual(readLearningMode(), true);
+      await settings().update("learningMode", false, vscode.ConfigurationTarget.Global);
+      assert.strictEqual(readLearningMode(), false);
     });
   });
 
