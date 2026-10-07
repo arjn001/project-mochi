@@ -1,3 +1,4 @@
+import * as path from "node:path";
 import * as vscode from "vscode";
 import { choose } from "./actions/choose";
 import { offer } from "./actions/confirm";
@@ -62,7 +63,9 @@ export function activate(context: vscode.ExtensionContext): MochiApi {
   // Mochi's personality comes from the default pack, with her personal layer
   // on top (MOCHI-41). pack() is read fresh each time Mochi speaks, so a
   // change to her layer shows up right away.
-  const personal = new PersonalLayer(context.globalState, loadDefaultPack(), (message) => {
+  // Found from Mochi's install folder, since the code runs from the bundle.
+  const defaultPack = loadDefaultPack(path.join(context.extensionPath, "packs", "default", "pack.json"));
+  const personal = new PersonalLayer(context.globalState, defaultPack, (message) => {
     void vscode.window.showWarningMessage(message);
   });
   const pack = () => personal.pack();

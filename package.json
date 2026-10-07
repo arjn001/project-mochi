@@ -27,7 +27,7 @@
   "extensionKind": [
     "workspace"
   ],
-  "main": "./out/extension.js",
+  "main": "./dist/extension.js",
   "contributes": {
     "viewsContainers": {
       "secondarySidebar": [
@@ -232,9 +232,10 @@
     }
   },
   "scripts": {
-    "clean": "node -e \"require('fs').rmSync('out', { recursive: true, force: true })\"",
-    "compile": "npm run clean && tsc -p ./",
-    "watch": "tsc -watch -p ./",
+    "clean": "node -e \"for (const d of ['out', 'dist']) require('fs').rmSync(d, { recursive: true, force: true })\"",
+    "compile": "npm run clean && tsc -p ./ && node esbuild.mjs",
+    "watch:tsc": "tsc -watch -p ./",
+    "watch:esbuild": "node esbuild.mjs --watch",
     "build:icons": "fantasticon",
     "vscode:prepublish": "npm run compile",
     "package": "vsce package --skip-license",
@@ -249,6 +250,7 @@
     "@vscode/test-cli": "^0.0.15",
     "@vscode/test-electron": "^3.1.0",
     "@vscode/vsce": "^4.0.0",
+    "esbuild": "^0.28.2",
     "fantasticon": "^4.1.0",
     "mocha": "^12.0.3",
     "typescript": "^7.0.2"
