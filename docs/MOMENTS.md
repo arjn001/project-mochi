@@ -24,16 +24,17 @@ her click.
   mode greets once a day too.
 
 ## Stuck on errors
-- **Trigger:** an error (not a warning) stays in the file she's editing for 2
-  minutes, while she's actively typing in it.
+- **Trigger:** an error stays in the file she's editing for 2 minutes, while
+  she's actively typing in it. A warning that crashes when the code runs,
+  like Python's `"y" is not defined`, counts as an error (MOCHI-66).
 - **What Mochi does:** shows a soft "Need a paw?" at the end of the error's
   line. Hovering it offers "Explain with Mochi", which explains on the
   learning ladder: explain first, then a hint or the fix only if she asks.
 - **Offered once per session:** an error is known by its message and the code
   around it, so it isn't offered again even if it moves. Nothing about her
   code is saved to disk.
-- **Never:** in quiet mode, on warnings, in other files, say she's wrong,
-  keep offering, or read her code without a click.
+- **Never:** in quiet mode, on ordinary warnings, in other files, say she's
+  wrong, keep offering, or read her code without a click.
 
 ## Opening a Python project
 - **Trigger:** she opens a folder she trusts that has Python files (or a

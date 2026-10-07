@@ -106,7 +106,7 @@ The default lines are in `packs/default/pack.json` (format in PACKS.md).
   says why. Text that looks like a password or API key adds "Careful: this
   looks like it might contain a password or API key." to the question.
 - **Explaining, on a learning ladder:** "Explain with Mochi" in the lightbulb
-  next to an error, or "Mochi: Explain this" on selected code. Explain comes
+  next to an error (or a warning that crashes, like an undefined name), or "Mochi: Explain this" on selected code. Explain comes
   first (what it means, why, where to look). Then "Want a hint, or the
   fix?" offers the next steps, only when she picks them. The answer shows in
   the "Mochi" output panel without taking focus from her editor, until the

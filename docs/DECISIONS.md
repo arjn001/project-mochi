@@ -112,6 +112,17 @@ message.
   about her days, and her personal layer, after confirming. Chats are kept
   in one private store across projects, so this reaches all of them.
 
+## Which problems count as errors
+- Errors always count, for "Explain with Mochi" and "Need a paw?".
+- A few warnings count too, because they always crash the program when it
+  runs. Pylance marks `"y" is not defined` (a `NameError`) as a warning, yet
+  it's one of the most common beginner mistakes (MOCHI-66).
+- The list lives in one place (`src/problems.ts`) and matches by the tool and
+  the warning's code (like Pylance's `reportUndefinedVariable`), never its
+  text, so it works in any display language. It starts with undefined names
+  from Pylance, Pyright, and basedpyright.
+- Ordinary warnings, like an unused import, stay quiet.
+
 ## Noticing when she's stuck
 - An error is "offered once" per VS Code session: Mochi remembers it in
   memory only, and saves nothing about it to disk.
