@@ -39,7 +39,7 @@ export function rememberCoding(state: vscode.Memento): vscode.Disposable {
 export class Greeter {
   // When she last coded before this VS Code started, read before today's
   // typing replaces it.
-  private readonly previous: LastCoding | undefined;
+  private previous: LastCoding | undefined;
 
   constructor(
     private readonly state: vscode.Memento,
@@ -48,6 +48,14 @@ export class Greeter {
     private readonly surface: GreetingSurface
   ) {
     this.previous = toLastCoding(state.get(LAST_CODING));
+  }
+
+  // For "Forget everything": when and where she last coded, and the day she
+  // was last greeted.
+  async forget(): Promise<void> {
+    this.previous = undefined;
+    await this.state.update(LAST_CODING, undefined);
+    await this.state.update(LAST_GREETED, undefined);
   }
 
   // Greets if it's time, and returns what Mochi said. `force` skips the

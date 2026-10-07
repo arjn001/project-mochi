@@ -99,6 +99,13 @@ export class FocusTimer {
     this.emit(this.ended);
   }
 
+  // For "Forget everything": a session that's running keeps going, since
+  // she started it, but its saved end time is gone, so it won't come back
+  // after a restart.
+  async forgetSaved(): Promise<void> {
+    await this.store.update(STORE_KEY, undefined);
+  }
+
   private async clear(): Promise<void> {
     this.cancel?.();
     this.cancel = undefined;

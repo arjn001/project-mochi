@@ -107,6 +107,11 @@
         "command": "mochi.forgetName",
         "title": "Forget my name",
         "category": "Mochi"
+      },
+      {
+        "command": "mochi.forgetEverything",
+        "title": "Forget everything",
+        "category": "Mochi"
       }
     ],
     "menus": {
