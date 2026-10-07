@@ -19,7 +19,7 @@ import { watchStuck } from "./moments/stuckWatcher";
 import { FocusTimer } from "./focus/timer";
 import { notificationGreeting } from "./presence/greetingSurface";
 import { createMoodLine, showMood } from "./presence/statusBar";
-import { onSpeakUpChange, readSpeakUp } from "./settings";
+import { onSpeakUpChange, readLearningMode, readSpeakUp } from "./settings";
 
 // What activate() hands back. The integration tests use it to see what the
 // mood line says, since VS Code doesn't let tests read the status bar.
@@ -70,7 +70,7 @@ export function activate(context: vscode.ExtensionContext): MochiApi {
   // Talking to Mochi, through VS Code's built-in AI for now.
   // Answers show in the output panel until the panel chat exists (MOCHI-21).
   const surface = createOutputSurface();
-  const conversation = new Conversation(new BuiltInAi(), () => instructionsFor(pack()), surface);
+  const conversation = new Conversation(new BuiltInAi(), () => instructionsFor(pack(), readLearningMode()), surface);
   const ask = registerAskCommand(conversation);
   const explain = registerExplain(conversation, surface);
 

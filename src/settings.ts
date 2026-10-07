@@ -1,6 +1,7 @@
 import * as vscode from "vscode";
 import { toFocusMinutes } from "./focus/timer";
 import { SpeakUp, toSpeakUp } from "./moments/gatekeeper";
+import { toLearningMode } from "./ai/instructions";
 import { toLateHour } from "./moments/lateNight";
 
 // The speak-up level for the open project. A project's own setting wins over
@@ -17,6 +18,12 @@ export function readFocusMinutes(): number {
 // The hour late night starts. Anything unexpected is 23:00.
 export function readLateHour(): number {
   return toLateHour(vscode.workspace.getConfiguration("mochi").get("lateHour"));
+}
+
+// Learning mode (MOCHI-64). On unless she turned it off herself; it's an
+// application setting, so a project's settings can't change it.
+export function readLearningMode(): boolean {
+  return toLearningMode(vscode.workspace.getConfiguration("mochi").get("learningMode"));
 }
 
 // Calls back with the new level whenever she changes it, with no reload.
