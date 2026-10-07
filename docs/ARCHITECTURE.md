@@ -70,8 +70,9 @@ accept a `GatedRequest`, and only the share gate (`src/ai/shareGate.ts`) can
 create one, so code that tries to skip it doesn't compile.
 
 Version 1 providers, as decided in MOCHI-6:
-- **Built-in AI** through VS Code's language model API. It only works if she
-  has Copilot, so Mochi checks for it and never assumes it's there.
+- **Built-in AI** through VS Code's language model API: Copilot's models
+  (which use her Copilot plan) and models other extensions provide. Mochi
+  checks what's there each time she asks and never assumes it.
 - **Claude** with her own API key.
 - **OpenAI-compatible**, with an API key and an address. This covers ChatGPT.
   A stretch goal that can move after version 1.
