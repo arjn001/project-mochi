@@ -12,17 +12,17 @@ update isn't listed.*
 
 - **Open pull requests:** none.
 - **In progress:** MOCHI-50 Design the visual identity, by Arjun.
-- **Next:** mark MOCHI-33 Done in Jira once it's merged. Then the next task
-  from "Next" below.
+- **Next:** the next task from "Next" below. Chat is now designed
+  (docs/CHAT.md).
 - **Waiting on:**
-  - Arjun to try the greeting by hand and merge MOCHI-33.
+  - Arjun to merge the chat design.
   - Arjun to pick the next task.
   - MOCHI-53 needs a Claude API key to test with (billed per use, separate
     from a Claude subscription).
   - The panel work (MOCHI-16, MOCHI-17, MOCHI-21, MOCHI-25) waits on
     DESIGN.md being finished (MOCHI-50).
 
-**33 of 53 Jira tasks and subtasks done**, counting MOCHI-33. 2 of the 8
+**33 of 55 Jira tasks and subtasks done**. 2 of the 8
 categories are complete. 227 tests (201 unit, 26 integration) run on every
 pull request.
 
@@ -107,15 +107,23 @@ MOMENTS.md, PRESENCE.md, ARCHITECTURE.md, and BUILD_PLAN.md.
   MOCHI-21 (chat UI in the panel).
 
 ## Next
-Work that doesn't need the panel, for Arjun to order:
-1. **MOCHI-53 Connect Claude**, with her own key in secret storage. Add
-   esbuild bundling here if it brings Mochi's first runtime dependency.
+How chat works is designed in docs/CHAT.md. Work that doesn't need the
+panel, for Arjun to order:
+1. **MOCHI-64 Learning mode**, the setting that turns the learning ladder on
+   (default) or off, including for "Explain with Mochi".
+2. **MOCHI-65 "Mochi: Forget everything"**, for the greeting memory and her
+   personal layer now; the chat joins it with MOCHI-21.
+3. **MOCHI-53 Connect Claude** with her own API key, starting with a "List
+   available brains" check in the dev menu. Add esbuild bundling here if it
+   brings Mochi's first runtime dependency.
+4. **MOCHI-54 OpenAI-compatible services and local model servers** (Ollama,
+   LM Studio).
 
 Then:
-2. **Before publishing (Release):** MOCHI-60 Windows and macOS in CI,
+5. **Before publishing (Release):** MOCHI-60 Windows and macOS in CI,
    MOCHI-61 "Mochi: Report a problem", MOCHI-62 decide on web support, and
    MOCHI-63 localization.
-3. **After DESIGN.md is finished:** MOCHI-17, MOCHI-16, MOCHI-21, then
+6. **After DESIGN.md is finished:** MOCHI-17, MOCHI-16, MOCHI-21, then
    MOCHI-25 (streaming in the chat). The early preview for her comes after
    Milestone 3, with the default pack only.
 
