@@ -13,25 +13,23 @@ update isn't listed.*
 - **Open pull requests:** none.
 - **In progress:** MOCHI-50 Design the visual identity, by Arjun.
 - **In progress, not yet in a pull request:**
-  - MOCHI-66 Treat warnings that crash as errors (like Pylance's "y" is not
-    defined): built and tested; its pull request opens after this one merges.
   - MOCHI-53 Connect Claude: Claude through Copilot works for Mochi with no
     key (Copilot's "Auto" answered). Part 1, choosing the brain (prefer
     Auto, hide helper models and zero-limit entries, "Mochi: Choose a
     brain", the mochi.brain setting), waits on Arjun's OK of the wording.
     Copilot now bills every chat message in AI credits, and Free and Student
     plans only get Auto.
-- **Next:** MOCHI-66's pull request, then MOCHI-53 Part 1.
+- **Next:** MOCHI-53 Part 1, once its wording is approved.
 - **Waiting on:**
-  - Arjun to try Forget everything and merge MOCHI-65.
+  - Arjun to try warnings that crash and merge MOCHI-66.
   - Arjun to approve MOCHI-53 Part 1's wording.
   - MOCHI-53's API key route, for people without Copilot, needs a Claude API
     key to test with (billed per use, separate from a Claude subscription).
   - The panel work (MOCHI-16, MOCHI-17, MOCHI-21, MOCHI-25) waits on
     DESIGN.md being finished (MOCHI-50).
 
-**35 of 56 Jira tasks and subtasks done**, counting MOCHI-65. 2 of the 8
-categories are complete. 241 tests (213 unit, 28 integration) run on every
+**36 of 56 Jira tasks and subtasks done**, counting MOCHI-66. 2 of the 8
+categories are complete. 248 tests (219 unit, 29 integration) run on every
 pull request.
 
 ## Done
@@ -60,6 +58,9 @@ MOMENTS.md, PRESENCE.md, ARCHITECTURE.md, and BUILD_PLAN.md.
 - Late-night nudge, once per night across windows while she's typing, after
   the Late Hour setting. A light theme gets the dim offer; dark and high
   contrast themes get company only. Never during a focus session (MOCHI-35).
+- Warnings that crash when the code runs, like Pylance's "y" is not
+  defined, count as errors for "Explain with Mochi" and "Need a paw?". The
+  list lives in one place and matches by tool and code (MOCHI-66).
 - Noticing when she's stuck: a plain "Need a paw?" at the end of an error's
   line after 2 minutes, while she's typing in that file. Errors only, once
   per session, known by message and nearby code, kept in memory only
