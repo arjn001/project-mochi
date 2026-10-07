@@ -55,4 +55,10 @@ describe("package.json", () => {
     assert.strictEqual(setting.default, true);
     assert.strictEqual(setting.scope, "application", "A project's settings must not be able to turn Learning mode off.");
   });
+
+  it("keeps her brain choice in her own settings only", () => {
+    const setting = readJson("package.json").contributes.configuration.properties["mochi.brain"];
+    assert.strictEqual(setting.default, "");
+    assert.strictEqual(setting.scope, "application", "A project's settings must not be able to change her brain.");
+  });
 });

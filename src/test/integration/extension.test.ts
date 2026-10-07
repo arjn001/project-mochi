@@ -7,7 +7,6 @@ import { offer } from "../../actions/confirm";
 import { findPython, readProject } from "../../actions/pythonSetup";
 import { readLearningMode } from "../../settings";
 import { dimAction } from "../../actions/theme";
-import { BuiltInAi } from "../../ai/builtInAi";
 import type { MochiApi } from "../../extension";
 
 describe("Mochi in VS Code", () => {
@@ -51,10 +50,14 @@ describe("Mochi in VS Code", () => {
       assert.ok(commands.includes("mochi.ask"), "The mochi.ask command is not registered.");
     });
 
-    it("checks for the built-in AI without failing when there's no Copilot", async () => {
-      // The test copy of VS Code has no Copilot, so there's no brain here.
-      const available = await new BuiltInAi().isAvailable();
-      assert.strictEqual(typeof available, "boolean");
+    it("registers Choose a brain", async () => {
+      const commands = await vscode.commands.getCommands(true);
+      assert.ok(commands.includes("mochi.chooseBrain"));
+    });
+
+    it("lists the built-in AI's brains without failing when there's no Copilot", async () => {
+      // The test copy of VS Code has no Copilot, so there may be no brains.
+      assert.ok(Array.isArray(await vscode.lm.selectChatModels()));
     });
   });
 

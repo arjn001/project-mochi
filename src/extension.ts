@@ -8,7 +8,7 @@ import { registerAskCommand } from "./ai/askCommand";
 import { Conversation } from "./ai/conversation";
 import { registerExplain } from "./ai/explainCommands";
 import { createOutputSurface } from "./ai/outputSurface";
-import { BuiltInAi } from "./ai/builtInAi";
+import { BrainPicker } from "./ai/brainPicker";
 import { instructionsFor } from "./ai/instructions";
 import { loadDefaultPack } from "./packs/defaultPack";
 import { registerNameCommands } from "./packs/nameCommands";
@@ -71,7 +71,11 @@ export function activate(context: vscode.ExtensionContext): MochiApi {
   // Talking to Mochi, through VS Code's built-in AI for now.
   // Answers show in the output panel until the panel chat exists (MOCHI-21).
   const surface = createOutputSurface();
-  const conversation = new Conversation(new BuiltInAi(), () => instructionsFor(pack(), readLearningMode()), surface);
+  // The brain is chosen fresh each time she asks: her pick, else Copilot's
+  // Auto, else she's asked (MOCHI-53).
+  const brains = new BrainPicker(context.globalState);
+  const chooseBrain = brains.register();
+  const conversation = new Conversation(brains, () => instructionsFor(pack(), readLearningMode()), surface);
   const ask = registerAskCommand(conversation);
   const explain = registerExplain(conversation, surface);
 
@@ -120,7 +124,7 @@ export function activate(context: vscode.ExtensionContext): MochiApi {
   ]);
 
   // Anything added here is cleaned up when Mochi shuts down.
-  context.subscriptions.push(names, open, home, mood, followSpeakUp, focus, timer, surface, ask, explain, stuck, dim, lateNight, coding, python, pythonOffer, forget);
+  context.subscriptions.push(names, chooseBrain, open, home, mood, followSpeakUp, focus, timer, surface, ask, explain, stuck, dim, lateNight, coding, python, pythonOffer, forget);
 
   return {
     moodText: () => mood.text,

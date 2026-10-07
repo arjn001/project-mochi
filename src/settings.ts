@@ -26,6 +26,17 @@ export function readLearningMode(): boolean {
   return toLearningMode(vscode.workspace.getConfiguration("mochi").get("learningMode"));
 }
 
+// Her chosen brain, like "copilot/auto", as typed in settings (MOCHI-53).
+// Checked in ai/brains.ts; empty or malformed means "let Mochi choose".
+export function readBrainSetting(): unknown {
+  return vscode.workspace.getConfiguration("mochi").get("brain");
+}
+
+// Saved in her user settings only. An empty value means "let Mochi choose".
+export async function saveBrainSetting(value: string): Promise<void> {
+  await vscode.workspace.getConfiguration("mochi").update("brain", value, vscode.ConfigurationTarget.Global);
+}
+
 // Calls back with the new level whenever she changes it, with no reload.
 export function onSpeakUpChange(callback: (level: SpeakUp) => void): vscode.Disposable {
   return vscode.workspace.onDidChangeConfiguration((event) => {
