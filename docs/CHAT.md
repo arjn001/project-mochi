@@ -1,0 +1,248 @@
+# Chat
+
+How talking to Mochi works: where the brain comes from, what a conversation
+holds, what's sent, learning mode, and what Mochi says when things go wrong.
+This is behavior only. How the chat looks (layout, colors, the avatar) comes
+from DESIGN.md (MOCHI-50), and no panel UI is built before it.
+
+Checked against the tools and docs as of 2026-10-06. Sources are at the end.
+
+## 1. Where the brain comes from
+
+Mochi uses whatever brain she already has, in this order of preference. It
+never ships its own key and has no server of its own (DECISIONS.md).
+
+| She has... | What Mochi does | Cost to her |
+|---|---|---|
+| **Copilot, signed in** | Uses it through VS Code's built-in AI. VS Code asks once, "Allow Mochi to use Copilot?", the first time she asks something. That's the only step. | Her Copilot plan. Students can often get it free through GitHub Education (worth checking for her account). |
+| **A model from another extension** (like the Ollama extension or AI Toolkit for local models) | Shows up in Mochi's brain list automatically, through the same built-in AI. No key in Mochi. | Whatever that extension costs; local models are free. |
+| **ChatGPT Plus or Claude Pro/Max** | Explains honestly: "Your subscription works in ChatGPT or Claude's own apps, but they don't let other apps use it. You can sign in to Copilot (free for students), or use an API key." Then offers both. | Nothing extra unless she picks an API key. |
+| **Her own API key** (Claude, MOCHI-53; OpenAI-compatible, MOCHI-54) | "Get a key" opens the provider's website in her browser. She pastes the key, and Mochi keeps it in VS Code's secret storage (her system keychain), never in settings or files. Mochi says clearly: "This key is billed to your account each time Mochi answers." | Pay per use, billed by the provider. Separate from any subscription. |
+| **A local model server** (Ollama, LM Studio) without an extension | Through MOCHI-54: an OpenAI-compatible address like `http://localhost:11434/v1` (Ollama) or `http://localhost:1234/v1` (LM Studio), with no key. Works offline. | Free, runs on her computer. |
+| **Nothing** | Everything that doesn't need a brain still works: greetings, late-night company, quiet mode, the focus timer, the theme, Python setup, "Need a paw?" hints. When she asks something, one gentle line: "I'd need a brain to answer that. Want to set one up?" | Nothing. |
+
+**Why a subscription can't be used:** Anthropic's terms (clarified on
+2026-02-19) say logins from Claude Free, Pro, or Max may only be used in
+Anthropic's own apps; any other app must use an API key. ChatGPT Plus doesn't
+include API access either. So Mochi never asks for her Claude or ChatGPT
+login, and never borrows Claude Code's.
+
+## 2. Keys Mochi stores vs. models VS Code already has (checked first)
+
+**The question:** if she adds a model through VS Code's own model management
+("Chat: Manage Language Models", bring your own key), can Mochi use it? If
+so, Mochi should prefer that over storing keys itself.
+
+**What I found:**
+- **Models contributed by extensions: yes.** VS Code's Language Model API
+  lets any extension register a model provider
+  (`registerLanguageModelChatProvider`, in the stable API since before our
+  oldest supported version, 1.125). `vscode.lm.selectChatModels()` with no
+  filter "returns all chat models", and the docs say any extension can send
+  requests to those models. So Copilot models, and models from extensions
+  like Ollama's or AI Toolkit, should reach Mochi with no key in Mochi
+  (confirmed per extension with the dev menu list below).
+- **Keys typed into VS Code's own "Manage Models" screen: no, not reliably.**
+  VS Code's docs describe these for its Chat view only and never say other
+  extensions can use them. A model-provider extension's README states the
+  built-in Anthropic key "only allows using Claude models from the Chat
+  sidebar", and trying from another extension fails.
+- **To confirm on a real machine:** before building MOCHI-53, a "List
+  available brains" item in the Mochi dev menu shows exactly what Mochi can
+  see on Arjun's normal profile, with Copilot and with a key added in Manage
+  Models.
+
+**So:** Mochi prefers anything in VS Code's built-in AI (Copilot and
+extension models), with no key stored in Mochi. For people who only have an
+API key, Mochi keeps it itself in secret storage (MOCHI-53, MOCHI-54). If a
+later VS Code version shares "Manage Models" keys with extensions, Mochi
+switches to that and stops asking for keys.
+
+## 3. The conversation
+
+**One per project, kept on her computer.**
+- Each project (workspace) has its own conversation, kept in Mochi's private
+  storage on her own computer (even when she works over SSH, in WSL, or in a
+  container). Opening the project again brings it back.
+- No folder open: the conversation lasts until VS Code closes.
+- Never synced, never sent anywhere except to the brain she picked, and
+  only when she sends a message.
+- **Up to 200 messages are kept** per project; older ones fall off quietly.
+  Mochi keeps the conversations of the 20 projects she used most recently.
+- **The history can include code.** Code she pastes into a message, and
+  code the brain quotes in its replies, is part of the conversation, so it's
+  saved with it. Mochi says so plainly in the chat's empty state: "Our chat
+  stays on this computer. It can include code from our conversation; Clear
+  chat removes it."
+- **"Clear chat"** empties this project's conversation, after asking:
+  "Clear this chat? This can't be undone." with "Clear" and "Keep it".
+- **"Mochi: Forget everything"** clears every conversation in every project,
+  what Mochi remembers about her day (for the greeting), and her personal
+  layer (her name and her touches), after asking: "Forget everything? This
+  clears our chats in every project, what I remember about your days, and
+  your name and personal touches. It can't be undone." with "Forget
+  everything" and "Keep it".
+
+**What's sent, and nothing more.**
+- What she types, plus what she attaches, plus **only the recent messages**
+  of this conversation, so the brain can follow along. They're picked
+  newest first within a size budget (a few thousand words, and always within
+  the brain's own limit). The rest stays in the history on her computer but
+  isn't sent. This keeps answers fast and protects her quota or her bill.
+- Mochi never reads her files, screen, or terminal on its own.
+- **Attachments show as chips** above the box, naming the file and lines:
+  `homework.py, lines 9 to 15`. Each has an x to remove it before sending.
+  Adding one goes through the share gate, which names the brain ("Share
+  lines 9 to 15 of homework.py with Copilot?"). `.env` and key files are
+  never attached, and text that looks like a password or API key gets a
+  warning first.
+- **The same warning for what she types:** if she pastes something that
+  looks like an API key or password, Mochi asks before sending: "Careful:
+  this looks like it might contain a password or API key. Send anyway?"
+- **Attachments aren't saved with the history.** The chat keeps the chip
+  ("shared lines 9 to 15 of homework.py"), but the attached code itself is
+  kept only until VS Code closes. After a restart, the brain no longer sees
+  it; she can attach it again. (Code that appears in messages is saved, as
+  above.)
+
+**The brain at the top.** The chat header shows the current brain, like
+"Copilot · Claude Sonnet". One click opens the list of every brain Mochi can
+see, plus "Add a brain...". Her choice is remembered for all projects. If
+that brain disappears (signed out, extension removed), Mochi falls back to
+the next one and says so once: "Copilot isn't available right now, so I'm
+using Ollama."
+
+**While Mochi answers.**
+- **Streaming:** the answer appears as it's written (MOCHI-25).
+- **Stop:** a Stop button (and Escape) ends it right away; what's there
+  stays, marked "Stopped".
+- **Code blocks:** shown as code, with the language's colors, and a **Copy**
+  button on each. Copy only copies; it never runs or inserts anything.
+- **The answer is untrusted text.** It's shown as Markdown with HTML turned
+  off, and links never run commands. The panel has a strict content
+  security policy.
+
+**Two rules for every brain.**
+- **Mochi never calls the AI on its own.** Only her message, or her click
+  (like "Explain with Mochi"), starts an AI request. Never for greetings,
+  nudges, hints, or anything in the background. Her quota and her code are
+  only spent when she decides.
+- **Nothing in a reply can make Mochi act.** A reply is text. If it suggests
+  something Mochi can do (dim things, set up Python, any future action),
+  that needs her click, through the same "asks first, then Undo" flow as
+  everything else (MOCHI-31). Mochi never reads a reply for commands to run.
+- **Attached code is untrusted, too.** A file can contain text aimed at the
+  AI ("ignore your rules and..."). Mochi's rules come from code and always
+  have the last word, the share gate and actions are enforced in code, and
+  no reply can trigger anything, so such text can't do more than confuse an
+  answer (see ARCHITECTURE.md).
+
+## 4. Learning mode
+
+A setting, **on by default**: "Learning mode: help me learn instead of
+handing me answers."
+- **On:** for coursework-style requests (homework, assignments, "fix my
+  code", errors), Mochi follows the learning ladder: explain first (what it
+  means, why, where to look), then a hint if she asks, and the fix only when
+  she explicitly asks, as the smallest change plus why. Whole assignments
+  get a warm "let's do it together", never a cold refusal. Everyday
+  questions ("what's a list?") get a normal answer.
+- **Off:** direct answers, including fixes, for when she just needs it
+  working.
+- **Only she can change it.** It's an application-level setting, so a
+  project's `.vscode/settings.json` can't switch it off. Packs and gifts
+  can't touch settings at all. The ladder text lives in Mochi's code, next
+  to the other fixed rules, and is added or left out by the setting.
+- Explaining an error from the lightbulb (MOCHI-30) follows the same
+  setting: off means it offers the fix right away.
+
+## 5. When things go wrong
+
+Every failure gets one kind line, from the pack (so her personal layer can
+reword them), and never a raw error. Each one says what she can do.
+
+| What happened | What Mochi says (default pack) | What she can do |
+|---|---|---|
+| **No brain connected** | "I'd need a brain to answer that. Want to set one up?" | "Set one up" |
+| **Quota or usage limit reached** | "This brain is resting for now, maybe a usage limit. Want to try another one, or ask again a bit later?" | "Switch brain" |
+| **Offline** | "I can't reach the brain right now. Are we offline? Everything else still works, and I'll be here when you're back." | "Try again" |
+| **The brain's own error** | "Something went wrong while I was thinking. Want to try that again?" | "Try again" |
+| **She hasn't allowed Copilot yet** | "I need your OK to use Copilot. Ask again and choose Allow." | Ask again |
+
+What she typed is never lost: a failed message stays in the box, ready to
+send again.
+
+## 6. The planning checklist
+
+**Her journeys**
+- *First time, no brain:* the chat works as a place to type; sending shows
+  the "no brain" line with "Set one up".
+- *Copilot installed but not allowed yet:* the first message triggers VS
+  Code's one-time Allow; saying no shows the "needs your OK" line.
+- *Quiet mode:* the chat always answers when she asks. Quiet only stops
+  Mochi starting things.
+- *Focus session running:* chat works as normal; she started it.
+- *Untrusted folder (Restricted Mode):* chat works; attachments still go
+  through the share gate. Nothing is run.
+- *Single file, no folder:* chat works; the conversation lasts the session.
+
+**Changes over time**
+- Brains come and go (signed out, an extension added): Mochi listens for
+  VS Code's "models changed" event and updates the list and the header.
+- Learning mode changes take effect on the next message.
+- Her personal layer's style notes apply on the next message.
+
+**Other setups**
+- *Windows, macOS, Linux:* the same everywhere. Keys go into each system's
+  keychain through VS Code's secret storage.
+- *Remote (SSH, WSL, containers, Codespaces):* the built-in AI and secret
+  storage work there; keys stay on her own computer. Direct API calls
+  (MOCHI-53/54) run where Mochi runs, so a local model on her laptop isn't
+  reachable from a remote machine; Mochi says so plainly if the address
+  can't be reached.
+- *VS Code for the Web:* not supported in version 1 (DECISIONS.md).
+- *Multi-root workspaces:* one conversation for the whole workspace.
+- *Other editors (VSCodium, Cursor, and others from Open VSX):* Copilot may
+  not exist, and the built-in AI list may be empty. The API key and local
+  model options (MOCHI-53/54) are how Mochi works there.
+- *No AI, offline, restricted networks:* see section 1 and 5. Direct API
+  calls must go through VS Code's proxy settings (checked in MOCHI-53).
+- *Screen readers:* new answers are announced politely when they finish,
+  not word by word. Everything works from the keyboard: Enter sends,
+  Shift+Enter adds a line, Escape stops, and focus stays in the box.
+- *High contrast and themes:* the chat uses VS Code's theme colors only.
+- *Other languages:* Mochi's own words live in the pack and `strings.ts`.
+  The brain is asked to answer in the language she writes in.
+
+**When it fails:** section 5. Never silence, never a raw error, and her
+message is never lost.
+
+**Fresh-user test:** a clean profile with no Copilot: open the chat, send
+"hi", see the "no brain" line, click "Set one up". Then with Copilot: allow
+once, ask "what's a list?", see it stream, stop one halfway, copy a code
+block, restart VS Code, and find the conversation still there. Finally,
+"Mochi: Forget everything", and see the chat, her name, and the greeting
+memory gone.
+
+## What this changes elsewhere
+- **DECISIONS.md:** local models no longer wait for the next version; they
+  come through VS Code's built-in AI (via their extensions) and through the
+  OpenAI-compatible option (MOCHI-54).
+- **The AI's fixed rules** (`src/ai/instructions.ts`): the ladder becomes
+  conditional on Learning mode; the other rules stay always on.
+- **DECISIONS.md:** what Mochi keeps on her computer (including that chat
+  history can contain code), "Forget everything", and the two rules: Mochi
+  never calls the AI on its own, and nothing in a reply can make it act.
+- **ARCHITECTURE.md:** attached code is untrusted input that may contain
+  instructions aimed at the AI.
+- **Jira:** MOCHI-21, 22, 23, 25, 53, and 54 are updated to match, and
+  Learning mode and "Forget everything" get their own tasks.
+
+## Sources
+- [VS Code: Language Model API](https://code.visualstudio.com/api/extension-guides/ai/language-model)
+- [VS Code: Language Model Chat Provider API](https://code.visualstudio.com/api/extension-guides/ai/language-model-chat-provider)
+- [VS Code: AI language models in VS Code (bring your own key)](https://code.visualstudio.com/docs/agent-customization/language-models)
+- [VS Code blog: Use your own language model key in VS Code (2026-06-18)](https://code.visualstudio.com/blogs/2026/06/18/byok-vscode)
+- [claude-model-provider README (built-in key only works in the Chat view)](https://github.com/cpulvermacher/claude-model-provider)
+- [The Register: Anthropic clarifies ban on third-party tool access to Claude](https://www.theregister.com/software/2026/02/20/anthropic-clarifies-ban-on-third-party-tool-access-to-claude/5014546)
+- `@types/vscode` 1.125: `vscode.lm.selectChatModels`, `registerLanguageModelChatProvider`
