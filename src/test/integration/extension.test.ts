@@ -176,10 +176,21 @@ describe("Mochi in VS Code", () => {
 
     afterEach(async () => (await mochi()).personal!.clear());
 
-    it("registers What should I call you? and Forget my name", async () => {
+    it("registers What should I call you?, Forget my name, and Forget everything", async () => {
       const commands = await vscode.commands.getCommands(true);
       assert.ok(commands.includes("mochi.setName"));
       assert.ok(commands.includes("mochi.forgetName"));
+      assert.ok(commands.includes("mochi.forgetEverything"));
+    });
+
+    it("forgets her layer and greeting memory when asked", async () => {
+      const api = await mochi();
+      await api.personal!.setName("Sam");
+      await api.personal!.forgetAll();
+      await api.greeter!.forget();
+      assert.strictEqual(api.personal!.pack().user?.name, undefined);
+      const text = await api.greeter!.greet({ force: true });
+      assert.doesNotMatch(text ?? "", /Sam|Welcome back|Back to/);
     });
 
     it("keeps her name in Mochi's private storage and uses it right away", async () => {

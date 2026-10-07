@@ -77,11 +77,11 @@ switches to that and stops asking for keys.
 - **"Clear chat"** empties this project's conversation, after asking:
   "Clear this chat? This can't be undone." with "Clear" and "Keep it".
 - **"Mochi: Forget everything"** clears every conversation in every project,
-  what Mochi remembers about her day (for the greeting), and her personal
-  layer (her name and her touches), after asking: "Forget everything? This
-  clears our chats in every project, what I remember about your days, and
-  your name and personal touches. It can't be undone." with "Forget
-  everything" and "Keep it".
+  her personal layer, and everything Mochi remembers about her days (see
+  DECISIONS.md, "What Mochi keeps"), after asking in a dialog:
+  "Forget everything?" with "This clears your chats, your name and personal
+  touches, and everything Mochi remembers about your days. Your settings and
+  any saved AI key stay as they are." and "Forget everything" or "Keep it".
 
 **What's sent, and nothing more.**
 - What she types, plus what she attaches, plus **only the recent messages**

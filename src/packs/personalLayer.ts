@@ -111,6 +111,12 @@ export class PersonalLayer {
     await this.store.update(LAYER_KEY, undefined);
   }
 
+  // For "Forget everything": her layer, and any unreadable one kept aside.
+  async forgetAll(): Promise<void> {
+    await this.store.update(LAYER_KEY, undefined);
+    await this.store.update(UNREADABLE_KEY, undefined);
+  }
+
   private async keepUnreadable(): Promise<void> {
     if (this.read().unreadable) {
       await this.store.update(UNREADABLE_KEY, this.store.get(LAYER_KEY));

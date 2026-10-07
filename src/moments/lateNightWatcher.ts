@@ -9,7 +9,7 @@ import { readLateHour, readSpeakUp } from "../settings";
 import { lateNightNudge, nightOf } from "./lateNight";
 
 // Shared by every VS Code window, so several windows still give ONE nudge.
-const LAST_NUDGED = "mochi.lastNudgedNight";
+export const LAST_NUDGED = "mochi.lastNudgedNight";
 
 // Checked when she types, so the nudge only comes while she's coding, and
 // at most once a minute. pack() gives the current pack, with her personal

@@ -192,7 +192,7 @@ more, run anything, or change a setting.
 | API keys | VS Code secret storage |
 | Last time she coded and the project's folder name, today's greeting and tonight's nudge shown | Mochi's private state |
 | Personal layer (her name, her lines, style notes) | Mochi's private global state, on her own computer, not synced |
-| Projects already offered Python setup (folder addresses only) | Mochi's per-project state |
+| Projects already offered Python setup (folder addresses only) | Mochi's private state, one list for all projects |
 
 ## Privacy
 - Nothing Mochi attaches on its own (code, errors, the open file) reaches an

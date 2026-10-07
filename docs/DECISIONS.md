@@ -110,9 +110,22 @@ message.
   offered Python setup, a focus session's end time.
 - Mochi never saves code on its own: stuck hints and the share gate keep
   nothing on disk.
-- **"Mochi: Forget everything"** clears every chat, what Mochi remembers
-  about her days, and her personal layer, after confirming. Chats are kept
-  in one private store across projects, so this reaches all of them.
+- **"Mochi: Forget everything"** (MOCHI-65), after confirming in a dialog,
+  clears:
+  - every chat, in every project (with MOCHI-21);
+  - her personal layer, including a damaged copy kept aside;
+  - what Mochi remembers about her days: when and where she last coded, the
+    day she was last greeted, tonight's late-night nudge, and which projects
+    were offered Python setup;
+  - a focus session's saved end time. A session that's running keeps going,
+    since she started it, but won't come back after a restart.
+- It never touches her settings (speak-up level, Learning mode, the chosen
+  brain) or a saved AI key; the confirmation says so. Removing a key gets
+  its own command (MOCHI-53).
+- Chats and the Python-offer list are kept in one private store across
+  projects, so Forget everything reaches all of them from any window. If
+  one part can't be cleared, the rest still are, and Mochi offers to try
+  again.
 
 ## Noticing when she's stuck
 - An error is "offered once" per VS Code session: Mochi remembers it in

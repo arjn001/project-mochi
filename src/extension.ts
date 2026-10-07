@@ -1,7 +1,8 @@
 import * as vscode from "vscode";
 import { choose } from "./actions/choose";
 import { offer } from "./actions/confirm";
-import { registerPythonSetup, watchPythonProjects } from "./actions/pythonSetup";
+import { OFFERED, registerPythonSetup, watchPythonProjects } from "./actions/pythonSetup";
+import { registerForgetEverything } from "./forgetCommand";
 import { dimAction } from "./actions/theme";
 import { registerAskCommand } from "./ai/askCommand";
 import { Conversation } from "./ai/conversation";
@@ -14,7 +15,7 @@ import { registerNameCommands } from "./packs/nameCommands";
 import { PersonalLayer } from "./packs/personalLayer";
 import { registerFocus } from "./focus/focusCommands";
 import { Greeter, rememberCoding } from "./moments/greetingWatcher";
-import { watchLateNight } from "./moments/lateNightWatcher";
+import { LAST_NUDGED, watchLateNight } from "./moments/lateNightWatcher";
 import { watchStuck } from "./moments/stuckWatcher";
 import { FocusTimer } from "./focus/timer";
 import { notificationGreeting } from "./presence/greetingSurface";
@@ -95,7 +96,7 @@ export function activate(context: vscode.ExtensionContext): MochiApi {
   // The Python offer waits until after the greeting, so two notes don't
   // arrive at once.
   const afterGreeting = greeted.then((text) => (text ? new Promise((done) => setTimeout(done, 5_000)) : undefined));
-  const pythonOffer = watchPythonProjects(context.workspaceState, choose, () => timer.isRunning(), afterGreeting);
+  const pythonOffer = watchPythonProjects(context.globalState, choose, () => timer.isRunning(), afterGreeting);
 
   // Developer tools, only when running from source (Run > Start Debugging).
   // They're never in the published package: out/dev/ is left out of the
@@ -105,8 +106,21 @@ export function activate(context: vscode.ExtensionContext): MochiApi {
     context.subscriptions.push(registerDevTools(personal, greeter));
   }
 
+  // "Mochi: Forget everything" (MOCHI-65): everything Mochi keeps about her,
+  // never her settings or a saved AI key. The chat adds its part with
+  // MOCHI-21.
+  const forget = registerForgetEverything([
+    { forget: () => personal.forgetAll() },
+    { forget: () => greeter.forget() },
+    { forget: () => context.globalState.update(LAST_NUDGED, undefined) },
+    { forget: () => context.globalState.update(OFFERED, undefined) },
+    // Where the list lived before it moved to one store for all projects.
+    { forget: () => context.workspaceState.update(OFFERED, undefined) },
+    { forget: () => timer.forgetSaved() },
+  ]);
+
   // Anything added here is cleaned up when Mochi shuts down.
-  context.subscriptions.push(names, open, home, mood, followSpeakUp, focus, timer, surface, ask, explain, stuck, dim, lateNight, coding, python, pythonOffer);
+  context.subscriptions.push(names, open, home, mood, followSpeakUp, focus, timer, surface, ask, explain, stuck, dim, lateNight, coding, python, pythonOffer, forget);
 
   return {
     moodText: () => mood.text,
