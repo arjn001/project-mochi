@@ -252,12 +252,19 @@ message.
   setup mentions the usual cause, a missing python3-venv package.
 
 ## Building and packaging
-- Mochi is packaged into a `.vsix` with `npm run package`. Source code
-  (`src/`) and compiled tests (`out/test/`) never go into the package, and CI
-  fails if they do.
-- No bundling yet (decided in MOCHI-14). Mochi has no runtime dependencies, so
-  the TypeScript compiler alone is enough. esbuild bundling gets added with
-  the first runtime dependency, most likely in MOCHI-22 or MOCHI-53.
+- Mochi is packaged into a `.vsix` with `npm run package`.
+- Mochi is bundled with esbuild (MOCHI-14, before its first runtime
+  dependency, the Claude SDK in MOCHI-53). `src/extension.ts` and everything
+  it uses become one file, `dist/extension.js`, which is Mochi's entry point
+  and the only code in the .vsix. CI fails if any other JavaScript, `src/`,
+  or `out/` ends up in the package.
+- TypeScript still compiles everything to `out/` for the tests and the
+  development-only tools. The bundle loads the dev tools from `out/` only in
+  development mode, so they never ship.
+- Files Mochi reads at runtime (like the default pack) are found from its
+  install folder, not from where the code sits, since the bundle lives in
+  `dist/`.
+- F5 runs two watchers: TypeScript (for `out/`) and esbuild (for `dist/`).
 - No license yet. Mochi is packaged with `--skip-license` until one is chosen
   before going public (MOCHI-59). Leaning: MIT for the code, with Mochi's
   name, icons, and art all rights reserved.

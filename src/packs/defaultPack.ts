@@ -4,7 +4,8 @@ import * as fs from "node:fs";
 import * as path from "node:path";
 import { Pack, checkPack } from "./format";
 
-// From out/packs/ back to the extension's root folder.
+// From out/packs/ back to the extension's root folder, for the unit tests.
+// The extension passes the real location, since the bundle lives in dist/.
 const DEFAULT_PACK = path.join(__dirname, "..", "..", "packs", "default", "pack.json");
 
 export function loadDefaultPack(file: string = DEFAULT_PACK): Pack {

@@ -12,12 +12,13 @@ update isn't listed.*
 
 - **Open pull requests:** none.
 - **In progress:**
-  - MOCHI-53 Connect Claude. Part 2 (her own Claude key) is next, after
-    this pull request (Part 1, choosing the brain) merges.
+  - MOCHI-53 Connect Claude: Part 2 (her own Claude key, with the official
+    Claude SDK) is next, after this bundling pull request merges.
   - MOCHI-50 Design the visual identity, by Arjun.
 - **Next:** MOCHI-53 Part 2.
 - **Waiting on:**
-  - Arjun to try Choose a brain and merge MOCHI-53 Part 1.
+  - Arjun to try F5 and the tests with the bundle, and merge MOCHI-14's
+    bundling.
   - Arjun's test Claude key (its own Console workspace with a spend limit),
     pasted only into Mochi's hidden input box, for Part 2.
   - The panel work (MOCHI-16, MOCHI-17, MOCHI-21, MOCHI-25) waits on
@@ -159,7 +160,9 @@ Then:
   MOCHI-63.
 - Plans follow the checklist in CLAUDE.md (her journeys, changes over time,
   other systems and setups, failures, a fresh-user test).
-- No bundling yet; add esbuild with the first runtime dependency.
+- Mochi is bundled with esbuild into `dist/extension.js`, the only code in
+  the .vsix (MOCHI-14). Files read at runtime are found from Mochi's install
+  folder, never relative to the code.
 - No license yet (MOCHI-59). Leaning: MIT for code, Mochi's name, icons, and
   art all rights reserved. Packaging uses `--skip-license` until then.
 - CI is Linux only. Add a macOS job before any release, including the private
