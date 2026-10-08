@@ -237,6 +237,7 @@
     "watch:tsc": "tsc -watch -p ./",
     "watch:esbuild": "node esbuild.mjs --watch",
     "build:icons": "fantasticon",
+    "notices": "node esbuild.mjs --notices",
     "vscode:prepublish": "npm run compile",
     "package": "vsce package --skip-license --no-dependencies",
     "test:unit": "npm run compile && mocha \"out/test/unit/**/*.test.js\"",
