@@ -10,6 +10,7 @@ import { Conversation } from "./ai/conversation";
 import { registerExplain } from "./ai/explainCommands";
 import { createOutputSurface } from "./ai/outputSurface";
 import { BrainPicker } from "./ai/brainPicker";
+import { ClaudeKey } from "./ai/claudeKey";
 import { instructionsFor } from "./ai/instructions";
 import { loadDefaultPack } from "./packs/defaultPack";
 import { registerNameCommands } from "./packs/nameCommands";
@@ -76,6 +77,8 @@ export function activate(context: vscode.ExtensionContext): MochiApi {
   const surface = createOutputSurface();
   // The brain is chosen fresh each time she asks: her pick, else Copilot's
   // Auto, else she's asked (MOCHI-53).
+  // Her own Claude key, if she adds one, in her system's keychain.
+  const claudeKey = new ClaudeKey(context.secrets);
   const brains = new BrainPicker(context.globalState);
   const chooseBrain = brains.register();
   const conversation = new Conversation(brains, () => instructionsFor(pack(), readLearningMode()), surface);
@@ -127,7 +130,7 @@ export function activate(context: vscode.ExtensionContext): MochiApi {
   ]);
 
   // Anything added here is cleaned up when Mochi shuts down.
-  context.subscriptions.push(names, chooseBrain, open, home, mood, followSpeakUp, focus, timer, surface, ask, explain, stuck, dim, lateNight, coding, python, pythonOffer, forget);
+  context.subscriptions.push(names, claudeKey, chooseBrain,open, home, mood, followSpeakUp, focus, timer, surface, ask, explain, stuck, dim, lateNight, coding, python, pythonOffer, forget);
 
   return {
     moodText: () => mood.text,
