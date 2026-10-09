@@ -24,12 +24,13 @@ const devToolsStayOut = {
   },
 };
 
-// The packages esbuild put in the bundle, from its metafile, sorted.
+// The packages esbuild put in the bundle, sorted: files that add bytes to
+// it, not everything esbuild read and then left out as unused.
 function bundledPackages(metafile) {
   const names = new Set();
-  for (const input of Object.keys(metafile.inputs)) {
+  for (const [input, { bytesInOutput }] of Object.entries(metafile.outputs["dist/extension.js"].inputs)) {
     const match = /(?:^|\/)node_modules\/((?:@[^/]+\/)?[^/]+)\//.exec(input);
-    if (match) {
+    if (match && bytesInOutput > 0) {
       names.add(match[1]);
     }
   }
