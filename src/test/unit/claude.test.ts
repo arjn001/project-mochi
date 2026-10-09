@@ -7,7 +7,9 @@ import {
   answer,
   connect,
   isStartingPoint,
+  keyInputProblem,
   listModels,
+  startingPointFirst,
   toBrainError,
   toSavedModels,
 } from "../../ai/claude";
@@ -281,6 +283,22 @@ describe("her own Claude key", () => {
     });
   });
 
+  describe("pasting her key", () => {
+    it("asks again for nothing, or a key with a space in it", () => {
+      assert.strictEqual(keyInputProblem(""), "Paste your key, or press Escape to stop.");
+      assert.strictEqual(keyInputProblem("   "), "Paste your key, or press Escape to stop.");
+      assert.strictEqual(keyInputProblem("sk-ant-api03 abc"), "That has a space in it. Could you paste it again?");
+    });
+
+    it("accepts a key with spaces around it, which pasting often adds", () => {
+      assert.strictEqual(keyInputProblem(` ${KEY}\n`), undefined);
+    });
+
+    it("leaves deciding whether a key works to Claude", () => {
+      assert.strictEqual(keyInputProblem("not-a-claude-looking-key"), undefined);
+    });
+  });
+
   describe("what she's told", () => {
     const told = (problem: ClaudeProblem) => {
       const error = toBrainError(new ClaudeError(problem));
@@ -486,6 +504,20 @@ describe("her own Claude key", () => {
 
     it("an empty listing is still a listing", async () => {
       assert.deepStrictEqual(await listModels(connect(KEY)), { ok: true, models: [] });
+    });
+
+    it("puts the starting point first, then keeps Claude's order", () => {
+      const listed = [
+        { id: "claude-fable-5-1", name: "Claude Fable 5.1", maxInputTokens: null },
+        { id: "claude-sonnet-5-5", name: "Claude Sonnet 5.5", maxInputTokens: null },
+        { id: "claude-haiku-4-5-20251001", name: "Claude Haiku 4.5", maxInputTokens: null },
+      ];
+      assert.deepStrictEqual(
+        startingPointFirst(listed).map((model) => model.name),
+        ["Claude Haiku 4.5", "Claude Fable 5.1", "Claude Sonnet 5.5"]
+      );
+      // No mark when it isn't listed, and nothing fails.
+      assert.deepStrictEqual(startingPointFirst(listed.slice(0, 2)), listed.slice(0, 2));
     });
 
     it("marks the starting point, by name or dated", () => {

@@ -114,6 +114,11 @@
         "category": "Mochi"
       },
       {
+        "command": "mochi.addClaudeKey",
+        "title": "Add a Claude key",
+        "category": "Mochi"
+      },
+      {
         "command": "mochi.forgetEverything",
         "title": "Forget everything",
         "category": "Mochi"

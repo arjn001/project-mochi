@@ -1,8 +1,9 @@
 import * as vscode from "vscode";
 import { readBrainSetting, saveBrainSetting } from "../settings";
-import { brainStrings } from "../strings";
+import { brainStrings, claudeKeyStrings, problemStrings } from "../strings";
 import { BrainInfo, CLAUDE_VENDOR, brainKey, brainLabel, chooseBrain, fallbackNote, isAuto, isUsable, toBrainSetting } from "./brains";
 import { ModelBrain } from "./builtInAi";
+import { ClaudeModel, isStartingPoint, startingPointFirst } from "./claude";
 import { ClaudeModels } from "./claudeBrains";
 import { Provider } from "./provider";
 
@@ -25,7 +26,7 @@ export type ForQuestion =
   // `note` is the stand-in note; call `noted()` once it's actually shown.
   | { kind: "use"; provider: Provider; note?: string; noted?: () => Thenable<void> };
 
-type Item = vscode.QuickPickItem & { key?: string; action?: "auto" | "signIn" };
+type Item = vscode.QuickPickItem & { key?: string; action?: "auto" | "signIn" | "addClaudeKey" };
 
 // Which brain Mochi thinks with. Checked fresh every time she asks, so a
 // brain that appears or disappears (signing in or out, an extension added)
@@ -132,6 +133,9 @@ export class BrainPicker {
     if (usable.length === 0) {
       items.push({ label: brainStrings.signIn, action: "signIn" });
     }
+    if (!(await this.claude.key.get())) {
+      items.push({ label: problemStrings.addClaudeKey, description: brainStrings.billedPerUse, action: "addClaudeKey" });
+    }
 
     const picked = await vscode.window.showQuickPick(items, {
       title: brainStrings.title,
@@ -144,6 +148,10 @@ export class BrainPicker {
       await signInToCopilot();
       return "closed";
     }
+    if (picked.action === "addClaudeKey") {
+      // True once she's added a key and picked a Claude model.
+      return (await vscode.commands.executeCommand<boolean>("mochi.addClaudeKey")) ? "picked" : "closed";
+    }
     if (picked.action === "auto") {
       await saveBrainSetting("");
       if (!fromQuestion) {
@@ -151,12 +159,44 @@ export class BrainPicker {
       }
       return "picked";
     }
-    await this.state.update(LABELS, { ...this.labels(), [picked.key!]: picked.label });
-    await saveBrainSetting(picked.key!);
+    await this.savePick(picked.key!, picked.label);
     if (!fromQuestion) {
       void vscode.window.showInformationMessage(brainStrings.picked(picked.label));
     }
     return "picked";
+  }
+
+  // "Which Claude model should Mochi use?", right after her key checks
+  // out. True if she picked one.
+  async chooseClaudeModel(models: readonly ClaudeModel[]): Promise<boolean> {
+    const setting = toBrainSetting(readBrainSetting());
+    const check = new vscode.ThemeIcon("check");
+    const items: Item[] = startingPointFirst(models).map((model) => {
+      const key = brainKey({ vendor: CLAUDE_VENDOR, id: model.id });
+      return {
+        label: model.name,
+        description: brainStrings.billedPerUse,
+        detail: isStartingPoint(model.id) ? claudeKeyStrings.startingPoint : undefined,
+        key,
+        iconPath: setting && brainKey(setting) === key ? check : undefined,
+      };
+    });
+    const picked = await vscode.window.showQuickPick(items, {
+      title: claudeKeyStrings.modelTitle,
+      placeHolder: claudeKeyStrings.modelPlaceholder,
+    });
+    if (!picked) {
+      return false;
+    }
+    await this.savePick(picked.key!, picked.label);
+    void vscode.window.showInformationMessage(brainStrings.picked(picked.label));
+    return true;
+  }
+
+  // Her pick, and its name, so a note can name it if it's ever gone.
+  private async savePick(key: string, label: string): Promise<void> {
+    await this.state.update(LABELS, { ...this.labels(), [key]: label });
+    await saveBrainSetting(key);
   }
 
   register(): vscode.Disposable {

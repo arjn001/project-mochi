@@ -24,6 +24,36 @@ export const brainStrings = {
     `Quick note: ${missing} isn't available right now, so I'm thinking with ${used} instead. Mochi: Choose a brain changes this.`,
 };
 
+// Her own Claude key: "Mochi: Add a Claude key" and "Mochi: Remove my Claude
+// key" (MOCHI-53, part 2).
+export const claudeKeyStrings = {
+  title: "Add a Claude key",
+  intro:
+    "Mochi can think with Claude using your own API key from the Claude Console. Each answer is billed to your Claude account, per use. A Claude Pro or Max subscription can't be used here; it only works in Claude's own apps.",
+  tip: "Tip: you can set a monthly spend limit in the Claude Console.",
+  replaces: "This replaces the Claude key Mochi has now.",
+  getKey: "Get a key",
+  haveKey: "I have a key",
+  prompt: "Paste your Claude API key. Mochi keeps it in your system's keychain, never in settings or files.",
+  placeholder: "sk-ant-...",
+  empty: "Paste your key, or press Escape to stop.",
+  space: "That has a space in it. Could you paste it again?",
+  checking: "Checking your key with Claude...",
+  rejected: "That key didn't work. Check that you copied all of it, or make a new one in the Claude Console.",
+  cantReach: "I couldn't reach Claude to check your key. Are we offline? Your key isn't saved yet.",
+  cantCheck: "Claude couldn't check your key just now. Want to try again in a moment?",
+  tryAgain: "Try again",
+  noKeychain: "I couldn't save your key, because this computer doesn't have a keychain Mochi can use. Your key isn't kept.",
+  howToFix: "How to fix this",
+  noModels:
+    "Your Claude key is saved, but Claude didn't list any models for it yet. Mochi: Choose a brain whenever you're ready.",
+  // "Which Claude model should Mochi use?", once the key checks out.
+  modelTitle: "Which Claude model should Mochi use?",
+  modelPlaceholder: "Each answer is billed to your Claude account.",
+  startingPoint: "Good starting point for explanations",
+  savedNoPick: "Your Claude key is saved. Mochi: Choose a brain picks a Claude model whenever you're ready.",
+};
+
 // When a brain can't answer, beyond the lines in ai/provider.ts. Mostly for
 // her own Claude key (MOCHI-53, part 2).
 export const problemStrings = {

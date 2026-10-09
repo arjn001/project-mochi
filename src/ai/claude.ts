@@ -7,6 +7,7 @@
 // explicitly, and every request is checked again on its way out.
 import Anthropic, { type ClientOptions } from "@anthropic-ai/sdk";
 import { randomUUID } from "node:crypto";
+import { claudeKeyStrings } from "../strings";
 import { BrainError, BrainHelp, BrainProblem } from "./provider";
 
 // The only address her key is sent to.
@@ -214,6 +215,25 @@ export interface ClaudeModel {
 // version of it, like claude-haiku-4-5-20251001.
 export const isStartingPoint = (id: string): boolean =>
   id === STARTING_POINT || new RegExp(`^${STARTING_POINT}-\\d{8}$`).test(id);
+
+// What's wrong with what she pasted, if anything. Only the obvious: the
+// free check with Claude says whether the key works.
+export function keyInputProblem(typed: string): string | undefined {
+  const key = typed.trim();
+  if (key === "") {
+    return claudeKeyStrings.empty;
+  }
+  if (/\s/.test(key)) {
+    return claudeKeyStrings.space;
+  }
+  return undefined;
+}
+
+// Starting point first, then newest first, as Claude lists them.
+export const startingPointFirst = (models: readonly ClaudeModel[]): ClaudeModel[] => [
+  ...models.filter((model) => isStartingPoint(model.id)),
+  ...models.filter((model) => !isStartingPoint(model.id)),
+];
 
 // A saved listing, read back from Mochi's storage. Anything that doesn't
 // look like one is ignored.
