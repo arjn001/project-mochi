@@ -149,6 +149,7 @@ describe("her own Claude key", () => {
       assert.strictEqual(calls[0].url.pathname, "/v1/messages");
       assert.strictEqual(calls[0].headers.get("x-api-key"), KEY);
       assert.strictEqual(calls[0].headers.get("authorization"), null);
+      assert.strictEqual(calls[0].headers.get("x-mochi-watch"), null, "Mochi's own header stays inside Mochi");
       assert.deepStrictEqual(printed, []);
     });
 
@@ -265,6 +266,65 @@ describe("her own Claude key", () => {
       });
       assert.deepStrictEqual(pieces, ["Hmm."]);
       assert.strictEqual((error as ClaudeError).problem, "declined");
+    });
+  });
+
+  describe("an answer that goes quiet", () => {
+    // Sends each chunk after its delay, then stays open until stopped.
+    function slowStream(call: Call, chunks: [number, string][], thenEnd: boolean, aborted: () => void): Response {
+      return new Response(
+        new ReadableStream({
+          async start(controller) {
+            call.signal?.addEventListener("abort", () => {
+              aborted();
+              controller.error(new DOMException("aborted", "AbortError"));
+            });
+            for (const [delay, text] of chunks) {
+              await new Promise((done) => setTimeout(done, delay));
+              if (call.signal?.aborted) {
+                return;
+              }
+              controller.enqueue(new TextEncoder().encode(text));
+            }
+            if (thenEnd) {
+              controller.close();
+            }
+          },
+        }),
+        { status: 200, headers: { "content-type": "text/event-stream" } }
+      );
+    }
+    const ping = "event: ping\ndata: {\"type\": \"ping\"}\n\n";
+
+    it("is stopped after the idle time, keeping what was written", async () => {
+      let streamAborted = false;
+      reply = (call) =>
+        slowStream(call, [[0, [...start, delta("First bit")].map(sseEvent).join("")]], false, () => (streamAborted = true));
+      const pieces: string[] = [];
+      const error = await failure(async () => {
+        for await (const piece of answer(connect(KEY), "m", "rules", "hello", undefined, 50)) {
+          pieces.push(piece);
+        }
+      });
+      assert.deepStrictEqual(pieces, ["First bit"]);
+      assert.strictEqual((error as ClaudeError).problem, "timeout");
+      assert.ok(streamAborted, "the request itself is stopped");
+    });
+
+    it("keeps going while Claude sends keep-alive pings, like while it thinks", async () => {
+      reply = (call) =>
+        slowStream(
+          call,
+          [
+            [0, start.map(sseEvent).join("")],
+            ...Array.from({ length: 6 }, (): [number, string] => [20, ping]),
+            [20, [delta("Thought it through."), ...end()].map(sseEvent).join("")],
+          ],
+          true,
+          () => undefined
+        );
+      const pieces = await collect(answer(connect(KEY), "m", "rules", "hello", undefined, 50));
+      assert.deepStrictEqual(pieces, ["Thought it through."]);
     });
   });
 

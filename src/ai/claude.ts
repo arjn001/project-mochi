@@ -6,6 +6,7 @@
 // variables, so every setting the SDK would read from them is passed
 // explicitly, and every request is checked again on its way out.
 import Anthropic, { type ClientOptions } from "@anthropic-ai/sdk";
+import { randomUUID } from "node:crypto";
 
 // The only address her key is sent to.
 export const CLAUDE_API = "https://api.anthropic.com";
@@ -15,14 +16,20 @@ export const CLAUDE_API = "https://api.anthropic.com";
 // place to change it.
 export const STARTING_POINT = "claude-haiku-4-5";
 
-// The longest answer, in tokens. Explanations are much shorter; this only
-// stops a runaway answer from running up her bill. Models that think count
-// their thinking toward it, so it can't be much lower.
-export const MAX_ANSWER_TOKENS = 16_000;
+// The longest answer, in tokens: plenty for an explanation, and it keeps a
+// runaway answer from running up her bill. Models that think count their
+// thinking toward it.
+export const MAX_ANSWER_TOKENS = 4_000;
 
 // How long to wait for Claude to start answering (the SDK's default is 10
-// minutes). Once an answer is streaming, Stop or Cancel ends it.
+// minutes).
 export const REQUEST_TIMEOUT_MS = 30_000;
+
+// How long an answer can go quiet before Mochi gives up on it, keeping what
+// was written so far. Anything Claude sends counts, down to its keep-alive
+// pings (which the SDK hides), so a model that's still thinking isn't cut
+// off; only a connection that's gone silent is.
+export const IDLE_TIMEOUT_MS = 30_000;
 
 // One quick retry for a busy moment or a dropped connection, so she isn't
 // left waiting through several.
@@ -34,23 +41,43 @@ const ALLOWED_HEADERS = /^(accept|content-type|content-length|user-agent|anthrop
 
 const SILENT = { error() {}, warn() {}, info() {}, debug() {} };
 
+// An answer asks to be told whenever bytes arrive, by tagging its request
+// with this header. The header itself never leaves Mochi: it isn't in
+// ALLOWED_HEADERS.
+const WATCH = "x-mochi-watch";
+const watchers = new Map<string, () => void>();
+
 // Every request goes out through here: to Claude's address only, with her
 // key and nothing from the environment. VS Code's fetch is read at call
 // time, since VS Code patches it to follow its proxy settings.
 function guardedFetch(key: string): NonNullable<ClientOptions["fetch"]> {
-  return (input, init) => {
+  return async (input, init) => {
     const url = new URL(input instanceof Request ? input.url : input);
     if (url.origin !== CLAUDE_API) {
       throw new Error("Mochi only sends your Claude key to the Claude API.");
     }
+    const asked = new Headers(init?.headers);
     const headers = new Headers();
-    new Headers(init?.headers).forEach((value, name) => {
+    asked.forEach((value, name) => {
       if (ALLOWED_HEADERS.test(name)) {
         headers.set(name, value);
       }
     });
     headers.set("x-api-key", key);
-    return globalThis.fetch(url, { ...init, headers });
+    const response = await globalThis.fetch(url, { ...init, headers });
+    const watch = watchers.get(asked.get(WATCH) ?? "");
+    if (!watch || !response.body) {
+      return response;
+    }
+    const body = response.body.pipeThrough(
+      new TransformStream<Uint8Array, Uint8Array>({
+        transform(chunk, out) {
+          watch();
+          out.enqueue(chunk);
+        },
+      })
+    );
+    return new Response(body, { status: response.status, statusText: response.statusText, headers: response.headers });
   };
 }
 
@@ -89,7 +116,8 @@ export type ClaudeProblem =
   | "serverError"
   // No connection, so maybe offline or a restricted network.
   | "offline"
-  // No answer started within REQUEST_TIMEOUT_MS.
+  // No answer started within REQUEST_TIMEOUT_MS, or it went quiet for
+  // IDLE_TIMEOUT_MS.
   | "timeout"
   // The model chose not to answer (a refusal).
   | "declined"
@@ -179,16 +207,34 @@ export async function listModels(claude: Anthropic): Promise<Listing> {
 }
 
 // Streams Claude's answer as it's written. Mochi's rules go in the system
-// prompt. Stopping (the signal) ends the answer quietly; anything else that
-// goes wrong is thrown as a ClaudeError.
+// prompt. Stopping (the signal) ends the answer quietly. An answer that goes
+// quiet for idleMs is stopped and thrown as a timeout; anything else that
+// goes wrong is thrown as a ClaudeError. What was written so far has already
+// been handed out either way.
 export async function* answer(
   claude: Anthropic,
   model: string,
   instructions: string,
   message: string,
-  signal?: AbortSignal
+  signal?: AbortSignal,
+  idleMs = IDLE_TIMEOUT_MS
 ): AsyncIterable<string> {
+  const stop = new AbortController();
+  const stopped = () => stop.abort();
+  signal?.addEventListener("abort", stopped);
+  let wentQuiet = false;
+  let idle: ReturnType<typeof setTimeout> | undefined;
+  const stillHere = () => {
+    clearTimeout(idle);
+    idle = setTimeout(() => {
+      wentQuiet = true;
+      stop.abort();
+    }, idleMs);
+  };
+  const watchId = randomUUID();
+  watchers.set(watchId, stillHere);
   try {
+    stillHere();
     const stream = claude.messages.stream(
       {
         model,
@@ -196,7 +242,7 @@ export async function* answer(
         system: instructions,
         messages: [{ role: "user", content: message }],
       },
-      { signal }
+      { signal: stop.signal, headers: { [WATCH]: watchId } }
     );
     for await (const event of stream) {
       if (event.type === "content_block_delta" && event.delta.type === "text_delta") {
@@ -206,9 +252,16 @@ export async function* answer(
       }
     }
   } catch (error) {
+    if (wentQuiet) {
+      throw new ClaudeError("timeout");
+    }
     if (signal?.aborted || error instanceof Anthropic.APIUserAbortError) {
       return;
     }
     throw toClaudeError(error);
+  } finally {
+    clearTimeout(idle);
+    watchers.delete(watchId);
+    signal?.removeEventListener("abort", stopped);
   }
 }
