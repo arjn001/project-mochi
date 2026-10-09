@@ -1,5 +1,16 @@
 import * as assert from "node:assert";
-import { CLAUDE_API, ClaudeError, MAX_ANSWER_TOKENS, answer, connect, isStartingPoint, listModels } from "../../ai/claude";
+import {
+  CLAUDE_API,
+  ClaudeError,
+  ClaudeProblem,
+  MAX_ANSWER_TOKENS,
+  answer,
+  connect,
+  isStartingPoint,
+  listModels,
+  toBrainError,
+} from "../../ai/claude";
+import { brainHelpButtons, brainProblemMessages } from "../../ai/provider";
 
 // A made-up key, so a test can look for it anywhere it shouldn't be.
 const KEY = "sk-ant-api03-test-key-0123456789abcdefghij";
@@ -266,6 +277,49 @@ describe("her own Claude key", () => {
       });
       assert.deepStrictEqual(pieces, ["Hmm."]);
       assert.strictEqual((error as ClaudeError).problem, "declined");
+    });
+  });
+
+  describe("what she's told", () => {
+    const told = (problem: ClaudeProblem) => {
+      const error = toBrainError(new ClaudeError(problem));
+      return [brainProblemMessages[error.problem], error.help && brainHelpButtons[error.help]];
+    };
+    const general = "Something went wrong while Mochi was thinking. Try again in a moment.";
+
+    it("a rejected key offers to add a new one", () => {
+      assert.deepStrictEqual(told("keyRejected"), [
+        "Claude didn't accept your key. It may have been deleted in the Claude Console. Mochi: Add a Claude key sets a new one.",
+        "Add a Claude key",
+      ]);
+    });
+
+    it("billing, and the general line, open the Console", () => {
+      assert.deepStrictEqual(told("billing"), [
+        "Your Claude account may be out of credit. You can check in the Claude Console.",
+        "Open the Claude Console",
+      ]);
+      // Low credit can come back as a plain 400.
+      for (const problem of ["badRequest", "serverError", "other"] as const) {
+        assert.deepStrictEqual(told(problem), [general, "Open the Claude Console"]);
+      }
+    });
+
+    it("everything else is one line with no button", () => {
+      assert.deepStrictEqual(told("rateLimited"), ["This brain is resting for now, maybe a usage limit. Try again a bit later.", undefined]);
+      assert.deepStrictEqual(told("overloaded"), ["Claude is extra busy right now. Want to try again in a moment?", undefined]);
+      assert.deepStrictEqual(told("notFound"), ["That Claude model isn't available anymore. Ask again and I'll help you pick another.", undefined]);
+      assert.deepStrictEqual(told("tooLong"), ["That's a bit too much for me to send at once. Could you share a smaller piece?", undefined]);
+      assert.deepStrictEqual(told("declined"), ["This brain chose not to answer that one. Want to ask it a different way?", undefined]);
+      const offline = "I can't reach the brain right now. Are we offline? Everything else still works, and I'll be here when you're back.";
+      assert.deepStrictEqual(told("offline"), [offline, undefined]);
+      assert.deepStrictEqual(told("timeout"), [offline, undefined]);
+    });
+
+    it("never uses an em dash", () => {
+      for (const line of [...Object.values(brainProblemMessages), ...Object.values(brainHelpButtons)]) {
+        assert.ok(!line.includes("—"), line);
+      }
     });
   });
 

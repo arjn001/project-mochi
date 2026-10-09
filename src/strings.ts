@@ -22,6 +22,22 @@ export const brainStrings = {
     `Quick note: ${missing} isn't available right now, so I'm thinking with ${used} instead. Mochi: Choose a brain changes this.`,
 };
 
+// When a brain can't answer, beyond the lines in ai/provider.ts. Mostly for
+// her own Claude key (MOCHI-53, part 2).
+export const problemStrings = {
+  keyRejected:
+    "Claude didn't accept your key. It may have been deleted in the Claude Console. Mochi: Add a Claude key sets a new one.",
+  billing: "Your Claude account may be out of credit. You can check in the Claude Console.",
+  busy: "Claude is extra busy right now. Want to try again in a moment?",
+  gone: "That Claude model isn't available anymore. Ask again and I'll help you pick another.",
+  tooLong: "That's a bit too much for me to send at once. Could you share a smaller piece?",
+  offline: "I can't reach the brain right now. Are we offline? Everything else still works, and I'll be here when you're back.",
+  declined: "This brain chose not to answer that one. Want to ask it a different way?",
+  // Buttons.
+  addClaudeKey: "Add a Claude key",
+  openConsole: "Open the Claude Console",
+};
+
 // "Mochi: Forget everything" (MOCHI-65).
 export const forgetStrings = {
   question: "Forget everything?",

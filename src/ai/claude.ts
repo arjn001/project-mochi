@@ -7,9 +7,14 @@
 // explicitly, and every request is checked again on its way out.
 import Anthropic, { type ClientOptions } from "@anthropic-ai/sdk";
 import { randomUUID } from "node:crypto";
+import { BrainError, BrainHelp, BrainProblem } from "./provider";
 
 // The only address her key is sent to.
 export const CLAUDE_API = "https://api.anthropic.com";
+
+// Claude Console pages she's sent to (checked 2026-10-08).
+export const CONSOLE_KEYS = "https://platform.claude.com/settings/keys";
+export const CONSOLE_BILLING = "https://platform.claude.com/settings/billing";
 
 // The model marked "Good starting point for explanations": the cheapest
 // current Claude model that explains well (checked 2026-10-08). The one
@@ -172,6 +177,29 @@ export function toClaudeError(error: unknown): ClaudeError {
     }
   }
   return new ClaudeError("other");
+}
+
+// Which of Mochi's lines she sees for each problem with an answer, and the
+// button next to it. Low credit can come back as a plain 400, and Mochi
+// never matches error text, so the general line offers the Console too.
+const ANSWER_PROBLEMS: Record<ClaudeProblem, [BrainProblem, BrainHelp?]> = {
+  keyRejected: ["keyRejected", "addClaudeKey"],
+  billing: ["billing", "claudeBilling"],
+  rateLimited: ["blocked"],
+  overloaded: ["busy"],
+  notFound: ["gone"],
+  tooLong: ["tooLong"],
+  offline: ["offline"],
+  timeout: ["offline"],
+  declined: ["declined"],
+  badRequest: ["other", "claudeBilling"],
+  serverError: ["other", "claudeBilling"],
+  other: ["other", "claudeBilling"],
+};
+
+export function toBrainError(error: ClaudeError): BrainError {
+  const [problem, help] = ANSWER_PROBLEMS[error.problem];
+  return new BrainError(problem, error.message, help);
 }
 
 // A Claude model her key can use.

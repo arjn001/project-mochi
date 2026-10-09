@@ -1,5 +1,6 @@
 // The one interface every AI sits behind (see ARCHITECTURE.md). Plain code
 // with no VS Code dependency. The rest of Mochi never knows which AI answers.
+import { problemStrings } from "../strings";
 import { GatedRequest } from "./shareGate";
 
 export interface Provider {
@@ -13,10 +14,24 @@ export interface Provider {
 }
 
 // Why a brain couldn't answer, in words Mochi can say kindly.
-export type BrainProblem = "noPermission" | "blocked" | "unavailable" | "other";
+export type BrainProblem =
+  | "noPermission"
+  | "blocked"
+  | "unavailable"
+  | "keyRejected"
+  | "billing"
+  | "busy"
+  | "gone"
+  | "tooLong"
+  | "offline"
+  | "declined"
+  | "other";
+
+// What she can do about it, as a button next to the message.
+export type BrainHelp = "addClaudeKey" | "claudeBilling";
 
 export class BrainError extends Error {
-  constructor(readonly problem: BrainProblem, message: string) {
+  constructor(readonly problem: BrainProblem, message: string, readonly help?: BrainHelp) {
     super(message);
   }
 }
@@ -26,5 +41,18 @@ export const brainProblemMessages: Record<BrainProblem, string> = {
   noPermission: "Mochi needs your OK to use this brain. Ask again and choose Allow.",
   blocked: "This brain is resting for now, maybe a usage limit. Try again a bit later.",
   unavailable: "This brain isn't available right now. Check that you're signed in, then try again.",
+  keyRejected: problemStrings.keyRejected,
+  billing: problemStrings.billing,
+  busy: problemStrings.busy,
+  gone: problemStrings.gone,
+  tooLong: problemStrings.tooLong,
+  offline: problemStrings.offline,
+  declined: problemStrings.declined,
   other: "Something went wrong while Mochi was thinking. Try again in a moment.",
+};
+
+// The button for each kind of help.
+export const brainHelpButtons: Record<BrainHelp, string> = {
+  addClaudeKey: problemStrings.addClaudeKey,
+  claudeBilling: problemStrings.openConsole,
 };
