@@ -122,7 +122,8 @@ The default lines are in `packs/default/pack.json` (format in PACKS.md).
   offers "Explain with Mochi".
 - **No brain yet:** one gentle line, only when she asks something: "I'd need a
   brain to answer that. Want to set one up?" with a "Set one up" button. No
-  other nagging.
+  other nagging. "Set one up" opens Copilot's setup, or Choose a brain in
+  editors that don't have it.
 - **Copilot permission:** VS Code shows its own one-time prompt, with Mochi's
   reason, naming the brain: "Mochi uses Copilot · Auto to answer the
   questions you ask it."
@@ -132,6 +133,40 @@ The default lines are in `packs/default/pack.json` (format in PACKS.md).
   ("Copilot · GPT-5.6 Luna"), the one in use marked with a check. With no
   brains: "Sign in to GitHub Copilot". After a pick: "Got it. I'll think
   with Copilot · GPT-5.6 Luna from now on."
+- **Her Claude models in that list:** shown by name ("Claude Haiku 4.5"),
+  with "your key · billed per use" as a quiet line. While no key is saved,
+  the list ends with "Add a Claude key". "Sign in to GitHub Copilot" only
+  appears in editors that have Copilot's setup.
+- **Adding a Claude key:** "Mochi: Add a Claude key" opens a dialog, "Add a
+  Claude key", with: "Mochi can think with Claude using your own API key
+  from the Claude Console. Each answer is billed to your Claude account,
+  per use. A Claude Pro or Max subscription can't be used here; it only
+  works in Claude's own apps." and "Tip: you can set a monthly spend limit
+  in the Claude Console." (plus "This replaces the Claude key Mochi has
+  now." when there is one). Buttons: "Get a key" (opens the Console, then
+  the box) and "I have a key". The box hides what she types and says
+  "Paste your Claude API key. Mochi keeps it in your system's keychain,
+  never in settings or files." While checking: "Checking your key with
+  Claude...". If it doesn't work: "That key didn't work. Check that you
+  copied all of it, or make a new one in the Claude Console." with "Try
+  again" and "Get a key". Offline: "I couldn't reach Claude to check your
+  key. Are we offline? Your key isn't saved yet." With no keychain: "I
+  couldn't save your key, because this computer doesn't have a keychain
+  Mochi can use. Your key isn't kept." with "How to fix this".
+- **Which Claude model:** right after the key checks out, "Which Claude
+  model should Mochi use?" with "Each answer is billed to your Claude
+  account." Haiku 4.5 comes first, with "Good starting point for
+  explanations". After a pick, the usual "Got it. I'll think with Claude
+  Haiku 4.5 from now on." Closing it: "Your Claude key is saved. Mochi:
+  Choose a brain picks a Claude model whenever you're ready."
+- **Removing it:** a dialog, "Remove your Claude key?", with "Mochi forgets
+  it on this computer. The key still works until you delete it in the
+  Claude Console." Buttons: "Remove" and "Keep it". After: "Done. Mochi
+  doesn't have your Claude key anymore."
+- **When Claude can't answer:** one kind line per problem, with "Add a
+  Claude key" for a key that stopped working and "Open the Claude Console"
+  for billing and the general line (the full table is in CHAT.md,
+  section 5).
 - **When she closes the list without picking:** "I'll think once you pick a
   brain. Mochi: Choose a brain whenever you're ready."
 - **A stand-in brain:** at the top of her next answer, once per change:

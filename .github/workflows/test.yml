@@ -60,3 +60,7 @@ jobs:
             echo "::error::The only code in the .vsix must be extension/dist/extension.js. Found: $code"
             exit 1
           fi
+          if ! unzip -Z1 *.vsix | grep -qx "extension/THIRD_PARTY_NOTICES.md"; then
+            echo "::error::The .vsix must include THIRD_PARTY_NOTICES.md, the licenses of bundled code."
+            exit 1
+          fi

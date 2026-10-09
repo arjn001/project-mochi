@@ -1,6 +1,6 @@
 # Progress
 
-Where Mochi stands, as of 2026-10-06. Jira (space MOCHI) is the source of
+Where Mochi stands, as of 2026-10-09. Jira (space MOCHI) is the source of
 truth for task status; this doc is the readable summary, plus Arjun's likes
 and dislikes. "Current state" is updated at the end of every task, as part
 of that task's last commit. The rest is updated at the end of each working
@@ -13,19 +13,18 @@ update isn't listed.*
 - **Open pull requests:** none.
 - **In progress:**
   - MOCHI-53 Connect Claude: Part 2 (her own Claude key, with the official
-    Claude SDK) is next, after this bundling pull request merges.
+    Claude SDK) is built and in review.
   - MOCHI-50 Design the visual identity, by Arjun.
-- **Next:** MOCHI-53 Part 2.
+- **Next:** Arjun orders the work that doesn't need the panel (see "Next").
 - **Waiting on:**
-  - Arjun to try F5 and the tests with the bundle, and merge MOCHI-14's
-    bundling.
-  - Arjun's test Claude key (its own Console workspace with a spend limit),
-    pasted only into Mochi's hidden input box, for Part 2.
+  - Arjun to test Part 2 with his test Claude key (its own Console
+    workspace with a spend limit), pasted only into Mochi's hidden input
+    box, then merge it.
   - The panel work (MOCHI-16, MOCHI-17, MOCHI-21, MOCHI-25) waits on
     DESIGN.md being finished (MOCHI-50).
 
 **36 of 56 Jira tasks and subtasks done**. 2 of the 8
-categories are complete. 264 tests (234 unit, 30 integration) run on every
+categories are complete. 311 tests (279 unit, 32 integration) run on every
 pull request.
 
 ## Done
@@ -112,6 +111,16 @@ MOMENTS.md, PRESENCE.md, ARCHITECTURE.md, and BUILD_PLAN.md.
   another model without her; "Mochi: Choose a brain"; a stand-in note once
   per change. Copilot's helper models and zero-limit entries are hidden.
   Mochi used to take the first Copilot model, GPT-4o mini (MOCHI-53, part 1).
+- Her own Claude key: "Mochi: Add a Claude key" checks it with the free
+  model listing, keeps it in VS Code's secret storage, and asks "Which
+  Claude model should Mochi use?" (Haiku 4.5 marked as a good starting
+  point, no prices, no silent default). The key only goes to the Claude
+  API, whatever the environment says. Kind lines for every problem, with a
+  button when she can fix it. "Mochi: Remove my Claude key". Answers capped
+  at 4,000 tokens; a silent answer stops after 30 seconds. "Set one up"
+  opens Choose a brain where there's no Copilot setup. Mochi's first
+  runtime dependency, the official Claude SDK, with its license in
+  THIRD_PARTY_NOTICES.md (MOCHI-53, part 2).
 - Learning mode, on by default: the learning ladder for coursework-style
   requests, or direct answers with fixes when she turns it off. Only she can
   change it; a project's settings can't. "Explain with Mochi" follows it
@@ -126,8 +135,7 @@ MOMENTS.md, PRESENCE.md, ARCHITECTURE.md, and BUILD_PLAN.md.
 ## Next
 How chat works is designed in docs/CHAT.md. Work that doesn't need the
 panel, for Arjun to order:
-1. **MOCHI-53 part 2:** her own Claude API key, for people without Copilot.
-2. **MOCHI-54 OpenAI-compatible services and local model servers** (Ollama,
+1. **MOCHI-54 OpenAI-compatible services and local model servers** (Ollama,
    LM Studio).
 
 Then:
@@ -148,8 +156,18 @@ Then:
   window's status bar) load a whole personal layer from a JSON file and
   greet on demand. Remove
   or replace them when "Make it yours" (MOCHI-43) or gifts (MOCHI-56) land.
-- "Set one up" opens VS Code's Copilot setup for now. MOCHI-42 replaces it
-  with "Pick a brain" inside Mochi's tab, plus a "Got a brain!" confirmation.
+- "Set one up" opens VS Code's Copilot setup, or Choose a brain in editors
+  without it. MOCHI-42 replaces it with "Pick a brain" inside Mochi's tab,
+  plus a "Got a brain!" confirmation.
+- Claude answers are capped at 4,000 tokens, and models that always think
+  (Opus 5.5, Fable 5.1) count their thinking toward it. If their answers get
+  cut short in testing, revisit `MAX_ANSWER_TOKENS` in `src/ai/claude.ts`.
+- Before each release, check `claude-haiku-4-5` is still the cheapest
+  current Claude model that explains well (`STARTING_POINT`), and that the
+  Console links still work.
+- Running VS Code from Claude Code's terminal needs `env -u
+  ELECTRON_RUN_AS_NODE`, and a short `--user-data-dir` path (macOS limits
+  socket paths). The clean-profile .vsix check uses both.
 - PRESENCE.md and ARCHITECTURE.md still quote the old code hint ("Want me
   to explain this error?"); it's "Need a paw?" now. BUILD_PLAN.md says
   MOCHI-30's answer shows in the panel; it's the output panel for now.
@@ -179,7 +197,9 @@ Then:
 - **How we work:** explain first, small steps Arjun can run and understand, and
   being told what just happened and why.
 - **Moving faster now:** several tasks in a row is fine, asking questions
-  along the way.
+  along the way. Once he approves a task's plan, all its commits get done
+  without stopping, except for new decisions, his manual tests, and the
+  pull request.
 - The **Jira layout** after the reshuffle: one "User Stories" epic per
   category, with Tasks under it.
 - A **greeting that mentions her day** (time of day, time since she last

@@ -1,6 +1,8 @@
 # Files left OUT of the .vsix package. Everything else goes in.
 # The only code in the package is the bundle, dist/extension.js; CI fails
 # if any other JavaScript, or src/ or out/, ends up in it.
+# Runtime dependencies (like the Claude SDK) are bundled into it too, so
+# `npm run package` leaves node_modules out (--no-dependencies).
 
 # Source code, and the TypeScript output used by the tests and the
 # developer-only tools (out/test/, out/dev/). The bundle replaces it.

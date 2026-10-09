@@ -26,11 +26,18 @@ export const isUsable = (brain: BrainInfo): boolean =>
 
 export const brainKey = (brain: { vendor: string; id: string }) => `${brain.vendor}/${brain.id}`;
 
+// Models reached with her own Claude key (MOCHI-53, part 2), like
+// "claude-key/claude-haiku-4-5" in the mochi.brain setting. A name no
+// extension's models would use, so the two never mix.
+export const CLAUDE_VENDOR = "claude-key";
+
 const VENDOR_NAMES: Record<string, string> = { copilot: "Copilot" };
 const vendorName = (vendor: string) => VENDOR_NAMES[vendor] ?? vendor.charAt(0).toUpperCase() + vendor.slice(1);
 
-// How a brain is shown to her: "Copilot · Auto".
-export const brainLabel = (brain: { vendor: string; name: string }) => `${vendorName(brain.vendor)} · ${brain.name}`;
+// How a brain is shown to her: "Copilot · Auto". Her Claude models already
+// say Claude: "Claude Haiku 4.5".
+export const brainLabel = (brain: { vendor: string; name: string }) =>
+  brain.vendor === CLAUDE_VENDOR ? brain.name : `${vendorName(brain.vendor)} · ${brain.name}`;
 
 export const isAuto = (brain: { vendor: string; id: string }) => brain.vendor === "copilot" && brain.id === "auto";
 

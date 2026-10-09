@@ -10,6 +10,9 @@ import { Conversation } from "./ai/conversation";
 import { registerExplain } from "./ai/explainCommands";
 import { createOutputSurface } from "./ai/outputSurface";
 import { BrainPicker } from "./ai/brainPicker";
+import { ClaudeModels } from "./ai/claudeBrains";
+import { ClaudeKey } from "./ai/claudeKey";
+import { registerClaudeKeyCommands } from "./ai/claudeKeyCommands";
 import { instructionsFor } from "./ai/instructions";
 import { loadDefaultPack } from "./packs/defaultPack";
 import { registerNameCommands } from "./packs/nameCommands";
@@ -76,8 +79,12 @@ export function activate(context: vscode.ExtensionContext): MochiApi {
   const surface = createOutputSurface();
   // The brain is chosen fresh each time she asks: her pick, else Copilot's
   // Auto, else she's asked (MOCHI-53).
-  const brains = new BrainPicker(context.globalState);
+  // Her own Claude key, if she adds one, in her system's keychain.
+  const claudeKey = new ClaudeKey(context.secrets);
+  const claudeModels = new ClaudeModels(claudeKey, context.globalState);
+  const brains = new BrainPicker(context.globalState, claudeModels);
   const chooseBrain = brains.register();
+  const claudeCommands = registerClaudeKeyCommands(claudeKey, claudeModels, brains);
   const conversation = new Conversation(brains, () => instructionsFor(pack(), readLearningMode()), surface);
   const ask = registerAskCommand(conversation);
   const explain = registerExplain(conversation, surface);
@@ -124,10 +131,12 @@ export function activate(context: vscode.ExtensionContext): MochiApi {
     // Where the list lived before it moved to one store for all projects.
     { forget: () => context.workspaceState.update(OFFERED, undefined) },
     { forget: () => timer.forgetSaved() },
+    // The saved list of her Claude models. Her key itself stays.
+    { forget: () => claudeModels.forget() },
   ]);
 
   // Anything added here is cleaned up when Mochi shuts down.
-  context.subscriptions.push(names, chooseBrain, open, home, mood, followSpeakUp, focus, timer, surface, ask, explain, stuck, dim, lateNight, coding, python, pythonOffer, forget);
+  context.subscriptions.push(names, claudeKey, claudeCommands, chooseBrain, open, home, mood, followSpeakUp, focus, timer, surface, ask, explain, stuck, dim, lateNight, coding, python, pythonOffer, forget);
 
   return {
     moodText: () => mood.text,

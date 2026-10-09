@@ -1,11 +1,30 @@
 import * as vscode from "vscode";
 import { brainStrings } from "../strings";
 import { AnswerSurface } from "./answerSurface";
-import { BrainPicker, signInToCopilot } from "./brainPicker";
+import { BrainPicker, setUpABrain } from "./brainPicker";
 import { NO_BRAIN, askMochi } from "./askMochi";
 import { askToShare } from "./askToShare";
-import { BrainError, Provider, brainProblemMessages } from "./provider";
+import { CONSOLE_BILLING } from "./claude";
+import { BrainError, Provider, brainHelpButtons, brainProblemMessages } from "./provider";
 import { GatedRequest, Request, followUp } from "./shareGate";
+
+// One kind line, with a button when there's something she can do.
+async function showProblem(error: BrainError): Promise<void> {
+  const message = brainProblemMessages[error.problem];
+  if (!error.help) {
+    await vscode.window.showWarningMessage(message);
+    return;
+  }
+  const button = brainHelpButtons[error.help];
+  if ((await vscode.window.showWarningMessage(message, button)) !== button) {
+    return;
+  }
+  if (error.help === "addClaudeKey") {
+    await vscode.commands.executeCommand("mochi.addClaudeKey");
+  } else {
+    await vscode.env.openExternal(vscode.Uri.parse(CONSOLE_BILLING));
+  }
+}
 
 // One place that asks a brain and shows the answer, used by "Mochi: Ask"
 // and by Explain. Handles no brain, refusals, the share gate, streaming,
@@ -36,7 +55,7 @@ export class Conversation {
       case "noBrain": {
         const setUp = "Set one up";
         if ((await vscode.window.showInformationMessage(NO_BRAIN, setUp)) === setUp) {
-          await signInToCopilot();
+          await setUpABrain();
         }
         return undefined;
       }
@@ -92,8 +111,8 @@ export class Conversation {
             this.surface.append(piece);
           }
         } catch (error) {
-          const problem = error instanceof BrainError ? error.problem : "other";
-          vscode.window.showWarningMessage(brainProblemMessages[problem]);
+          // Not awaited, so "Mochi is thinking..." closes right away.
+          void showProblem(error instanceof BrainError ? error : new BrainError("other", String(error)));
         }
         this.surface.finish();
       }

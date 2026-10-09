@@ -114,6 +114,16 @@
         "category": "Mochi"
       },
       {
+        "command": "mochi.addClaudeKey",
+        "title": "Add a Claude key",
+        "category": "Mochi"
+      },
+      {
+        "command": "mochi.removeClaudeKey",
+        "title": "Remove my Claude key",
+        "category": "Mochi"
+      },
+      {
         "command": "mochi.forgetEverything",
         "title": "Forget everything",
         "category": "Mochi"
@@ -132,6 +142,10 @@
         {
           "command": "mochi.focus.menu",
           "when": "false"
+        },
+        {
+          "command": "mochi.removeClaudeKey",
+          "when": "mochi.hasClaudeKey"
         }
       ],
       "editor/context": [
@@ -237,8 +251,9 @@
     "watch:tsc": "tsc -watch -p ./",
     "watch:esbuild": "node esbuild.mjs --watch",
     "build:icons": "fantasticon",
+    "notices": "node esbuild.mjs --notices",
     "vscode:prepublish": "npm run compile",
-    "package": "vsce package --skip-license",
+    "package": "vsce package --skip-license --no-dependencies",
     "test:unit": "npm run compile && mocha \"out/test/unit/**/*.test.js\"",
     "test:integration": "npm run compile && vscode-test",
     "test": "npm run test:unit && npm run test:integration"
@@ -259,5 +274,8 @@
     "@vscode/test-cli": {
       "mocha": "$mocha"
     }
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.132.1"
   }
 }

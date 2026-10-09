@@ -9,6 +9,8 @@
 export const brainStrings = {
   title: "Which brain should Mochi think with?",
   usesCopilotPlan: "Uses your Copilot plan",
+  // Next to each of her Claude models (MOCHI-53, part 2).
+  billedPerUse: "your key · billed per use",
   letMochiChoose: "Let Mochi choose",
   now: (label: string) => `Now: ${label}`,
   nowAsks: "Now: asks you first",
@@ -20,6 +22,59 @@ export const brainStrings = {
   // At the top of her next answer, once per change.
   fallback: (missing: string, used: string) =>
     `Quick note: ${missing} isn't available right now, so I'm thinking with ${used} instead. Mochi: Choose a brain changes this.`,
+};
+
+// Her own Claude key: "Mochi: Add a Claude key" and "Mochi: Remove my Claude
+// key" (MOCHI-53, part 2).
+export const claudeKeyStrings = {
+  title: "Add a Claude key",
+  intro:
+    "Mochi can think with Claude using your own API key from the Claude Console. Each answer is billed to your Claude account, per use. A Claude Pro or Max subscription can't be used here; it only works in Claude's own apps.",
+  tip: "Tip: you can set a monthly spend limit in the Claude Console.",
+  replaces: "This replaces the Claude key Mochi has now.",
+  getKey: "Get a key",
+  haveKey: "I have a key",
+  prompt: "Paste your Claude API key. Mochi keeps it in your system's keychain, never in settings or files.",
+  placeholder: "sk-ant-...",
+  empty: "Paste your key, or press Escape to stop.",
+  space: "That has a space in it. Could you paste it again?",
+  checking: "Checking your key with Claude...",
+  rejected: "That key didn't work. Check that you copied all of it, or make a new one in the Claude Console.",
+  cantReach: "I couldn't reach Claude to check your key. Are we offline? Your key isn't saved yet.",
+  cantCheck: "Claude couldn't check your key just now. Want to try again in a moment?",
+  tryAgain: "Try again",
+  noKeychain: "I couldn't save your key, because this computer doesn't have a keychain Mochi can use. Your key isn't kept.",
+  howToFix: "How to fix this",
+  noModels:
+    "Your Claude key is saved, but Claude didn't list any models for it yet. Mochi: Choose a brain whenever you're ready.",
+  // "Which Claude model should Mochi use?", once the key checks out.
+  modelTitle: "Which Claude model should Mochi use?",
+  modelPlaceholder: "Each answer is billed to your Claude account.",
+  startingPoint: "Good starting point for explanations",
+  savedNoPick: "Your Claude key is saved. Mochi: Choose a brain picks a Claude model whenever you're ready.",
+  // "Mochi: Remove my Claude key".
+  removeQuestion: "Remove your Claude key?",
+  removeDetail: "Mochi forgets it on this computer. The key still works until you delete it in the Claude Console.",
+  remove: "Remove",
+  keep: "Keep it",
+  removed: "Done. Mochi doesn't have your Claude key anymore.",
+  nothingToRemove: "There's no Claude key saved, so there's nothing to remove.",
+};
+
+// When a brain can't answer, beyond the lines in ai/provider.ts. Mostly for
+// her own Claude key (MOCHI-53, part 2).
+export const problemStrings = {
+  keyRejected:
+    "Claude didn't accept your key. It may have been deleted in the Claude Console. Mochi: Add a Claude key sets a new one.",
+  billing: "Your Claude account may be out of credit. You can check in the Claude Console.",
+  busy: "Claude is extra busy right now. Want to try again in a moment?",
+  gone: "That Claude model isn't available anymore. Ask again and I'll help you pick another.",
+  tooLong: "That's a bit too much for me to send at once. Could you share a smaller piece?",
+  offline: "I can't reach the brain right now. Are we offline? Everything else still works, and I'll be here when you're back.",
+  declined: "This brain chose not to answer that one. Want to ask it a different way?",
+  // Buttons.
+  addClaudeKey: "Add a Claude key",
+  openConsole: "Open the Claude Console",
 };
 
 // "Mochi: Forget everything" (MOCHI-65).
