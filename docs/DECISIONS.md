@@ -71,6 +71,36 @@
 - Copilot's helper models (`copilot-utility...`, `copilot-dictation...`)
   and anything with an input limit of 0 (like Copilot CLI's entry) are
   never offered. The helper list lives in one place (`src/ai/brains.ts`).
+- **Her own Claude key (MOCHI-53, part 2, agreed 2026-10-07 and
+  2026-10-09):**
+  - Through the official Claude SDK, `@anthropic-ai/sdk` (MIT), Mochi's
+    first runtime dependency, bundled into `dist/extension.js`.
+  - The key only ever goes to `https://api.anthropic.com`. Nothing from the
+    environment is used (a cloned project or dev container can set
+    `ANTHROPIC_*` variables), and every request is checked on its way out:
+    the address, her key, and a short list of allowed headers. Never
+    logged, never in an error.
+  - Checked with the free model listing before it's saved. A key that
+    doesn't work is never saved.
+  - She chooses the model: every current model the listing returns, no
+    prices, no hiding by price, each marked "your key · billed per use".
+    "Good starting point for explanations" marks `claude-haiku-4-5`, kept
+    in one place. Retired and deprecated models aren't shown.
+  - No silent default: right after the key checks out, the list is shown
+    once. Closing it keeps the key; Mochi doesn't pick a Claude model for
+    her.
+  - When a model refuses, Mochi doesn't retry with another model, since
+    that would bill a model she didn't pick.
+  - Answers are capped at 4,000 tokens. Mochi waits 30 seconds for an
+    answer to start, and stops one that goes silent for 30 seconds,
+    keeping what was written.
+  - Low credit can come back as a plain 400, and Mochi never matches error
+    text, so the general "Something went wrong" line offers "Open the
+    Claude Console" for key-based brains. Copilot's lines have no buttons.
+  - "Mochi: Remove my Claude key" also clears the saved list of her Claude
+    models, and her pick if it was a Claude model.
+  - "Set one up" opens Choose a brain in editors without Copilot's setup,
+    so it's never a dead end there.
 - All options sit behind one provider layer, so Mochi's personality comes from
   the pack, not from whichever AI answers.
 - API keys live in VS Code's secret storage, never in settings files or the
@@ -132,6 +162,10 @@ message.
   folder name, and the day she was last greeted.
 - **Small reminders:** tonight's late-night nudge, which projects were
   offered Python setup, a focus session's end time.
+- **Her Claude models:** the ids and names from the last Claude model
+  listing that worked, so a moment offline doesn't make her pick look gone.
+  Nothing secret. Cleared by "Remove my Claude key" and "Forget
+  everything". Her key itself is in VS Code's secret storage, not here.
 - Mochi never saves code on its own: stuck hints and the share gate keep
   nothing on disk.
 - **"Mochi: Forget everything"** (MOCHI-65), after confirming in a dialog,
@@ -142,10 +176,11 @@ message.
     day she was last greeted, tonight's late-night nudge, and which projects
     were offered Python setup;
   - a focus session's saved end time. A session that's running keeps going,
-    since she started it, but won't come back after a restart.
+    since she started it, but won't come back after a restart;
+  - the saved list of her Claude models (the key itself stays).
 - It never touches her settings (speak-up level, Learning mode, the chosen
-  brain) or a saved AI key; the confirmation says so. Removing a key gets
-  its own command (MOCHI-53).
+  brain) or a saved AI key; the confirmation says so. Removing her Claude
+  key is "Mochi: Remove my Claude key" (MOCHI-53).
 - Chats and the Python-offer list are kept in one private store across
   projects, so Forget everything reaches all of them from any window. If
   one part can't be cleared, the rest still are, and Mochi offers to try
@@ -265,6 +300,13 @@ message.
   install folder, not from where the code sits, since the bundle lives in
   `dist/`.
 - F5 runs two watchers: TypeScript (for `out/`) and esbuild (for `dist/`).
+- Runtime dependencies are bundled too, so `npm run package` leaves
+  `node_modules` out (`--no-dependencies`). Only `vscode` stays external.
+- esbuild warnings fail the build.
+- Third-party code in the bundle is listed with its license in
+  `THIRD_PARTY_NOTICES.md`, which ships in the .vsix. `npm run notices`
+  writes it from what esbuild actually put in the bundle, and the build
+  fails if it doesn't match (MOCHI-53).
 - No license yet. Mochi is packaged with `--skip-license` until one is chosen
   before going public (MOCHI-59). Leaning: MIT for the code, with Mochi's
   name, icons, and art all rights reserved.

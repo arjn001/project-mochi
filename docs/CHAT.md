@@ -17,7 +17,7 @@ never ships its own key and has no server of its own (DECISIONS.md).
 | **Copilot, signed in** | Uses it through VS Code's built-in AI. VS Code asks once, "Allow Mochi to use Copilot?", the first time she asks something. That's the only step. | Her Copilot plan: every chat message spends GitHub AI Credits, on every plan, including Free and Student (which get Auto only). Mochi only spends them when she asks. |
 | **A model from another extension** (like the Ollama extension or AI Toolkit for local models) | Shows up in Mochi's brain list automatically, through the same built-in AI. No key in Mochi. | Whatever that extension costs; local models are free. |
 | **ChatGPT Plus or Claude Pro/Max** | Explains honestly: "Your subscription works in ChatGPT or Claude's own apps, but they don't let other apps use it. You can sign in to Copilot, which uses your Copilot plan, or use an API key." Then offers both. | Nothing extra unless she picks an API key. |
-| **Her own API key** (Claude, MOCHI-53; OpenAI-compatible, MOCHI-54) | "Get a key" opens the provider's website in her browser. She pastes the key, and Mochi keeps it in VS Code's secret storage (her system keychain), never in settings or files. Mochi says clearly: "This key is billed to your account each time Mochi answers." | Pay per use, billed by the provider. Separate from any subscription. |
+| **Her own API key** (Claude, MOCHI-53; OpenAI-compatible, MOCHI-54) | "Get a key" opens the provider's website in her browser. She pastes the key, and Mochi keeps it in VS Code's secret storage (her system keychain), never in settings or files. Mochi says clearly that each answer is billed to her account, per use. How the Claude key works is in "Her own Claude key" below. | Pay per use, billed by the provider. Separate from any subscription. |
 | **A local model server** (Ollama, LM Studio) without an extension | Through MOCHI-54: an OpenAI-compatible address like `http://localhost:11434/v1` (Ollama) or `http://localhost:1234/v1` (LM Studio), with no key. Works offline. | Free, runs on her computer. |
 | **Nothing** | Everything that doesn't need a brain still works: greetings, late-night company, quiet mode, the focus timer, the theme, Python setup, "Need a paw?" hints. When she asks something, one gentle line: "I'd need a brain to answer that. Want to set one up?" | Nothing. |
 
@@ -57,6 +57,73 @@ extension models), with no key stored in Mochi. For people who only have an
 API key, Mochi keeps it itself in secret storage (MOCHI-53, MOCHI-54). If a
 later VS Code version shares "Manage Models" keys with extensions, Mochi
 switches to that and stops asking for keys.
+
+### Her own Claude key (MOCHI-53, part 2)
+
+**Adding it.** "Mochi: Add a Claude key" opens a dialog that says plainly
+it's billed per use, that a Claude Pro or Max subscription can't be used
+here, and "Tip: you can set a monthly spend limit in the Claude Console."
+"Get a key" opens the Claude Console's keys page. She pastes the key into a
+hidden box that stays open while she copies it. Mochi checks it with the
+Claude API's model listing, which is free (no answer, no cost), and only
+then saves it. A key that doesn't work is never saved. If the computer has
+no keychain Mochi can use (it happens on Linux), Mochi says so, keeps
+nothing, and links VS Code's page on fixing it.
+
+**Choosing the model.** It's her key and her bill, so she chooses. Right
+after the key checks out, "Which Claude model should Mochi use?" lists
+every current model the listing returns, Fable 5.1 included, each marked
+"your key · billed per use". No prices in Mochi, and nothing hidden by
+price. Retired models can't answer and deprecated ones are closed to new
+keys, so neither is shown. "Good starting point for explanations" marks
+`claude-haiku-4-5` (or its dated id), kept in one place
+(`STARTING_POINT` in `src/ai/claude.ts`); if it isn't listed, there's no
+mark. There's no silent default: if she closes the list, the key is still
+saved, Copilot's Auto keeps answering if she has it, and otherwise Part 1's
+list comes up when she asks. Her Claude models also appear in "Mochi:
+Choose a brain", and it offers "Add a Claude key" while there's none.
+
+**Answers.** Mochi's rules go in the system prompt, answers stream, and
+each answer is capped at 4,000 tokens, plenty for an explanation and safe
+for her bill. Mochi waits 30 seconds for an answer to start (with one
+retry), and stops an answer that goes silent for 30 seconds, keeping what
+was written. Anything Claude sends counts, down to its keep-alive pings, so
+a model that's still thinking isn't cut off. When a model refuses, Mochi
+says so kindly and doesn't retry with another model, since that would bill
+a model she didn't pick.
+
+**Which models exist, over time.** The listing is asked again after 10
+minutes, when she opens a list, and when a model isn't found. The last
+listing that worked is kept (model ids and names only), so a moment offline
+doesn't make her pick look gone. If her saved model is retired, her next
+question gets Part 1's stand-in note with Auto, or the list.
+
+**Where her key goes.** Only to `https://api.anthropic.com`, through the
+official Claude SDK (`@anthropic-ai/sdk`, MIT). A cloned project or a dev
+container can set environment variables, so nothing from them is used:
+the address, key, logging, and timeouts are all set by Mochi, so
+`ANTHROPIC_BASE_URL`, `ANTHROPIC_API_KEY`, `ANTHROPIC_AUTH_TOKEN`,
+`ANTHROPIC_LOG`, and the profile settings change nothing. Every request is
+also checked on its way out: it must go to that address, it carries her
+key, and any header not on a short list is dropped (this stops
+`ANTHROPIC_CUSTOM_HEADERS`, which the SDK would otherwise add after her
+key). The key is never logged and never part of an error. Unit tests set
+these variables and check all of it.
+
+**Remote setups and proxies** (checked 2026-10-07):
+- VS Code's secret storage always keeps secrets on her own computer, even
+  in Remote SSH, WSL, and dev containers.
+- In a remote setup, Mochi runs on the remote machine, so the key passes
+  through that machine's memory when Mochi makes the call there.
+- VS Code 1.125's extension host patches the global `fetch` to follow VS
+  Code's proxy settings, through `http.fetchAdditionalSupport` (on by
+  default; off means no proxy). Mochi reads `fetch` at the moment of each
+  call, so it always gets the patched one.
+- Codespaces in a browser is unverified.
+
+**Removing it.** "Mochi: Remove my Claude key" asks first, then forgets the
+key, the saved list of her Claude models, and her pick if it was a Claude
+model. It only shows in the Command Palette while a key is saved.
 
 ## 3. The conversation
 
@@ -181,6 +248,26 @@ reword them), and never a raw error. Each one says what she can do.
 | **The brain's own error** | "Something went wrong while I was thinking. Want to try that again?" | "Try again" |
 | **She hasn't allowed Copilot yet** | "I need your OK to use Copilot. Ask again and choose Allow." | Ask again |
 
+**With her own Claude key**, each problem maps to one line (in
+`src/ai/claude.ts`, from `src/strings.ts`). Mochi never matches error text,
+so low credit that comes back as a plain 400 gets the general line, and
+that line offers the Console too.
+
+| What the Claude API says | What Mochi says | Button |
+|---|---|---|
+| 401 or 403: the key doesn't work | "Claude didn't accept your key. It may have been deleted in the Claude Console. Mochi: Add a Claude key sets a new one." | "Add a Claude key" |
+| 402: billing | "Your Claude account may be out of credit. You can check in the Claude Console." | "Open the Claude Console" (Billing) |
+| 429: a rate limit | "This brain is resting for now, maybe a usage limit. Try again a bit later." | |
+| 529, or "overloaded" mid-answer | "Claude is extra busy right now. Want to try again in a moment?" | |
+| 404: the model is gone | "That Claude model isn't available anymore. Ask again and I'll help you pick another." | |
+| 413: too much to send | "That's a bit too much for me to send at once. Could you share a smaller piece?" | |
+| No connection, no answer within 30 seconds, or 30 seconds of silence | "I can't reach the brain right now. Are we offline? Everything else still works, and I'll be here when you're back." | |
+| A refusal | "This brain chose not to answer that one. Want to ask it a different way?" | |
+| Other 400s, 500s, anything else | "Something went wrong while Mochi was thinking. Try again in a moment." | "Open the Claude Console" (Billing) |
+
+Stopping an answer says nothing; what was written stays. Copilot's lines
+have no buttons.
+
 What she typed is never lost: a failed message stays in the box, ready to
 send again.
 
@@ -218,7 +305,9 @@ send again.
   not exist, and the built-in AI list may be empty. The API key and local
   model options (MOCHI-53/54) are how Mochi works there.
 - *No AI, offline, restricted networks:* see section 1 and 5. Direct API
-  calls must go through VS Code's proxy settings (checked in MOCHI-53).
+  calls follow VS Code's proxy settings (see "Her own Claude key"). With no
+  Copilot setup in the editor, "Set one up" opens Choose a brain, which
+  offers "Add a Claude key".
 - *Screen readers:* new answers are announced politely when they finish,
   not word by word. Everything works from the keyboard: Enter sends,
   Shift+Enter adds a line, Escape stops, and focus stays in the box.
@@ -258,3 +347,7 @@ memory gone.
 - [claude-model-provider README (built-in key only works in the Chat view)](https://github.com/cpulvermacher/claude-model-provider)
 - [The Register: Anthropic clarifies ban on third-party tool access to Claude](https://www.theregister.com/software/2026/02/20/anthropic-clarifies-ban-on-third-party-tool-access-to-claude/5014546)
 - `@types/vscode` 1.125: `vscode.lm.selectChatModels`, `registerLanguageModelChatProvider`
+- [Claude API overview: keys page, billing and spend limits](https://platform.claude.com/docs/en/api/overview) (checked 2026-10-08)
+- [Claude API rate limits and spend limits](https://platform.claude.com/docs/api/rate-limits)
+- [VS Code: Troubleshoot credential-store issues](https://code.visualstudio.com/docs/configure/settings-sync#_troubleshoot-credential-store-issues) (checked 2026-10-09)
+- `@anthropic-ai/sdk` 0.132.1: client options, the environment variables it reads, `models.list` with `lifecycle`, and its error classes, read from the package itself (2026-10-08)

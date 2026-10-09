@@ -73,7 +73,9 @@ Version 1 providers, as decided in MOCHI-6:
 - **Built-in AI** through VS Code's language model API: Copilot's models
   (which use her Copilot plan) and models other extensions provide. Mochi
   checks what's there each time she asks and never assumes it.
-- **Claude** with her own API key.
+- **Claude** with her own API key, kept in VS Code's secret storage, through
+  the official Claude SDK. The key only ever goes to the Claude API
+  (`src/ai/claude.ts`; see CHAT.md, "Her own Claude key").
 - **OpenAI-compatible**, with an API key and an address. This covers ChatGPT.
   A stretch goal that can move after version 1.
 
