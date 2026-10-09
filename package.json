@@ -119,6 +119,11 @@
         "category": "Mochi"
       },
       {
+        "command": "mochi.removeClaudeKey",
+        "title": "Remove my Claude key",
+        "category": "Mochi"
+      },
+      {
         "command": "mochi.forgetEverything",
         "title": "Forget everything",
         "category": "Mochi"
@@ -137,6 +142,10 @@
         {
           "command": "mochi.focus.menu",
           "when": "false"
+        },
+        {
+          "command": "mochi.removeClaudeKey",
+          "when": "mochi.hasClaudeKey"
         }
       ],
       "editor/context": [

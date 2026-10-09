@@ -60,6 +60,11 @@ describe("Mochi in VS Code", () => {
       assert.ok(commands.includes("mochi.addClaudeKey"));
     });
 
+    it("registers Remove my Claude key", async () => {
+      const commands = await vscode.commands.getCommands(true);
+      assert.ok(commands.includes("mochi.removeClaudeKey"));
+    });
+
     it("lists the built-in AI's brains without failing when there's no Copilot", async () => {
       // The test copy of VS Code has no Copilot, so there may be no brains.
       assert.ok(Array.isArray(await vscode.lm.selectChatModels()));

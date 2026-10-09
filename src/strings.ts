@@ -52,6 +52,13 @@ export const claudeKeyStrings = {
   modelPlaceholder: "Each answer is billed to your Claude account.",
   startingPoint: "Good starting point for explanations",
   savedNoPick: "Your Claude key is saved. Mochi: Choose a brain picks a Claude model whenever you're ready.",
+  // "Mochi: Remove my Claude key".
+  removeQuestion: "Remove your Claude key?",
+  removeDetail: "Mochi forgets it on this computer. The key still works until you delete it in the Claude Console.",
+  remove: "Remove",
+  keep: "Keep it",
+  removed: "Done. Mochi doesn't have your Claude key anymore.",
+  nothingToRemove: "There's no Claude key saved, so there's nothing to remove.",
 };
 
 // When a brain can't answer, beyond the lines in ai/provider.ts. Mostly for

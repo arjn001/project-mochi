@@ -1,6 +1,8 @@
 import * as vscode from "vscode";
 import { claudeKeyStrings as s } from "../strings";
+import { readBrainSetting, saveBrainSetting } from "../settings";
 import { BrainPicker } from "./brainPicker";
+import { CLAUDE_VENDOR, toBrainSetting } from "./brains";
 import { CONSOLE_KEYS, ClaudeProblem, connect, keyInputProblem, listModels } from "./claude";
 import { ClaudeModels } from "./claudeBrains";
 import { ClaudeKey } from "./claudeKey";
@@ -83,6 +85,34 @@ async function tryAgainAfter(problem: ClaudeProblem): Promise<boolean> {
   return (await vscode.window.showWarningMessage(line, s.tryAgain)) === s.tryAgain;
 }
 
+// "Mochi: Remove my Claude key". Also forgets the saved list of her Claude
+// models, and her pick if it was one of them, so she isn't told about a
+// stand-in for a model she removed on purpose.
+async function removeClaudeKey(key: ClaudeKey, models: ClaudeModels): Promise<void> {
+  if ((await key.get()) === undefined) {
+    void vscode.window.showInformationMessage(s.nothingToRemove);
+    return;
+  }
+  const answer = await vscode.window.showWarningMessage(
+    s.removeQuestion,
+    { modal: true, detail: s.removeDetail },
+    s.remove,
+    s.keep
+  );
+  if (answer !== s.remove) {
+    return;
+  }
+  await key.remove();
+  await models.forget();
+  if (toBrainSetting(readBrainSetting())?.vendor === CLAUDE_VENDOR) {
+    await saveBrainSetting("");
+  }
+  void vscode.window.showInformationMessage(s.removed);
+}
+
 export function registerClaudeKeyCommands(key: ClaudeKey, models: ClaudeModels, picker: BrainPicker): vscode.Disposable {
-  return vscode.commands.registerCommand("mochi.addClaudeKey", () => addClaudeKey(key, models, picker));
+  return vscode.Disposable.from(
+    vscode.commands.registerCommand("mochi.addClaudeKey", () => addClaudeKey(key, models, picker)),
+    vscode.commands.registerCommand("mochi.removeClaudeKey", () => removeClaudeKey(key, models))
+  );
 }
