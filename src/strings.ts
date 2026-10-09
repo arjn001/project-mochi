@@ -9,6 +9,8 @@
 export const brainStrings = {
   title: "Which brain should Mochi think with?",
   usesCopilotPlan: "Uses your Copilot plan",
+  // Next to each of her Claude models (MOCHI-53, part 2).
+  billedPerUse: "your key · billed per use",
   letMochiChoose: "Let Mochi choose",
   now: (label: string) => `Now: ${label}`,
   nowAsks: "Now: asks you first",

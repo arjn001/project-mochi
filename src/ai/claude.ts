@@ -215,7 +215,22 @@ export interface ClaudeModel {
 export const isStartingPoint = (id: string): boolean =>
   id === STARTING_POINT || new RegExp(`^${STARTING_POINT}-\\d{8}$`).test(id);
 
-export type Listing = { ok: true; models: ClaudeModel[] } | { ok: false; problem: ClaudeProblem };
+// A saved listing, read back from Mochi's storage. Anything that doesn't
+// look like one is ignored.
+export function toSavedModels(value: unknown): ClaudeModel[] {
+  if (!Array.isArray(value)) {
+    return [];
+  }
+  return value
+    .filter((model) => typeof model?.id === "string" && typeof model?.name === "string")
+    .map((model) => ({
+      id: model.id,
+      name: model.name,
+      maxInputTokens: typeof model.maxInputTokens === "number" ? model.maxInputTokens : null,
+    }));
+}
+
+export type Listing ={ ok: true; models: ClaudeModel[] } | { ok: false; problem: ClaudeProblem };
 
 // Every model her key can use, from the free model listing, newest first.
 // Retired and deprecated models are left out: retired ones can't answer,

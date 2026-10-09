@@ -10,6 +10,7 @@ import { Conversation } from "./ai/conversation";
 import { registerExplain } from "./ai/explainCommands";
 import { createOutputSurface } from "./ai/outputSurface";
 import { BrainPicker } from "./ai/brainPicker";
+import { ClaudeModels } from "./ai/claudeBrains";
 import { ClaudeKey } from "./ai/claudeKey";
 import { instructionsFor } from "./ai/instructions";
 import { loadDefaultPack } from "./packs/defaultPack";
@@ -79,7 +80,8 @@ export function activate(context: vscode.ExtensionContext): MochiApi {
   // Auto, else she's asked (MOCHI-53).
   // Her own Claude key, if she adds one, in her system's keychain.
   const claudeKey = new ClaudeKey(context.secrets);
-  const brains = new BrainPicker(context.globalState);
+  const claudeModels = new ClaudeModels(claudeKey, context.globalState);
+  const brains = new BrainPicker(context.globalState, claudeModels);
   const chooseBrain = brains.register();
   const conversation = new Conversation(brains, () => instructionsFor(pack(), readLearningMode()), surface);
   const ask = registerAskCommand(conversation);
@@ -127,6 +129,8 @@ export function activate(context: vscode.ExtensionContext): MochiApi {
     // Where the list lived before it moved to one store for all projects.
     { forget: () => context.workspaceState.update(OFFERED, undefined) },
     { forget: () => timer.forgetSaved() },
+    // The saved list of her Claude models. Her key itself stays.
+    { forget: () => claudeModels.forget() },
   ]);
 
   // Anything added here is cleaned up when Mochi shuts down.

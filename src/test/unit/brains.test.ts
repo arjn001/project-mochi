@@ -1,5 +1,5 @@
 import * as assert from "node:assert";
-import { BrainInfo, brainLabel, chooseBrain, fallbackNote, isUsable, toBrainSetting } from "../../ai/brains";
+import { BrainInfo, CLAUDE_VENDOR, brainLabel, chooseBrain, fallbackNote, isUsable, toBrainSetting } from "../../ai/brains";
 
 const brain = (vendor: string, id: string, name: string, maxInputTokens = 100_000): BrainInfo => ({
   vendor,
@@ -84,6 +84,36 @@ describe("choosing a brain", () => {
     it("has nothing to offer with no usable brains", () => {
       assert.deepStrictEqual(chooseBrain("", []), { kind: "none" });
       assert.deepStrictEqual(chooseBrain("", [todaysList[6]]), { kind: "none" });
+    });
+  });
+
+  describe("her own Claude key", () => {
+    const haiku = brain(CLAUDE_VENDOR, "claude-haiku-4-5-20251001", "Claude Haiku 4.5", 200_000);
+    const sonnet = brain(CLAUDE_VENDOR, "claude-sonnet-5-5", "Claude Sonnet 5.5", 1_000_000);
+
+    it("shows her Claude models by their own name", () => {
+      assert.strictEqual(brainLabel(haiku), "Claude Haiku 4.5");
+    });
+
+    it("uses her Claude pick, saved like any other", () => {
+      assert.deepStrictEqual(chooseBrain("claude-key/claude-sonnet-5-5", [...todaysList, haiku, sonnet]), { kind: "use", brain: sonnet });
+    });
+
+    it("never picks a Claude model for her: Auto stays the default", () => {
+      assert.deepStrictEqual(chooseBrain("", [...todaysList, haiku, sonnet]), { kind: "use", brain: todaysList[1] });
+    });
+
+    it("asks with only her key and no pick", () => {
+      assert.deepStrictEqual(chooseBrain("", [haiku, sonnet]), { kind: "ask", usable: [haiku, sonnet] });
+    });
+
+    it("stands in with Auto, or asks, when her Claude model is retired", () => {
+      assert.deepStrictEqual(chooseBrain("claude-key/claude-opus-4-1", [...todaysList, haiku]), {
+        kind: "use",
+        brain: todaysList[1],
+        missing: { vendor: CLAUDE_VENDOR, id: "claude-opus-4-1" },
+      });
+      assert.strictEqual(chooseBrain("claude-key/claude-opus-4-1", [haiku]).kind, "ask");
     });
   });
 

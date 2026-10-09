@@ -9,6 +9,7 @@ import {
   isStartingPoint,
   listModels,
   toBrainError,
+  toSavedModels,
 } from "../../ai/claude";
 import { brainHelpButtons, brainProblemMessages } from "../../ai/provider";
 
@@ -462,6 +463,25 @@ describe("her own Claude key", () => {
         ],
       });
       assert.strictEqual(calls.length, 2);
+    });
+
+    it("reads a saved listing back, ignoring anything that isn't one", () => {
+      assert.deepStrictEqual(
+        toSavedModels([
+          { id: "claude-haiku-4-5", name: "Claude Haiku 4.5", maxInputTokens: 200_000 },
+          { id: "claude-new", name: "Claude New", maxInputTokens: null },
+          { id: 42, name: "Not a model" },
+          "claude-sonnet-5-5",
+          null,
+        ]),
+        [
+          { id: "claude-haiku-4-5", name: "Claude Haiku 4.5", maxInputTokens: 200_000 },
+          { id: "claude-new", name: "Claude New", maxInputTokens: null },
+        ]
+      );
+      for (const value of [undefined, null, "list", {}, 7]) {
+        assert.deepStrictEqual(toSavedModels(value), []);
+      }
     });
 
     it("an empty listing is still a listing", async () => {
