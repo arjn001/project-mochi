@@ -130,7 +130,7 @@ export class BrainPicker {
         iconPath: used ? check : undefined,
       });
     }
-    if (usable.length === 0) {
+    if (usable.length === 0 && (await hasCopilotSetup())) {
       items.push({ label: brainStrings.signIn, action: "signIn" });
     }
     if (!(await this.claude.key.get())) {
@@ -201,6 +201,23 @@ export class BrainPicker {
 
   register(): vscode.Disposable {
     return vscode.commands.registerCommand("mochi.chooseBrain", () => this.choose());
+  }
+}
+
+// Whether this editor has VS Code's Copilot setup. Editors from Open VSX,
+// like VSCodium, often don't.
+async function hasCopilotSetup(): Promise<boolean> {
+  return (await vscode.commands.getCommands(true)).includes("workbench.action.chat.triggerSetup");
+}
+
+// "Set one up", from the no-brain line: Copilot's own setup where there is
+// one, otherwise Choose a brain, which offers "Add a Claude key". Never a
+// dead end. "Pick a brain" replaces this in MOCHI-42.
+export async function setUpABrain(): Promise<void> {
+  if (await hasCopilotSetup()) {
+    await signInToCopilot();
+  } else {
+    await vscode.commands.executeCommand("mochi.chooseBrain");
   }
 }
 

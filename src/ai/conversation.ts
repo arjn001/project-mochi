@@ -1,7 +1,7 @@
 import * as vscode from "vscode";
 import { brainStrings } from "../strings";
 import { AnswerSurface } from "./answerSurface";
-import { BrainPicker, signInToCopilot } from "./brainPicker";
+import { BrainPicker, setUpABrain } from "./brainPicker";
 import { NO_BRAIN, askMochi } from "./askMochi";
 import { askToShare } from "./askToShare";
 import { CONSOLE_BILLING } from "./claude";
@@ -55,7 +55,7 @@ export class Conversation {
       case "noBrain": {
         const setUp = "Set one up";
         if ((await vscode.window.showInformationMessage(NO_BRAIN, setUp)) === setUp) {
-          await signInToCopilot();
+          await setUpABrain();
         }
         return undefined;
       }
