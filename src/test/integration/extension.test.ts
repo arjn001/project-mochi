@@ -242,6 +242,20 @@ describe("Mochi in VS Code", () => {
     });
   });
 
+  describe("the chat", () => {
+    it("answers 'hi' with no brain: the kind line and its chip, and her text comes back", async () => {
+      const api = (await vscode.extensions.getExtension<MochiApi>("arjungyawali.mochi-companion")!.activate()) as MochiApi;
+      // The test copy of VS Code has no Copilot and no Claude key.
+      assert.strictEqual(await api.ask!("hi"), false, "Not sent, so the panel puts it back in the box.");
+      const last = api.chat!.entries().at(-1)!;
+      assert.strictEqual(last.from, "mochi");
+      assert.strictEqual(last.problem, true);
+      assert.strictEqual(last.text, "I'd need a brain to answer that. Want to set one up?");
+      assert.deepStrictEqual(last.chips?.choices.map((c) => c.label), ["Set one up"]);
+      assert.ok(!api.chat!.entries().some((e) => e.from === "her" && e.text === "hi"), "Her text goes back in the box, not into the chat.");
+    });
+  });
+
   describe("the first-run welcome", () => {
     it("welcomed this fresh profile once, and never again", async () => {
       const api = (await vscode.extensions.getExtension<MochiApi>("arjungyawali.mochi-companion")!.activate()) as MochiApi;

@@ -25,7 +25,7 @@ update isn't listed.*
   - MOCHI-17 and the panel's look wait on MOCHI-50.
 
 **39 of 58 Jira tasks and subtasks done**. 2 of the 8
-categories are complete. 375 tests (341 unit, 34 integration) run on every
+categories are complete. 376 tests (341 unit, 35 integration) run on every
 pull request.
 
 ## Done

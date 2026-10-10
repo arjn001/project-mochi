@@ -42,6 +42,9 @@ export interface MochiApi {
   greeter?: Greeter;
   welcomer?: Welcomer;
   panel?: MochiPanel;
+  // The chat, and the panel's own "send", to test the chat in real VS Code.
+  chat?: ChatLog;
+  ask?: (text: string) => Promise<boolean>;
 }
 
 // VS Code calls this once, after it finishes starting up.
@@ -117,19 +120,17 @@ export function activate(context: vscode.ExtensionContext): MochiApi {
   // Mochi's panel, the "Mochi" tab (MOCHI-16): the cat's mood and today's
   // greeting, quick buttons, and the Ask box, styled only from VS Code's
   // theme.
-  const panel: MochiPanel = new MochiPanel(
-    context.extensionUri,
-    panelActions({
-      timer,
-      greeter,
-      pack,
-      conversation,
-      chat,
-      setUpCopilot: signInToCopilot,
-      hint: (text) => panel.hint(text),
-      refresh: () => panel.refresh(),
-    })
-  );
+  const actions = panelActions({
+    timer,
+    greeter,
+    pack,
+    conversation,
+    chat,
+    setUpCopilot: signInToCopilot,
+    hint: (text) => panel.hint(text),
+    refresh: () => panel.refresh(),
+  });
+  const panel: MochiPanel = new MochiPanel(context.extensionUri, actions);
   const home = panel.register();
   refreshPanel = () => panel.refresh();
 
@@ -205,6 +206,8 @@ export function activate(context: vscode.ExtensionContext): MochiApi {
     greeter: context.extensionMode === vscode.ExtensionMode.Test ? greeter : undefined,
     welcomer: context.extensionMode === vscode.ExtensionMode.Test ? welcomer : undefined,
     panel: context.extensionMode === vscode.ExtensionMode.Test ? panel : undefined,
+    chat: context.extensionMode === vscode.ExtensionMode.Test ? chat : undefined,
+    ask: context.extensionMode === vscode.ExtensionMode.Test ? actions.ask : undefined,
   };
 }
 
