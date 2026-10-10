@@ -123,6 +123,25 @@ body {
   padding-block: var(--mochi-gap);
 }
 
+/* The brain at the top of the chat, like "Copilot · Auto". */
+.mochi-chat-top {
+  display: flex;
+}
+.mochi-brain {
+  padding: 1px 8px;
+  border: 1px solid var(--mochi-chip-border);
+  border-radius: 999px;
+  color: var(--mochi-quiet-text);
+  background: transparent;
+  font: inherit;
+  font-size: 0.9em;
+  cursor: pointer;
+}
+.mochi-brain:hover {
+  color: var(--mochi-text);
+  background: var(--mochi-button-hover);
+}
+
 .mochi-chat-empty {
   margin: auto 0 0;
   color: var(--mochi-quiet-text);
@@ -386,6 +405,7 @@ body {
 .mochi-button:focus-visible,
 .mochi-send:focus-visible,
 .mochi-chip:focus-visible,
+.mochi-brain:focus-visible,
 .mochi-copy:focus-visible,
 .mochi-link:focus-visible {
   outline: 1px solid var(--mochi-focus);

@@ -31,6 +31,7 @@ const buttons: Record<Exclude<PanelButton, "welcome">, HTMLButtonElement> = {
   explain: byId("explain"),
   focus: byId("focus"),
   dark: byId("dark"),
+  brain: byId("brain"),
 };
 
 // The draft survives the panel being hidden and shown again.
@@ -243,6 +244,9 @@ function show(state: PanelState): void {
   buttons.explain.textContent = state.buttons.explain;
   buttons.focus.textContent = state.buttons.focus;
   buttons.dark.textContent = state.buttons.dark;
+  buttons.brain.textContent = state.brain.label;
+  buttons.brain.title = state.brain.tooltip;
+  buttons.brain.setAttribute("aria-label", state.brain.spoken);
   askLabel.textContent = state.ask.label;
   box.placeholder = state.ask.label;
   labels = state.chat;

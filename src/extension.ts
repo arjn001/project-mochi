@@ -112,6 +112,15 @@ export function activate(context: vscode.ExtensionContext): MochiApi {
   const brains = new BrainPicker(context.globalState, claudeModels);
   const chooseBrain = brains.register();
   const claudeCommands = registerClaudeKeyCommands(claudeKey, claudeModels, brains);
+  // The brain at the top of the chat. Looked up without asking any brain
+  // anything, and again whenever brains, her pick, or her key change.
+  let brainNow: string | undefined;
+  const showBrain = async () => {
+    brainNow = await brains.current();
+    refreshPanel();
+  };
+  const followBrain = brains.onDidChange(() => void showBrain());
+  void showBrain();
   const conversation = new Conversation(brains, () => instructionsFor(pack(), readLearningMode()), chat, () => chat.saved());
   const explain = registerExplain(conversation, chat);
 
@@ -143,6 +152,7 @@ export function activate(context: vscode.ExtensionContext): MochiApi {
     conversation,
     chat,
     setUpCopilot: signInToCopilot,
+    brain: () => brainNow,
     hint: (text) => panel.hint(text),
     refresh: () => panel.refresh(),
   });
@@ -215,7 +225,7 @@ export function activate(context: vscode.ExtensionContext): MochiApi {
   ]);
 
   // Anything added here is cleaned up when Mochi shuts down.
-  context.subscriptions.push(names, claudeKey, claudeCommands, chooseBrain, copilotWatch, open, home, mood, followSpeakUp, focus, timer, explain, stuck, dim, lateNight, coding, python, pythonOffer, forget, memory);
+  context.subscriptions.push(names, claudeKey, claudeCommands, chooseBrain, copilotWatch, open, home, mood, followSpeakUp, focus, timer, explain, stuck, dim, lateNight, coding, python, pythonOffer, forget, memory, followBrain);
 
   return {
     moodText: () => mood.text,

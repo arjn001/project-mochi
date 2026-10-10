@@ -36,6 +36,9 @@ export interface PanelState {
   // The welcome's button ("Set up Copilot" or "Choose a brain"), if any.
   welcomeButton?: string;
   buttons: { explain: string; focus: string; dark: string };
+  // The brain at the top of the chat, like "Copilot · Auto", or "Choose a
+  // brain". One click opens Choose a brain.
+  brain: { label: string; tooltip: string; spoken: string };
   ask: { label: string; send: string };
   chat: { empty: string; you: string; mochi: string; copy: string; copied: string };
 }
@@ -54,7 +57,7 @@ export type ToPanel =
   // "Forget everything": clear the unsent draft.
   | { type: "forget" };
 
-export type PanelButton = "explain" | "focus" | "dark" | "welcome";
+export type PanelButton = "explain" | "focus" | "dark" | "welcome" | "brain";
 
 export type FromPanel =
   | { type: "ready" }
@@ -71,7 +74,7 @@ export const MAX_ASK_LENGTH = 20_000;
 // The longest code block Copy will put on her clipboard.
 export const MAX_COPY_LENGTH = 200_000;
 
-const BUTTONS: readonly PanelButton[] = ["explain", "focus", "dark", "welcome"];
+const BUTTONS: readonly PanelButton[] = ["explain", "focus", "dark", "welcome", "brain"];
 
 // A message from the panel, or undefined if it isn't one Mochi knows.
 export function toFromPanel(value: unknown): FromPanel | undefined {

@@ -45,6 +45,10 @@ export const chatStrings = {
   explainSelection: (file: string) => `Explain the selected code from ${file}`,
   // When the chat is empty.
   empty: "Our chat stays on this computer. It can include code from our conversation; Clear chat removes it.",
+  // The brain at the top of the chat opens this, with the command's name.
+  chooseBrain: "Choose a brain",
+  // What screen readers hear for it: "Copilot · Auto. Choose a brain".
+  brainSpoken: (brain: string) => `${brain}. Choose a brain`,
   // Who said it, for screen readers. Mochi's side uses the pack's name.
   you: "You",
   // Under her message, when something was shared with it. Kept with the

@@ -1,5 +1,5 @@
 import * as assert from "node:assert";
-import { BrainInfo, CLAUDE_VENDOR, brainLabel, chooseBrain, fallbackNote, isUsable, toBrainSetting } from "../../ai/brains";
+import { BrainInfo, CLAUDE_VENDOR, brainButton, brainLabel, chooseBrain, fallbackNote, isUsable, toBrainSetting } from "../../ai/brains";
 
 const brain = (vendor: string, id: string, name: string, maxInputTokens = 100_000): BrainInfo => ({
   vendor,
@@ -139,5 +139,19 @@ describe("choosing a brain", () => {
     it("uses the model id when Mochi doesn't know its name", () => {
       assert.match(fallbackNote(standIn, undefined, undefined).note ?? "", /^Quick note: gpt-5\.6-luna isn't/);
     });
+  });
+});
+
+describe("the brain at the top of the chat", () => {
+  it("names the brain, and says what a click does", () => {
+    assert.deepStrictEqual(brainButton("Copilot · Auto"), {
+      label: "Copilot · Auto",
+      tooltip: "Choose a brain",
+      spoken: "Copilot · Auto. Choose a brain",
+    });
+  });
+
+  it("says Choose a brain when Mochi would ask first, or has none", () => {
+    assert.deepStrictEqual(brainButton(undefined), { label: "Choose a brain", tooltip: "Choose a brain", spoken: "Choose a brain" });
   });
 });

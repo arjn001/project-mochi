@@ -1,4 +1,5 @@
 import * as vscode from "vscode";
+import { brainButton } from "../ai/brains";
 import { selectedCode } from "../ai/selection";
 import { Conversation } from "../ai/conversation";
 import { errorInEditor } from "../ai/explainCommands";
@@ -20,6 +21,8 @@ interface Needs {
   conversation: Conversation;
   chat: ChatLog;
   setUpCopilot: () => Promise<void>;
+  // The brain Mochi would think with now, or undefined when it would ask.
+  brain: () => string | undefined;
   // A short line under the buttons.
   hint: (text: string) => void;
   // Shows the latest state in the panel.
@@ -45,6 +48,7 @@ export function panelActions(needs: Needs): PanelActions {
         dark: panelStrings.dark,
       },
       ask: { label: panelStrings.ask(pack().name), send: panelStrings.send },
+      brain: brainButton(needs.brain()),
       chat: { empty: chatStrings.empty, you: chatStrings.you, mochi: pack().name, copy: chatStrings.copy, copied: chatStrings.copied },
     };
   };
@@ -74,6 +78,9 @@ export function panelActions(needs: Needs): PanelActions {
         return;
       case "dark":
         await vscode.commands.executeCommand("mochi.dim");
+        return;
+      case "brain":
+        await vscode.commands.executeCommand("mochi.chooseBrain");
         return;
       case "welcome": {
         // Used once: the welcome stays as today's greeting, without its button.
