@@ -44,6 +44,13 @@ function focusLine(minutesLeft: number): MoodLine {
   };
 }
 
+// The same line for the panel (MOCHI-16): which icon, and the words without
+// the "$(mochi-...)" icon code.
+export function moodParts(line: MoodLine): { glyph: Mood; words: string } {
+  const match = /^\$\(mochi-(here|purring|napping)\) (.*)$/.exec(line.text);
+  return match ? { glyph: match[1] as Mood, words: match[2] } : { glyph: "here", words: line.text };
+}
+
 // What the mood line shows (see PRESENCE.md):
 // - A focus session she started always shows, even in quiet mode.
 // - Otherwise, in quiet mode, napping wins over anything Mochi starts.

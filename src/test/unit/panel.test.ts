@@ -1,8 +1,10 @@
 import * as assert from "node:assert";
 import * as fs from "node:fs";
 import * as path from "node:path";
+import { toTodaysGreeting } from "../../moments/greeting";
 import { contentSecurityPolicy, panelHtml } from "../../panel/html";
 import { MAX_ASK_LENGTH, sendsOnKey, toFromPanel } from "../../panel/messages";
+import { moodLine, moodParts } from "../../presence/mood";
 
 // From out/test/unit/ back to the repo.
 const repo = path.join(__dirname, "..", "..", "..");
@@ -87,6 +89,35 @@ describe("Mochi's panel", () => {
 
     it("never sends while she's composing a character with an input method", () => {
       assert.strictEqual(sendsOnKey("Enter", false, true), false);
+    });
+  });
+
+  describe("the mood at the top", () => {
+    it("is the status bar's mood, as an icon and words", () => {
+      assert.deepStrictEqual(moodParts(moodLine("gentle")), { glyph: "purring", words: "Mochi is purring" });
+      assert.deepStrictEqual(moodParts(moodLine("quiet")), { glyph: "napping", words: "Mochi is napping" });
+      assert.deepStrictEqual(moodParts(moodLine("quiet", undefined, 18)), { glyph: "here", words: "Focusing · 18 min left" });
+    });
+  });
+
+  describe("today's greeting", () => {
+    it("keeps the same line all day", () => {
+      assert.deepStrictEqual(toTodaysGreeting({ day: "2026-10-10", text: "Good morning!" }, "2026-10-10"), {
+        day: "2026-10-10",
+        text: "Good morning!",
+      });
+    });
+
+    it("picks a new one the next day", () => {
+      assert.strictEqual(toTodaysGreeting({ day: "2026-10-09", text: "Good morning!" }, "2026-10-10"), undefined);
+    });
+
+    it("keeps the welcome's button, and ignores anything odd", () => {
+      assert.strictEqual(toTodaysGreeting({ day: "2026-10-10", text: "Hi!", button: "setUpCopilot" }, "2026-10-10")?.button, "setUpCopilot");
+      assert.strictEqual(toTodaysGreeting({ day: "2026-10-10", text: "Hi!", button: "format" }, "2026-10-10")?.button, undefined);
+      for (const odd of [undefined, "Hi!", { day: "2026-10-10" }, { day: "2026-10-10", text: "" }]) {
+        assert.strictEqual(toTodaysGreeting(odd, "2026-10-10"), undefined);
+      }
     });
   });
 });
