@@ -1,6 +1,7 @@
 import * as vscode from "vscode";
 import { readBrainSetting, saveBrainSetting } from "../settings";
-import { brainStrings, claudeKeyStrings, problemStrings } from "../strings";
+import { BrainCheck } from "../moments/welcome";
+import { brainStrings, claudeKeyStrings, problemStrings, welcomeStrings } from "../strings";
 import { BrainInfo, CLAUDE_VENDOR, brainKey, brainLabel, chooseBrain, fallbackNote, isAuto, isUsable, toBrainSetting } from "./brains";
 import { ModelBrain } from "./builtInAi";
 import { ClaudeModel, isStartingPoint, startingPointFirst } from "./claude";
@@ -199,9 +200,68 @@ export class BrainPicker {
     await saveBrainSetting(key);
   }
 
+  // For the first-run welcome: which brain Mochi would think with, without
+  // asking any brain anything. Right after VS Code starts, Copilot may not
+  // have shown up yet, so with nothing found it waits up to WAIT_MS for
+  // VS Code's "models changed" and looks once more.
+  async check(): Promise<BrainCheck> {
+    let choice = chooseBrain(readBrainSetting(), await this.brains());
+    if (choice.kind === "none") {
+      await modelsChangeOr(WAIT_MS);
+      choice = chooseBrain(readBrainSetting(), await this.brains());
+    }
+    if (choice.kind === "use") {
+      return { kind: "ready", label: brainLabel(choice.brain) };
+    }
+    return choice.kind === "ask" ? { kind: "ask" } : { kind: "none", copilotSetup: await hasCopilotSetup() };
+  }
+
   register(): vscode.Disposable {
     return vscode.commands.registerCommand("mochi.chooseBrain", () => this.choose());
   }
+}
+
+// How long the welcome's brain check waits for Copilot to show up.
+const WAIT_MS = 8_000;
+
+function modelsChangeOr(ms: number): Promise<void> {
+  return new Promise((done) => {
+    const timer = setTimeout(finish, ms);
+    const listening = vscode.lm.onDidChangeChatModels(finish);
+    function finish() {
+      clearTimeout(timer);
+      listening.dispose();
+      done();
+    }
+  });
+}
+
+// Says "Got a brain! Ask me anything." once Copilot is ready, after she
+// started its setup from Mochi. One watch at a time; it ends when Mochi
+// does (pushed to the extension's subscriptions).
+let watching: vscode.Disposable | undefined;
+export const copilotWatch: vscode.Disposable = { dispose: () => stopWatching() };
+
+function stopWatching(): void {
+  watching?.dispose();
+  watching = undefined;
+}
+
+function confirmWhenCopilotIsReady(): void {
+  if (watching) {
+    return;
+  }
+  watching = vscode.lm.onDidChangeChatModels(async () => {
+    try {
+      const models = await vscode.lm.selectChatModels({ vendor: "copilot" });
+      if (models.some(isUsable)) {
+        stopWatching();
+        void vscode.window.showInformationMessage(welcomeStrings.gotABrain);
+      }
+    } catch {
+      // Still not ready; the next change looks again.
+    }
+  });
 }
 
 // Whether this editor has VS Code's Copilot setup. Editors from Open VSX,
@@ -223,6 +283,7 @@ export async function setUpABrain(): Promise<void> {
 
 // VS Code's own Copilot sign-in, until "Pick a brain" exists (MOCHI-42).
 export async function signInToCopilot(): Promise<void> {
+  confirmWhenCopilotIsReady();
   try {
     await vscode.commands.executeCommand("workbench.action.chat.triggerSetup");
   } catch {

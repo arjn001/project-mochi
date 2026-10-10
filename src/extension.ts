@@ -9,7 +9,7 @@ import { registerAskCommand } from "./ai/askCommand";
 import { Conversation } from "./ai/conversation";
 import { registerExplain } from "./ai/explainCommands";
 import { createOutputSurface } from "./ai/outputSurface";
-import { BrainPicker } from "./ai/brainPicker";
+import { BrainPicker, copilotWatch, signInToCopilot } from "./ai/brainPicker";
 import { ClaudeModels } from "./ai/claudeBrains";
 import { ClaudeKey } from "./ai/claudeKey";
 import { registerClaudeKeyCommands } from "./ai/claudeKeyCommands";
@@ -19,6 +19,7 @@ import { registerNameCommands } from "./packs/nameCommands";
 import { PersonalLayer } from "./packs/personalLayer";
 import { registerFocus } from "./focus/focusCommands";
 import { Greeter, rememberCoding } from "./moments/greetingWatcher";
+import { Welcomer } from "./moments/welcomeWatcher";
 import { LAST_NUDGED, watchLateNight } from "./moments/lateNightWatcher";
 import { watchStuck } from "./moments/stuckWatcher";
 import { FocusTimer } from "./focus/timer";
@@ -30,11 +31,12 @@ import { onSpeakUpChange, readLearningMode, readSpeakUp } from "./settings";
 // mood line says, since VS Code doesn't let tests read the status bar.
 export interface MochiApi {
   moodText(): string;
-  // Her personal layer and the greeter, only in the integration tests (Test
-  // mode). Other extensions can read Mochi's exports, so they're never
-  // handed out otherwise.
+  // Her personal layer, the greeter, and the welcomer, only in the
+  // integration tests (Test mode). Other extensions can read Mochi's
+  // exports, so they're never handed out otherwise.
   personal?: PersonalLayer;
   greeter?: Greeter;
+  welcomer?: Welcomer;
 }
 
 // VS Code calls this once, after it finishes starting up.
@@ -100,7 +102,10 @@ export function activate(context: vscode.ExtensionContext): MochiApi {
   // The greeting when VS Code opens, once a day (MOCHI-33). It waits for a
   // saved focus session to be picked up, so it knows if she's focusing.
   const greeter = new Greeter(context.globalState, pack, () => timer.isRunning(), notificationGreeting);
-  const greeted = restored.then(() => greeter.greet());
+  // On her first-ever day, the first-run welcome takes the greeting's place
+  // (MOCHI-42); never both.
+  const welcomer = new Welcomer(context.globalState, pack, () => timer.isRunning(), () => brains.check(), signInToCopilot);
+  const greeted = restored.then(async () => (await welcomer.welcome()) ?? greeter.greet());
   // When and where she last coded, for tomorrow's greeting.
   const coding = rememberCoding(context.globalState);
 
@@ -136,12 +141,13 @@ export function activate(context: vscode.ExtensionContext): MochiApi {
   ]);
 
   // Anything added here is cleaned up when Mochi shuts down.
-  context.subscriptions.push(names, claudeKey, claudeCommands, chooseBrain, open, home, mood, followSpeakUp, focus, timer, surface, ask, explain, stuck, dim, lateNight, coding, python, pythonOffer, forget);
+  context.subscriptions.push(names, claudeKey, claudeCommands, chooseBrain, copilotWatch, open, home, mood, followSpeakUp, focus, timer, surface, ask, explain, stuck, dim, lateNight, coding, python, pythonOffer, forget);
 
   return {
     moodText: () => mood.text,
     personal: context.extensionMode === vscode.ExtensionMode.Test ? personal : undefined,
     greeter: context.extensionMode === vscode.ExtensionMode.Test ? greeter : undefined,
+    welcomer: context.extensionMode === vscode.ExtensionMode.Test ? welcomer : undefined,
   };
 }
 
