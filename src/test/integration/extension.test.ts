@@ -273,6 +273,14 @@ describe("Mochi in VS Code", () => {
       await vscode.commands.executeCommand("workbench.action.revertAndCloseActiveEditor");
     });
 
+    it("clears an empty chat without asking, and registers Clear chat", async () => {
+      const api = (await vscode.extensions.getExtension<MochiApi>("arjungyawali.mochi-companion")!.activate()) as MochiApi;
+      assert.ok((await vscode.commands.getCommands(true)).includes("mochi.clearChat"));
+      await api.memory!.clear();
+      await vscode.commands.executeCommand("mochi.clearChat");
+      assert.deepStrictEqual(api.chat!.entries(), []);
+    });
+
     it("forgets the chat with Forget everything", async () => {
       const api = (await vscode.extensions.getExtension<MochiApi>("arjungyawali.mochi-companion")!.activate()) as MochiApi;
       await api.chat!.problem("A line to forget.");

@@ -29,7 +29,7 @@ import { MochiPanel } from "./panel/panelView";
 import { panelActions } from "./panel/panelActions";
 import { AttachmentChip } from "./panel/attachmentChip";
 import { ChatLog } from "./panel/chatLog";
-import { CHATS_GENERATION, ChatMemory } from "./panel/chatMemory";
+import { CHATS_GENERATION, ChatMemory, registerClearChat } from "./panel/chatMemory";
 import { ChatStore } from "./panel/chatStore";
 import { createMoodLine, showMood } from "./presence/statusBar";
 import { onSpeakUpChange, readLearningMode, readSpeakUp } from "./settings";
@@ -106,6 +106,7 @@ export function activate(context: vscode.ExtensionContext): MochiApi {
   const memory = new ChatMemory(chatStore, chat);
   void memory.start();
   saveChat = () => memory.flush();
+  const clearChat = registerClearChat(chat, memory);
   // The brain is chosen fresh each time she asks: her pick, else Copilot's
   // Auto, else she's asked (MOCHI-53).
   // Her own Claude key, if she adds one, in her system's keychain.
@@ -230,7 +231,7 @@ export function activate(context: vscode.ExtensionContext): MochiApi {
   ]);
 
   // Anything added here is cleaned up when Mochi shuts down.
-  context.subscriptions.push(names, claudeKey, claudeCommands, chooseBrain, copilotWatch, open, home, mood, followSpeakUp, focus, timer, explain, stuck, dim, lateNight, coding, python, pythonOffer, forget, memory, followBrain, attachment);
+  context.subscriptions.push(names, claudeKey, claudeCommands, chooseBrain, copilotWatch, open, home, mood, followSpeakUp, focus, timer, explain, stuck, dim, lateNight, coding, python, pythonOffer, forget, memory, followBrain, attachment, clearChat);
 
   return {
     moodText: () => mood.text,

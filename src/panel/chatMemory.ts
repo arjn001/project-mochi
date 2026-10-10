@@ -1,5 +1,5 @@
 import * as vscode from "vscode";
-import { chatStrings } from "../strings";
+import { chatStrings, clearStrings } from "../strings";
 import { ChatLog } from "./chatLog";
 import { ChatStore } from "./chatStore";
 
@@ -19,6 +19,26 @@ export function projectIdentity(): string | undefined {
   }
   const folders = vscode.workspace.workspaceFolders ?? [];
   return folders.length > 0 ? folders.map((folder) => folder.uri.toString()).sort().join("\n") : undefined;
+}
+
+// "Clear chat", in the ... menu of Mochi's tab: this project's chat, after
+// asking in a dialog, since it can't be undone. An empty chat has nothing to
+// ask about.
+export function registerClearChat(chat: ChatLog, memory: ChatMemory): vscode.Disposable {
+  return vscode.commands.registerCommand("mochi.clearChat", async () => {
+    if (chat.entries().length > 0) {
+      const choice = await vscode.window.showWarningMessage(
+        clearStrings.question,
+        { modal: true, detail: clearStrings.detail },
+        { title: clearStrings.yes },
+        { title: clearStrings.keep, isCloseAffordance: true }
+      );
+      if (choice?.title !== clearStrings.yes) {
+        return;
+      }
+    }
+    await memory.clear();
+  });
 }
 
 // Keeps the chat on disk for each project (MOCHI-21): brings it back when

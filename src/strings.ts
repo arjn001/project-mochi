@@ -143,6 +143,14 @@ export const problemStrings = {
   keepGoing: "Keep going",
 };
 
+// "Clear chat", in the ... menu of Mochi's tab (MOCHI-21).
+export const clearStrings = {
+  question: "Clear this chat?",
+  detail: "This can't be undone.",
+  yes: "Clear",
+  keep: "Keep it",
+};
+
 // "Mochi: Forget everything" (MOCHI-65).
 export const forgetStrings = {
   question: "Forget everything?",

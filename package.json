@@ -117,6 +117,11 @@
         "command": "mochi.forgetEverything",
         "title": "Forget everything",
         "category": "Mochi"
+      },
+      {
+        "command": "mochi.clearChat",
+        "title": "Clear chat",
+        "category": "Mochi"
       }
     ],
     "menus": {
@@ -136,6 +141,13 @@
         {
           "command": "mochi.removeClaudeKey",
           "when": "mochi.hasClaudeKey"
+        }
+      ],
+      "view/title": [
+        {
+          "command": "mochi.clearChat",
+          "when": "view == mochi.home",
+          "group": "mochi@1"
         }
       ],
       "editor/context": [
