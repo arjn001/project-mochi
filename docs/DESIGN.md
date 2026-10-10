@@ -116,12 +116,22 @@ in its one stylesheet, not the panel.
 - **At the bottom:** a box, "Ask Mochi anything" (the name from the pack):
   one rounded frame that grows as she types, with a round send arrow inside
   it at the bottom right, in the theme's button color, faded until there's
-  something to send. Enter sends, Shift+Enter adds a line. It works like "Mochi:
-  Ask": selected code goes through the share gate, and text that looks like
-  a password or API key gets "Careful: this looks like it might contain a
-  password or API key. Send anyway?" first. Answers show in the "Mochi"
-  output panel until the chat (MOCHI-21). What she typed comes back if it
-  couldn't be sent, and an unsent draft survives the panel closing.
+  something to send. Enter sends, Shift+Enter adds a line. Selected code goes
+  through the share gate, and text that looks like a password or API key
+  gets "Careful: this looks like it might contain a password or API key.
+  Send anyway?" first. What she typed comes back if it couldn't be sent,
+  and an unsent draft survives the panel closing.
+- **The chat** (MOCHI-21), between the buttons and the box, the only part
+  that scrolls. Her messages on the right, exactly as she typed them;
+  Mochi's on the left, with the little cat beside each. What she clicked
+  shows as her side too: "Explain the error on line 12 of homework.py",
+  "Explain the selected code from homework.py", "Give me a hint". Answers
+  are formatted (bold, lists, inline code), code blocks use the editor's
+  font with a "Copy" button above them ("Copied" after), and links show
+  their domain, like "Python tutorial (docs.python.org)". Next steps are
+  chips under the answer, and a problem is Mochi's message with a warning
+  border and a chip. When it's empty: "Our chat stays on this computer. It
+  can include code from our conversation; Clear chat removes it."
 - **Keyboard and screen readers:** real buttons and a labelled box, focus
   outlines in the theme's focus color, and the greeting and hints announced
   politely. High contrast themes get borders on buttons.
@@ -129,8 +139,13 @@ in its one stylesheet, not the panel.
 ![The panel in Dark Modern, with text in the box](design/screenshots/panel-preview-dark.png)
 ![The panel in Light Modern, with the box empty](design/screenshots/panel-preview-light.png)
 
+![The chat in Dark Modern](design/screenshots/chat-preview-dark.png)
+![The chat in Light Modern](design/screenshots/chat-preview-light.png)
+
 *Previews rendered in Chrome with Dark Modern's and Light Modern's colors
-filled in for VS Code's theme variables, not screenshots of VS Code itself.*
+filled in for VS Code's theme variables, not screenshots of VS Code itself.
+The chat previews use the panel's real script and stylesheet with a sample
+conversation, including a hostile `<script>` shown as plain text.*
 
 ## Prompts and dialogs
 - **Sharing:** a modal dialog that names the AI and says exactly what would
@@ -144,9 +159,8 @@ filled in for VS Code's theme variables, not screenshots of VS Code itself.*
 - **Explaining, on a learning ladder:** "Explain with Mochi" in the lightbulb
   next to an error (or a warning that crashes, like an undefined name), or "Mochi: Explain this" on selected code. Explain comes
   first (what it means, why, where to look). Then "Want a hint, or the
-  fix?" offers the next steps, only when she picks them. The answer shows in
-  the "Mochi" output panel without taking focus from her editor, until the
-  panel chat exists.
+  fix?" offers the next steps as chips, only when she picks them. The answer
+  shows in the chat in Mochi's panel, without taking focus from her editor.
 - **Learning mode** (Settings, under Mochi, on by default): "Help me learn
   instead of handing me answers. For homework, your code, and errors, Mochi
   explains first, gives a hint if you ask, and shows the fix only when you
