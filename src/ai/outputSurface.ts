@@ -17,6 +17,11 @@ export function createOutputSurface(): AnswerSurface & vscode.Disposable {
     finish() {
       output.appendLine("\n");
     },
+    // The output panel can't take back the blank line after an answer, so
+    // the rest continues just below it.
+    resume() {
+      output.show(true);
+    },
     offerNext(prompt, choices) {
       return Promise.resolve(vscode.window.showInformationMessage(prompt, ...choices));
     },

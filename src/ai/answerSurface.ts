@@ -8,6 +8,9 @@ export interface AnswerSurface {
   // Adds text as the answer streams in.
   append(text: string): void;
   finish(): void;
+  // Picks the last answer up again, for "Keep going" (MOCHI-67): what's
+  // appended next continues it.
+  resume(): void;
   // Offers next steps, like "Give me a hint" and "Show the fix". Resolves
   // with her pick, or undefined if she didn't pick one.
   offerNext(prompt: string, choices: string[]): Promise<string | undefined>;

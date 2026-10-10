@@ -3,6 +3,8 @@ import {
   CLAUDE_API,
   ClaudeError,
   ClaudeProblem,
+  KEEP_GOING,
+  conversationFor,
   MAX_ANSWER_TOKENS,
   answer,
   connect,
@@ -324,6 +326,10 @@ describe("her own Claude key", () => {
       }
     });
 
+    it("an answer that reached the limit offers to keep going", () => {
+      assert.deepStrictEqual(told("cutOff"), ["That got long, so I stopped here. Want me to keep going?", "Keep going"]);
+    });
+
     it("everything else is one line with no button", () => {
       assert.deepStrictEqual(told("rateLimited"), ["This brain is resting for now, maybe a usage limit. Try again a bit later.", undefined]);
       assert.deepStrictEqual(told("overloaded"), ["Claude is extra busy right now. Want to try again in a moment?", undefined]);
@@ -437,6 +443,37 @@ describe("her own Claude key", () => {
       }
       assert.deepStrictEqual(pieces, ["First bit"]);
       assert.ok(streamAborted, "the request itself is stopped");
+    });
+  });
+
+  describe("an answer that reaches the limit", () => {
+    it("keeps what was written, then says it was cut off", async () => {
+      reply = () => stream([...start, delta("A long first part"), ...end("max_tokens")]);
+      const pieces: string[] = [];
+      const error = await failure(async () => {
+        for await (const piece of answer(connect(KEY), "m", "rules", "explain everything")) {
+          pieces.push(piece);
+        }
+      });
+      assert.deepStrictEqual(pieces, ["A long first part"]);
+      assert.strictEqual((error as ClaudeError).problem, "cutOff");
+    });
+
+    it("keeps going: her message, the answer so far, then a turn asking to continue", async () => {
+      reply = () => stream([...start, delta(" and the rest."), ...end()]);
+      const pieces = await collect(
+        answer(connect(KEY), "m", "rules", "explain everything", undefined, undefined, "A long first part")
+      );
+      assert.deepStrictEqual(pieces, [" and the rest."]);
+      assert.deepStrictEqual((calls[0].body as { messages: unknown }).messages, [
+        { role: "user", content: "explain everything" },
+        { role: "assistant", content: "A long first part" },
+        { role: "user", content: KEEP_GOING },
+      ]);
+    });
+
+    it("asks again when nothing was written yet, like a model that thought until the limit", () => {
+      assert.deepStrictEqual(conversationFor("explain everything", ""), [{ role: "user", content: "explain everything" }]);
     });
   });
 

@@ -86,9 +86,12 @@ export const problemStrings = {
   tooLong: "That's a bit too much for me to send at once. Could you share a smaller piece?",
   offline: "I can't reach the brain right now. Are we offline? Everything else still works, and I'll be here when you're back.",
   declined: "This brain chose not to answer that one. Want to ask it a different way?",
+  // An answer that reached the length limit (MOCHI-67).
+  cutOff: "That got long, so I stopped here. Want me to keep going?",
   // Buttons.
   addClaudeKey: "Add a Claude key",
   openConsole: "Open the Claude Console",
+  keepGoing: "Keep going",
 };
 
 // "Mochi: Forget everything" (MOCHI-65).

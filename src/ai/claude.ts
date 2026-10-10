@@ -127,6 +127,8 @@ export type ClaudeProblem =
   | "timeout"
   // The model chose not to answer (a refusal).
   | "declined"
+  // The answer reached MAX_ANSWER_TOKENS. Not an error: she can keep going.
+  | "cutOff"
   | "other";
 
 // Carries only the problem and the HTTP status: never the SDK's error, its
@@ -193,6 +195,7 @@ const ANSWER_PROBLEMS: Record<ClaudeProblem, [BrainProblem, BrainHelp?]> = {
   offline: ["offline"],
   timeout: ["offline"],
   declined: ["declined"],
+  cutOff: ["cutOff", "keepGoing"],
   badRequest: ["other", "claudeBilling"],
   serverError: ["other", "claudeBilling"],
   other: ["other", "claudeBilling"],
@@ -269,18 +272,33 @@ export async function listModels(claude: Anthropic): Promise<Listing> {
   }
 }
 
+// Asks Claude to pick up an answer that reached MAX_ANSWER_TOKENS. Newer
+// models reject a request that ends on their own words, so this is a turn
+// from her side, after the answer so far.
+export const KEEP_GOING = "Please keep going from exactly where you stopped, without repeating anything.";
+
+// What's sent: her message, and for "Keep going", the answer so far and
+// KEEP_GOING. With nothing written yet (a model that thought until the
+// limit), there's nothing to continue, so her message is asked again.
+export function conversationFor(message: string, soFar?: string): Anthropic.MessageParam[] {
+  const asked: Anthropic.MessageParam = { role: "user", content: message };
+  return soFar ? [asked, { role: "assistant", content: soFar }, { role: "user", content: KEEP_GOING }] : [asked];
+}
+
 // Streams Claude's answer as it's written. Mochi's rules go in the system
-// prompt. Stopping (the signal) ends the answer quietly. An answer that goes
-// quiet for idleMs is stopped and thrown as a timeout; anything else that
-// goes wrong is thrown as a ClaudeError. What was written so far has already
-// been handed out either way.
+// prompt. `soFar` continues an answer that reached the length limit.
+// Stopping (the signal) ends the answer quietly. An answer that reaches the
+// limit is thrown as "cutOff", one that goes quiet for idleMs as a timeout,
+// and anything else that goes wrong as a ClaudeError. What was written so
+// far has already been handed out either way.
 export async function* answer(
   claude: Anthropic,
   model: string,
   instructions: string,
   message: string,
   signal?: AbortSignal,
-  idleMs = IDLE_TIMEOUT_MS
+  idleMs = IDLE_TIMEOUT_MS,
+  soFar?: string
 ): AsyncIterable<string> {
   const stop = new AbortController();
   const stopped = () => stop.abort();
@@ -303,16 +321,22 @@ export async function* answer(
         model,
         max_tokens: MAX_ANSWER_TOKENS,
         system: instructions,
-        messages: [{ role: "user", content: message }],
+        messages: conversationFor(message, soFar),
       },
       { signal: stop.signal, headers: { [WATCH]: watchId } }
     );
+    let cutOff = false;
     for await (const event of stream) {
       if (event.type === "content_block_delta" && event.delta.type === "text_delta") {
         yield event.delta.text;
       } else if (event.type === "message_delta" && event.delta.stop_reason === "refusal") {
         throw new ClaudeError("declined");
+      } else if (event.type === "message_delta" && event.delta.stop_reason === "max_tokens") {
+        cutOff = true;
       }
+    }
+    if (cutOff) {
+      throw new ClaudeError("cutOff");
     }
   } catch (error) {
     if (wentQuiet) {
