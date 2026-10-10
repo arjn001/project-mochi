@@ -5,10 +5,8 @@ import { offer } from "./actions/confirm";
 import { OFFERED, registerPythonSetup, watchPythonProjects } from "./actions/pythonSetup";
 import { registerForgetEverything } from "./forgetCommand";
 import { dimAction } from "./actions/theme";
-import { registerAskCommand } from "./ai/askCommand";
 import { Conversation } from "./ai/conversation";
 import { registerExplain } from "./ai/explainCommands";
-import { createOutputSurface } from "./ai/outputSurface";
 import { BrainPicker, copilotWatch, signInToCopilot, whenCopilotIsReady } from "./ai/brainPicker";
 import { welcomeText } from "./moments/welcome";
 import { welcomeStrings } from "./strings";
@@ -29,6 +27,7 @@ import { GreetingSurface, notificationGreeting } from "./presence/greetingSurfac
 import { nightOf } from "./moments/lateNight";
 import { MochiPanel } from "./panel/panelView";
 import { panelActions } from "./panel/panelActions";
+import { ChatLog } from "./panel/chatLog";
 import { createMoodLine, showMood } from "./presence/statusBar";
 import { onSpeakUpChange, readLearningMode, readSpeakUp } from "./settings";
 
@@ -80,9 +79,12 @@ export function activate(context: vscode.ExtensionContext): MochiApi {
   const pack = () => personal.pack();
   const names = registerNameCommands(personal);
 
-  // Talking to Mochi, through VS Code's built-in AI for now.
-  // Answers show in the output panel until the panel chat exists (MOCHI-21).
-  const surface = createOutputSurface();
+  // Talking to Mochi. Answers, next steps, and kind lines about problems all
+  // show in the chat in Mochi's panel (MOCHI-21), created below.
+  const chat = new ChatLog(
+    (change) => panel.chatChanged(change),
+    () => panel.reveal()
+  );
   // The brain is chosen fresh each time she asks: her pick, else Copilot's
   // Auto, else she's asked (MOCHI-53).
   // Her own Claude key, if she adds one, in her system's keychain.
@@ -91,9 +93,8 @@ export function activate(context: vscode.ExtensionContext): MochiApi {
   const brains = new BrainPicker(context.globalState, claudeModels);
   const chooseBrain = brains.register();
   const claudeCommands = registerClaudeKeyCommands(claudeKey, claudeModels, brains);
-  const conversation = new Conversation(brains, () => instructionsFor(pack(), readLearningMode()), surface);
-  const ask = registerAskCommand(conversation);
-  const explain = registerExplain(conversation, surface);
+  const conversation = new Conversation(brains, () => instructionsFor(pack(), readLearningMode()), chat);
+  const explain = registerExplain(conversation, chat);
 
   // A gentle "Need a paw?" next to an error she's been stuck on (MOCHI-34).
   const stuck = watchStuck();
@@ -123,6 +124,7 @@ export function activate(context: vscode.ExtensionContext): MochiApi {
       greeter,
       pack,
       conversation,
+      chat,
       setUpCopilot: signInToCopilot,
       hint: (text) => panel.hint(text),
       refresh: () => panel.refresh(),
@@ -195,7 +197,7 @@ export function activate(context: vscode.ExtensionContext): MochiApi {
   ]);
 
   // Anything added here is cleaned up when Mochi shuts down.
-  context.subscriptions.push(names, claudeKey, claudeCommands, chooseBrain, copilotWatch, open, home, mood, followSpeakUp, focus, timer, surface, ask, explain, stuck, dim, lateNight, coding, python, pythonOffer, forget);
+  context.subscriptions.push(names, claudeKey, claudeCommands, chooseBrain, copilotWatch, open, home, mood, followSpeakUp, focus, timer, explain, stuck, dim, lateNight, coding, python, pythonOffer, forget);
 
   return {
     moodText: () => mood.text,

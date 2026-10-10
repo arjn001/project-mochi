@@ -38,6 +38,19 @@ export const panelStrings = {
   send: "Send",
 };
 
+// The chat in Mochi's panel (MOCHI-21).
+export const chatStrings = {
+  // What her side of the chat says when she clicks Explain.
+  explainError: (line: number, file: string) => `Explain the error on line ${line} of ${file}`,
+  explainSelection: (file: string) => `Explain the selected code from ${file}`,
+  // When the chat is empty.
+  empty: "Our chat stays on this computer. It can include code from our conversation; Clear chat removes it.",
+  // Who said it, for screen readers. Mochi's side uses the pack's name.
+  you: "You",
+  copy: "Copy",
+  copied: "Copied",
+};
+
 // The share gate. Older lines still live in ai/askToShare.ts and
 // ai/secrets.ts until MOCHI-63.
 export const shareStrings = {

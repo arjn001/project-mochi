@@ -7,6 +7,23 @@
 
 export type Glyph = "here" | "purring" | "napping";
 
+// Next steps under a message, like "Give me a hint" or "Keep going".
+export interface ChatChips {
+  prompt?: string;
+  choices: { id: string; label: string }[];
+}
+
+// One message in the chat (MOCHI-21). Text only: the panel formats it with
+// panel/format.ts and builds it from text nodes, never as HTML.
+export interface ChatEntry {
+  id: number;
+  from: "her" | "mochi";
+  text: string;
+  chips?: ChatChips;
+  // A kind line about a problem, not an answer.
+  problem?: boolean;
+}
+
 // Everything the panel shows. Sent whenever something changes, and when the
 // panel opens.
 export interface PanelState {
@@ -17,10 +34,15 @@ export interface PanelState {
   welcomeButton?: string;
   buttons: { explain: string; focus: string; dark: string };
   ask: { label: string; send: string };
+  chat: { empty: string; you: string; mochi: string; copy: string; copied: string };
 }
 
 export type ToPanel =
-  | { type: "show"; state: PanelState }
+  | { type: "show"; state: PanelState; chat: readonly ChatEntry[] }
+  // The whole chat, after a new message or chips.
+  | { type: "chat"; chat: readonly ChatEntry[] }
+  // More of an answer as it streams in.
+  | { type: "append"; id: number; text: string }
   // A short line under the buttons, like the hint when there's nothing to
   // explain.
   | { type: "hint"; text: string }
@@ -34,10 +56,17 @@ export type PanelButton = "explain" | "focus" | "dark" | "welcome";
 export type FromPanel =
   | { type: "ready" }
   | { type: "ask"; text: string }
-  | { type: "button"; button: PanelButton };
+  | { type: "button"; button: PanelButton }
+  | { type: "chip"; entry: number; chip: string }
+  // Copy only copies: Mochi puts the text on her clipboard, nothing else.
+  | { type: "copy"; text: string }
+  // Opened through VS Code, and only if it's an https link (format.ts).
+  | { type: "openLink"; url: string };
 
 // The longest message the box accepts, so a huge paste can't slip through.
 export const MAX_ASK_LENGTH = 20_000;
+// The longest code block Copy will put on her clipboard.
+export const MAX_COPY_LENGTH = 200_000;
 
 const BUTTONS: readonly PanelButton[] = ["explain", "focus", "dark", "welcome"];
 
@@ -56,6 +85,15 @@ export function toFromPanel(value: unknown): FromPanel | undefined {
         : undefined;
     case "button":
       return BUTTONS.includes(message.button as PanelButton) ? { type: "button", button: message.button as PanelButton } : undefined;
+    case "chip":
+      return Number.isInteger(message.entry) && typeof message.chip === "string" && message.chip.length <= 10
+        ? { type: "chip", entry: message.entry as number, chip: message.chip }
+        : undefined;
+    case "copy":
+      return typeof message.text === "string" && message.text.length <= MAX_COPY_LENGTH ? { type: "copy", text: message.text } : undefined;
+    case "openLink":
+      // Checked again where it's opened: https only, nothing hidden.
+      return typeof message.url === "string" && message.url.length <= 2_000 ? { type: "openLink", url: message.url } : undefined;
     default:
       return undefined;
   }

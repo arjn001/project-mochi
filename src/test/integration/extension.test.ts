@@ -45,9 +45,9 @@ describe("Mochi in VS Code", () => {
   });
 
   describe("asking Mochi", () => {
-    it("registers the Ask command", async () => {
+    it("no longer has the temporary Ask command: the panel's box replaced it", async () => {
       const commands = await vscode.commands.getCommands(true);
-      assert.ok(commands.includes("mochi.ask"), "The mochi.ask command is not registered.");
+      assert.ok(!commands.includes("mochi.ask"));
     });
 
     it("registers Choose a brain", async () => {
