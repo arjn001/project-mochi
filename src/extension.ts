@@ -23,7 +23,10 @@ import { Welcomer } from "./moments/welcomeWatcher";
 import { LAST_NUDGED, watchLateNight } from "./moments/lateNightWatcher";
 import { watchStuck } from "./moments/stuckWatcher";
 import { FocusTimer } from "./focus/timer";
-import { notificationGreeting } from "./presence/greetingSurface";
+import { GreetingSurface, notificationGreeting } from "./presence/greetingSurface";
+import { nightOf } from "./moments/lateNight";
+import { MochiPanel } from "./panel/panelView";
+import { panelActions } from "./panel/panelActions";
 import { createMoodLine, showMood } from "./presence/statusBar";
 import { onSpeakUpChange, readLearningMode, readSpeakUp } from "./settings";
 
@@ -31,12 +34,13 @@ import { onSpeakUpChange, readLearningMode, readSpeakUp } from "./settings";
 // mood line says, since VS Code doesn't let tests read the status bar.
 export interface MochiApi {
   moodText(): string;
-  // Her personal layer, the greeter, and the welcomer, only in the
-  // integration tests (Test mode). Other extensions can read Mochi's
+  // Her personal layer, the greeter, the welcomer, and the panel, only in
+  // the integration tests (Test mode). Other extensions can read Mochi's
   // exports, so they're never handed out otherwise.
   personal?: PersonalLayer;
   greeter?: Greeter;
   welcomer?: Welcomer;
+  panel?: MochiPanel;
 }
 
 // VS Code calls this once, after it finishes starting up.
@@ -46,20 +50,18 @@ export function activate(context: vscode.ExtensionContext): MochiApi {
     vscode.commands.executeCommand("workbench.view.extension.mochi")
   );
 
-  // Mochi's home view is empty for now, so VS Code shows the welcome text
-  // from package.json. The real panel replaces this in MOCHI-16.
-  const home = vscode.window.registerTreeDataProvider("mochi.home", {
-    getTreeItem: (item: vscode.TreeItem) => item,
-    getChildren: () => [],
-  });
-
   // The focus timer keeps its end time in globalState, so a session
   // survives a reload.
   const timer = new FocusTimer(context.globalState);
 
-  // The mood line follows the speak-up setting and the focus timer.
+  // The mood line follows the speak-up setting and the focus timer, and so
+  // does the panel, once it exists below.
   const mood = createMoodLine();
-  const refreshMood = () => showMood(mood, readSpeakUp(), undefined, timer.minutesLeft());
+  let refreshPanel = () => {};
+  const refreshMood = () => {
+    showMood(mood, readSpeakUp(), undefined, timer.minutesLeft());
+    refreshPanel();
+  };
   refreshMood();
   const followSpeakUp = onSpeakUpChange(refreshMood);
   const focus = registerFocus(timer, refreshMood);
@@ -101,10 +103,40 @@ export function activate(context: vscode.ExtensionContext): MochiApi {
 
   // The greeting when VS Code opens, once a day (MOCHI-33). It waits for a
   // saved focus session to be picked up, so it knows if she's focusing.
-  const greeter = new Greeter(context.globalState, pack, () => timer.isRunning(), notificationGreeting);
+  // It shows at the top of the panel when she can see it, otherwise as a
+  // fading notification (MOCHI-16).
+  const greetingSurface: GreetingSurface = {
+    show: (text) =>
+      void panel.whenVisible(2_000).then((visible) => (visible ? panel.refresh() : notificationGreeting.show(text))),
+  };
+  const greeter = new Greeter(context.globalState, pack, () => timer.isRunning(), greetingSurface);
+
+  // Mochi's panel, the "Mochi" tab (MOCHI-16): the cat's mood and today's
+  // greeting, quick buttons, and the Ask box, styled only from VS Code's
+  // theme.
+  const panel: MochiPanel = new MochiPanel(
+    context.extensionUri,
+    panelActions({
+      timer,
+      greeter,
+      pack,
+      conversation,
+      setUpCopilot: signInToCopilot,
+      hint: (text) => panel.hint(text),
+      refresh: () => panel.refresh(),
+    })
+  );
+  const home = panel.register();
+  refreshPanel = () => panel.refresh();
+
   // On her first-ever day, the first-run welcome takes the greeting's place
-  // (MOCHI-42); never both.
-  const welcomer = new Welcomer(context.globalState, pack, () => timer.isRunning(), () => brains.check(), signInToCopilot);
+  // (MOCHI-42); never both. It's kept as today's greeting, in the panel.
+  const welcomer = new Welcomer(context.globalState, pack, () => timer.isRunning(), () => brains.check(), signInToCopilot, async (text, button) => {
+    greeter.keepToday({ day: nightOf(new Date()), text, ...(button ? { button } : {}) });
+    const visible = await panel.whenVisible(5_000, true);
+    panel.refresh();
+    return visible;
+  });
   const greeted = restored.then(async () => (await welcomer.welcome()) ?? greeter.greet());
   // When and where she last coded, for tomorrow's greeting.
   const coding = rememberCoding(context.globalState);
@@ -138,6 +170,8 @@ export function activate(context: vscode.ExtensionContext): MochiApi {
     { forget: () => timer.forgetSaved() },
     // The saved list of her Claude models. Her key itself stays.
     { forget: () => claudeModels.forget() },
+    // The panel's unsent draft.
+    { forget: async () => panel.forget() },
   ]);
 
   // Anything added here is cleaned up when Mochi shuts down.
@@ -148,6 +182,7 @@ export function activate(context: vscode.ExtensionContext): MochiApi {
     personal: context.extensionMode === vscode.ExtensionMode.Test ? personal : undefined,
     greeter: context.extensionMode === vscode.ExtensionMode.Test ? greeter : undefined,
     welcomer: context.extensionMode === vscode.ExtensionMode.Test ? welcomer : undefined,
+    panel: context.extensionMode === vscode.ExtensionMode.Test ? panel : undefined,
   };
 }
 

@@ -1,5 +1,5 @@
 import * as vscode from "vscode";
-import { BrainCheck, welcomeDue, welcomeText, wasWelcomed } from "./welcome";
+import { BrainCheck, WelcomeButton, welcomeDue, welcomeText, wasWelcomed } from "./welcome";
 import { LAST_CODING, LAST_GREETED } from "./greetingWatcher";
 import { nightOf } from "./lateNight";
 import { Pack } from "../packs/format";
@@ -10,16 +10,20 @@ import { welcomeStrings } from "../strings";
 // "Forget everything": the welcome is about installing Mochi, not her days.
 export const WELCOMED = "mochi.welcomed";
 
-// The first-run welcome (MOCHI-42): opens Mochi's tab once, then one gentle
-// notification with a greeting, where Mochi lives, and the brain check. On
-// that day it takes the greeting's place; never both.
+// The first-run welcome (MOCHI-42): opens Mochi's tab once, and shows a
+// greeting, where Mochi lives, and the brain check at the top of the panel
+// (a notification if the panel doesn't open). On that day it takes the
+// greeting's place; never both.
 export class Welcomer {
   constructor(
     private readonly state: vscode.Memento,
     private readonly pack: () => Pack,
     private readonly isFocusing: () => boolean,
     private readonly checkBrain: () => Promise<BrainCheck>,
-    private readonly setUpCopilot: () => Promise<void>
+    private readonly setUpCopilot: () => Promise<void>,
+    // Keeps the welcome as today's greeting and shows it in Mochi's panel.
+    // False if the panel didn't open, and then it's a notification.
+    private readonly showInPanel: (text: string, button?: WelcomeButton) => Promise<boolean>
   ) {}
 
   // Welcomes if it's her first time, and returns what Mochi said.
@@ -39,7 +43,9 @@ export class Welcomer {
       await this.state.update(LAST_GREETED, nightOf(new Date()));
       await vscode.commands.executeCommand("mochi.open");
       const { text, button } = welcomeText(this.pack().name, await this.checkBrain());
-      void this.show(text, button);
+      if (!(await this.showInPanel(text, button))) {
+        void this.show(text, button);
+      }
       return text;
     } catch {
       // A welcome is a nicety Mochi starts on its own, so a problem stays
@@ -48,7 +54,7 @@ export class Welcomer {
     }
   }
 
-  private async show(text: string, button: "setUpCopilot" | "chooseBrain" | undefined): Promise<void> {
+  private async show(text: string, button: WelcomeButton | undefined): Promise<void> {
     if (!button) {
       await vscode.window.showInformationMessage(text);
       return;

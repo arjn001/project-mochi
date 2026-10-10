@@ -234,6 +234,14 @@ describe("Mochi in VS Code", () => {
     });
   });
 
+  describe("the panel", () => {
+    it("opens and shows, with its script running", async () => {
+      const api = (await vscode.extensions.getExtension<MochiApi>("arjungyawali.mochi-companion")!.activate()) as MochiApi;
+      await vscode.commands.executeCommand("mochi.open");
+      assert.strictEqual(await api.panel!.whenVisible(10_000, true), true, "The panel's script never said it was ready.");
+    });
+  });
+
   describe("the first-run welcome", () => {
     it("welcomed this fresh profile once, and never again", async () => {
       const api = (await vscode.extensions.getExtension<MochiApi>("arjungyawali.mochi-companion")!.activate()) as MochiApi;

@@ -7,7 +7,7 @@ import { Attachment } from "./shareGate";
 // The chat in the panel (MOCHI-21) replaces it.
 
 // The code she has selected, if any, offered through the share gate.
-function selectedCode(): Attachment[] {
+export function selectedCode(): Attachment[] {
   const editor = vscode.window.activeTextEditor;
   if (!editor || editor.selection.isEmpty) {
     return [];
