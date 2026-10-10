@@ -119,4 +119,32 @@ describe("the chat", () => {
     assert.strictEqual(revealed(), before);
     assert.strictEqual(await pick, undefined);
   });
+
+  it("brings a saved chat back before anything asked while it loaded, without showing the panel", () => {
+    const { log, revealed } = chat();
+    log.start("hi again");
+    log.append("Hello!");
+    log.finish();
+    const before = revealed();
+    log.restore([
+      { from: "her", text: "what's a list?", shared: "lines 9 to 15 of homework.py" },
+      { from: "mochi", text: "A row of boxes." },
+    ]);
+    assert.deepStrictEqual(
+      log.entries().map((e) => e.text),
+      ["what's a list?", "A row of boxes.", "hi again", "Hello!"]
+    );
+    assert.strictEqual(new Set(log.entries().map((e) => e.id)).size, 4, "Every message has its own id.");
+    assert.strictEqual(revealed(), before);
+  });
+
+  it("saves messages without chips, and skips an answer with nothing in it yet", () => {
+    const { log } = chat();
+    void log.problem("I'd need a brain to answer that. Want to set one up?", "Set one up");
+    log.start("what's a list?");
+    assert.deepStrictEqual(log.saved(), [
+      { from: "mochi", text: "I'd need a brain to answer that. Want to set one up?", problem: true },
+      { from: "her", text: "what's a list?" },
+    ]);
+  });
 });

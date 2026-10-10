@@ -150,6 +150,12 @@ export class ChatStore {
     return "saved";
   }
 
+  // The generation now, for a window with no folder open, whose chat isn't
+  // saved but should still go with "Forget everything".
+  generationNow(): Promise<number> {
+    return this.catchUp();
+  }
+
   // Whether chats were forgotten since `since`, without changing anything.
   async forgottenSince(since: number): Promise<boolean> {
     const written = await this.folderGeneration();

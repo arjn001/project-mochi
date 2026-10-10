@@ -49,6 +49,8 @@ export const chatStrings = {
   you: "You",
   copy: "Copy",
   copied: "Copied",
+  // Once per session, if the chat can't be saved, like on a full disk.
+  couldntSave: "I couldn't save our chat on this computer, so it lasts until VS Code closes.",
 };
 
 // The share gate. Older lines still live in ai/askToShare.ts and

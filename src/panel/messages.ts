@@ -22,6 +22,9 @@ export interface ChatEntry {
   chips?: ChatChips;
   // A kind line about a problem, not an answer.
   problem?: boolean;
+  // Her side only: what was shared with her message, like "lines 9 to 15
+  // of homework.py". Never the code itself.
+  shared?: string;
 }
 
 // Everything the panel shows. Sent whenever something changes, and when the

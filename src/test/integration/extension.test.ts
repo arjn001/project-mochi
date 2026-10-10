@@ -254,6 +254,13 @@ describe("Mochi in VS Code", () => {
       assert.deepStrictEqual(last.chips?.choices.map((c) => c.label), ["Set one up"]);
       assert.ok(!api.chat!.entries().some((e) => e.from === "her" && e.text === "hi"), "Her text goes back in the box, not into the chat.");
     });
+
+    it("forgets the chat with Forget everything", async () => {
+      const api = (await vscode.extensions.getExtension<MochiApi>("arjungyawali.mochi-companion")!.activate()) as MochiApi;
+      await api.chat!.problem("A line to forget.");
+      await api.memory!.forgetAll();
+      assert.deepStrictEqual(api.chat!.entries(), []);
+    });
   });
 
   describe("the first-run welcome", () => {

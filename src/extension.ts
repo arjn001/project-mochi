@@ -28,6 +28,8 @@ import { nightOf } from "./moments/lateNight";
 import { MochiPanel } from "./panel/panelView";
 import { panelActions } from "./panel/panelActions";
 import { ChatLog } from "./panel/chatLog";
+import { CHATS_GENERATION, ChatMemory } from "./panel/chatMemory";
+import { ChatStore } from "./panel/chatStore";
 import { createMoodLine, showMood } from "./presence/statusBar";
 import { onSpeakUpChange, readLearningMode, readSpeakUp } from "./settings";
 
@@ -44,6 +46,7 @@ export interface MochiApi {
   panel?: MochiPanel;
   // The chat, and the panel's own "send", to test the chat in real VS Code.
   chat?: ChatLog;
+  memory?: ChatMemory;
   ask?: (text: string) => Promise<boolean>;
 }
 
@@ -85,9 +88,22 @@ export function activate(context: vscode.ExtensionContext): MochiApi {
   // Talking to Mochi. Answers, next steps, and kind lines about problems all
   // show in the chat in Mochi's panel (MOCHI-21), created below.
   const chat = new ChatLog(
-    (change) => panel.chatChanged(change),
+    (change) => {
+      panel.chatChanged(change);
+      memory.changed();
+    },
     () => panel.reveal()
   );
+  // Each project's chat is kept in a file of its own, in Mochi's storage
+  // folder, and comes back when she opens the project again. With no
+  // folder open, it lasts until VS Code closes.
+  const chatStore = new ChatStore(vscode.Uri.joinPath(context.globalStorageUri, "chats").fsPath, {
+    get: () => context.globalState.get<string>(CHATS_GENERATION),
+    set: (value) => context.globalState.update(CHATS_GENERATION, value),
+  });
+  const memory = new ChatMemory(chatStore, chat);
+  void memory.start();
+  saveChat = () => memory.flush();
   // The brain is chosen fresh each time she asks: her pick, else Copilot's
   // Auto, else she's asked (MOCHI-53).
   // Her own Claude key, if she adds one, in her system's keychain.
@@ -181,9 +197,10 @@ export function activate(context: vscode.ExtensionContext): MochiApi {
   }
 
   // "Mochi: Forget everything" (MOCHI-65): everything Mochi keeps about her,
-  // never her settings or a saved AI key. The chat adds its part with
-  // MOCHI-21.
+  // never her settings or a saved AI key.
   const forget = registerForgetEverything([
+    // Every chat, in every project, on every machine (MOCHI-21).
+    { forget: () => memory.forgetAll() },
     { forget: () => personal.forgetAll() },
     { forget: () => greeter.forget() },
     { forget: () => context.globalState.update(LAST_NUDGED, undefined) },
@@ -198,7 +215,7 @@ export function activate(context: vscode.ExtensionContext): MochiApi {
   ]);
 
   // Anything added here is cleaned up when Mochi shuts down.
-  context.subscriptions.push(names, claudeKey, claudeCommands, chooseBrain, copilotWatch, open, home, mood, followSpeakUp, focus, timer, explain, stuck, dim, lateNight, coding, python, pythonOffer, forget);
+  context.subscriptions.push(names, claudeKey, claudeCommands, chooseBrain, copilotWatch, open, home, mood, followSpeakUp, focus, timer, explain, stuck, dim, lateNight, coding, python, pythonOffer, forget, memory);
 
   return {
     moodText: () => mood.text,
@@ -207,9 +224,16 @@ export function activate(context: vscode.ExtensionContext): MochiApi {
     welcomer: context.extensionMode === vscode.ExtensionMode.Test ? welcomer : undefined,
     panel: context.extensionMode === vscode.ExtensionMode.Test ? panel : undefined,
     chat: context.extensionMode === vscode.ExtensionMode.Test ? chat : undefined,
+    memory: context.extensionMode === vscode.ExtensionMode.Test ? memory : undefined,
     ask: context.extensionMode === vscode.ExtensionMode.Test ? actions.ask : undefined,
   };
 }
 
-// VS Code calls this when Mochi shuts down. Nothing to clean up yet.
-export function deactivate(): void {}
+// Saves the chat one last time, set once Mochi starts.
+let saveChat: () => Promise<void> = async () => {};
+
+// VS Code calls this when Mochi shuts down, and waits a moment for the chat
+// to be saved.
+export function deactivate(): Promise<void> {
+  return saveChat();
+}
