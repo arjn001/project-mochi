@@ -12,17 +12,17 @@ update isn't listed.*
 
 - **Open pull requests:** none.
 - **In progress:**
-  - MOCHI-42 First-run welcome, small version: built and in review.
+  - MOCHI-67 Keep going after a long answer: built and in review.
   - MOCHI-50 Design the visual identity, by Arjun.
-- **Next:** MOCHI-67 Keep going after a long answer, then MOCHI-16, the
-  panel with VS Code's theme only (see "Next").
+- **Next:** MOCHI-16, the panel with VS Code's theme only. Its plan waits on
+  Arjun's decisions.
 - **Waiting on:**
-  - Arjun to try the welcome and merge MOCHI-42.
+  - Arjun to try and merge MOCHI-67.
   - MOCHI-17 and the panel's look wait on MOCHI-50. The panel itself no
     longer does.
 
-**37 of 58 Jira tasks and subtasks done**. 2 of the 8
-categories are complete. 322 tests (289 unit, 33 integration) run on every
+**38 of 58 Jira tasks and subtasks done**. 2 of the 8
+categories are complete. 326 tests (293 unit, 33 integration) run on every
 pull request.
 
 ## Done
@@ -124,6 +124,10 @@ MOMENTS.md, PRESENCE.md, ARCHITECTURE.md, and BUILD_PLAN.md.
   opens Choose a brain where there's no Copilot setup. Mochi's first
   runtime dependency, the official Claude SDK, with its license in
   THIRD_PARTY_NOTICES.md (MOCHI-53, part 2).
+- Keep going: a Claude answer that reaches the 4,000-token limit keeps what
+  was written and offers "Keep going", which continues the same answer.
+  Claude-key brains only, since VS Code's language model API doesn't say
+  why a Copilot answer ended (MOCHI-67).
 - Learning mode, on by default: the learning ladder for coursework-style
   requests, or direct answers with fixes when she turns it off. Only she can
   change it; a project's settings can't. "Explain with Mochi" follows it
@@ -137,7 +141,7 @@ MOMENTS.md, PRESENCE.md, ARCHITECTURE.md, and BUILD_PLAN.md.
 
 ## Next
 The order to the early preview (agreed 2026-10-09, also in BUILD_PLAN.md):
-1. **MOCHI-67 Keep going after a long answer.**
+1. **MOCHI-67 Keep going after a long answer** (in review).
 2. **MOCHI-16 Build the side panel**, with VS Code theme styling only, styles
    in one place and theme variables only.
 3. **MOCHI-21 Build the chat interface.**
@@ -166,9 +170,11 @@ Not before the preview:
   without it, and "Got a brain!" follows once Copilot is ready. A fuller
   "Pick a brain" inside Mochi's tab may come after the small welcome.
 - The welcome is a notification for now; MOCHI-16 moves it into the panel.
-- Claude answers are capped at 4,000 tokens, and models that always think
-  (Opus 5.5, Fable 5.1) count their thinking toward it. If their answers get
-  cut short in testing, revisit `MAX_ANSWER_TOKENS` in `src/ai/claude.ts`.
+- Claude answers are capped at 4,000 tokens (no extended thinking), and
+  models that always think (Opus 5.5, Fable 5.1) count their thinking toward
+  it. "Keep going" picks up an answer that reached it (MOCHI-67).
+- If a later VS Code version tells extensions why an answer ended, "Keep
+  going" can cover Copilot brains too.
 - Before each release, check `claude-haiku-4-5` is still the cheapest
   current Claude model that explains well (`STARTING_POINT`), and that the
   Console links still work.
