@@ -46,8 +46,9 @@ export interface PanelState {
   // The chip above the box for the code she has selected, like
   // "homework.py, lines 9 to 15", and its x's words for screen readers.
   attachment?: { label: string; leaveOut: string };
-  ask: { label: string; send: string };
-  chat: { empty: string; you: string; mochi: string; copy: string; copied: string };
+  // `stop` is the send arrow's label while Mochi answers (MOCHI-25).
+  ask: { label: string; send: string; stop: string };
+  chat: { empty: string; you: string; mochi: string; copy: string; copied: string; stopped: string };
 }
 
 export type ToPanel =
@@ -124,3 +125,16 @@ export function toFromPanel(value: unknown): FromPanel | undefined {
 // a character with an input method (Japanese, Chinese, Korean, and others).
 export const sendsOnKey = (key: string, shift: boolean, composing: boolean): boolean =>
   key === "Enter" && !shift && !composing;
+
+// What a key does while Mochi answers (MOCHI-25): Escape stops the answer,
+// and Enter does nothing, so what she's typing stays in the box. Otherwise
+// keys do what they always do.
+export function keyWhileAnswering(key: string, shift: boolean, composing: boolean): "stop" | "hold" | undefined {
+  if (key === "Escape" && !composing) {
+    return "stop";
+  }
+  return sendsOnKey(key, shift, composing) ? "hold" : undefined;
+}
+
+// Whether Mochi is writing an answer, so the box shows Stop.
+export const isAnswering = (chat: readonly ChatEntry[]): boolean => chat.some((entry) => entry.answering);

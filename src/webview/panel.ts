@@ -5,7 +5,7 @@
 // The chat (MOCHI-21) is built only with createElement and text nodes,
 // never from HTML, so nothing in an answer can become live HTML.
 import { Block, Inline, formatAnswer } from "../panel/format";
-import { ChatEntry, FromPanel, PanelButton, PanelState, ToPanel, sendsOnKey } from "../panel/messages";
+import { ChatEntry, FromPanel, PanelButton, PanelState, ToPanel, isAnswering, keyWhileAnswering, sendsOnKey } from "../panel/messages";
 
 interface VsCodeApi {
   postMessage(message: FromPanel): void;
@@ -46,9 +46,12 @@ if (typeof saved?.draft === "string") {
 
 // What she last sent, put back if it couldn't be sent.
 let pending = "";
+// Whether Mochi is writing an answer: the send arrow is a stop square.
+let answering = false;
+let askLabels: PanelState["ask"] = { label: "", send: "", stop: "" };
 
 // The chat's own words, from Mochi.
-let labels: PanelState["chat"] = { empty: "", you: "", mochi: "", copy: "", copied: "" };
+let labels: PanelState["chat"] = { empty: "", you: "", mochi: "", copy: "", copied: "", stopped: "" };
 // Each message's bubble, so streamed text redraws only that one.
 let messages = new Map<number, { entry: ChatEntry; bubble: HTMLElement }>();
 let redraw = new Set<number>();
@@ -158,6 +161,10 @@ function fillBubble(bubble: HTMLElement, entry: ChatEntry): void {
     bubble.textContent = entry.text;
   } else {
     blocks(formatAnswer(entry.text), bubble);
+    // What was written stays, marked as stopped (MOCHI-25).
+    if (entry.stopped) {
+      bubble.append(element("p", "mochi-stopped", labels.stopped));
+    }
   }
 }
 
@@ -207,6 +214,8 @@ function keepingScroll(change: () => void): void {
 }
 
 function showChat(entries: readonly ChatEntry[]): void {
+  answering = isAnswering(entries);
+  fitBox();
   keepingScroll(() => {
     messages = new Map();
     redraw.clear();
@@ -258,22 +267,32 @@ function show(state: PanelState): void {
   attachmentLabel.textContent = state.attachment?.label ?? "";
   leaveOut.title = state.attachment?.leaveOut ?? "";
   leaveOut.setAttribute("aria-label", state.attachment?.leaveOut ?? "");
-  // An arrow on screen; "Send" as its tooltip and for screen readers.
-  send.title = state.ask.send;
-  send.setAttribute("aria-label", state.ask.send);
+  askLabels = state.ask;
+  fitBox();
 }
 
 // The box grows with what she types, up to a limit (then it scrolls), and
-// Send only lights up when there's something to send.
+// Send only lights up when there's something to send. While Mochi answers,
+// it's a stop square instead, always ready.
 function fitBox(): void {
   box.style.height = "auto";
   box.style.height = `${Math.min(box.scrollHeight, 200)}px`;
-  send.disabled = box.value.trim() === "";
+  send.disabled = !answering && box.value.trim() === "";
+  send.classList.toggle("mochi-stopping", answering);
+  // An icon on screen; "Send" or "Stop" as its tooltip and for screen
+  // readers.
+  const label = answering ? askLabels.stop : askLabels.send;
+  send.title = label;
+  send.setAttribute("aria-label", label);
+}
+
+function stopAnswer(): void {
+  vscode.postMessage({ type: "stop" });
 }
 
 function sendAsk(): void {
   const text = box.value;
-  if (text.trim() === "") {
+  if (answering || text.trim() === "") {
     return;
   }
   pending = text;
@@ -337,14 +356,33 @@ box.addEventListener("input", () => {
 });
 fitBox();
 box.addEventListener("keydown", (event) => {
+  if (answering) {
+    // Escape is handled for the whole panel, below.
+    if (keyWhileAnswering(event.key, event.shiftKey, event.isComposing) === "hold") {
+      event.preventDefault();
+    }
+    return;
+  }
   if (sendsOnKey(event.key, event.shiftKey, event.isComposing)) {
     event.preventDefault();
     sendAsk();
   }
 });
+// Escape stops an answer from anywhere in the panel. Otherwise it's left
+// to VS Code.
+document.addEventListener("keydown", (event) => {
+  if (answering && keyWhileAnswering(event.key, event.shiftKey, event.isComposing) === "stop") {
+    event.preventDefault();
+    stopAnswer();
+  }
+});
 askForm.addEventListener("submit", (event) => {
   event.preventDefault();
-  sendAsk();
+  if (answering) {
+    stopAnswer();
+  } else {
+    sendAsk();
+  }
 });
 
 vscode.postMessage({ type: "ready" });

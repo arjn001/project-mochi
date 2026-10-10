@@ -436,6 +436,24 @@ body {
   opacity: 0.4;
   cursor: default;
 }
+/* While Mochi answers, the arrow becomes a stop square (MOCHI-25). */
+.mochi-stop-square,
+.mochi-stopping .mochi-send-arrow {
+  display: none;
+}
+.mochi-stopping .mochi-stop-square {
+  display: block;
+  width: 14px;
+  height: 14px;
+  fill: currentColor;
+}
+
+/* Under an answer she stopped. */
+.mochi-stopped {
+  color: var(--mochi-quiet-text);
+  font-style: italic;
+}
+
 .mochi-send-arrow {
   width: 14px;
   height: 14px;
