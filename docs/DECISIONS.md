@@ -267,7 +267,10 @@ message.
   none chosen yet, it doesn't mention one: Mochi asks when she first asks
   something.
 - After any Copilot setup she starts from Mochi (the welcome or "Set one
-  up"), Mochi says "Got a brain! Ask me anything." once Copilot is ready.
+  up"), once Copilot is ready, Mochi brings her back to its tab and says
+  "Got a brain! Ask me anything." there. Copilot is only Mochi's brain: she
+  never needs Copilot's own chat, but VS Code's setup opens it in the same
+  side bar, in Mochi's place (MOCHI-16).
 - Once ever, across her windows. It waits through quiet mode and focus
   sessions. Someone who used Mochi before the welcome existed is never
   welcomed as new. "Forget everything" doesn't bring it back: it's about

@@ -49,7 +49,17 @@ function show(state: PanelState): void {
   buttons.dark.textContent = state.buttons.dark;
   askLabel.textContent = state.ask.label;
   box.placeholder = state.ask.label;
-  send.textContent = state.ask.send;
+  // An arrow on screen; "Send" as its tooltip and for screen readers.
+  send.title = state.ask.send;
+  send.setAttribute("aria-label", state.ask.send);
+}
+
+// The box grows with what she types, up to a limit (then it scrolls), and
+// Send only lights up when there's something to send.
+function fitBox(): void {
+  box.style.height = "auto";
+  box.style.height = `${Math.min(box.scrollHeight, 200)}px`;
+  send.disabled = box.value.trim() === "";
 }
 
 function sendAsk(): void {
@@ -60,6 +70,7 @@ function sendAsk(): void {
   pending = text;
   box.value = "";
   saveDraft();
+  fitBox();
   vscode.postMessage({ type: "ask", text });
 }
 
@@ -78,6 +89,7 @@ window.addEventListener("message", (event: MessageEvent<ToPanel>) => {
       if (!message.sent && box.value === "") {
         box.value = pending;
         saveDraft();
+        fitBox();
       }
       pending = "";
       break;
@@ -85,6 +97,7 @@ window.addEventListener("message", (event: MessageEvent<ToPanel>) => {
       box.value = "";
       pending = "";
       saveDraft();
+      fitBox();
       break;
   }
 });
@@ -97,7 +110,11 @@ for (const [name, button] of Object.entries(buttons)) {
 }
 welcome.addEventListener("click", () => vscode.postMessage({ type: "button", button: "welcome" }));
 
-box.addEventListener("input", saveDraft);
+box.addEventListener("input", () => {
+  saveDraft();
+  fitBox();
+});
+fitBox();
 box.addEventListener("keydown", (event) => {
   if (sendsOnKey(event.key, event.shiftKey, event.isComposing)) {
     event.preventDefault();

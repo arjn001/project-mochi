@@ -240,6 +240,16 @@ function modelsChangeOr(ms: number): Promise<void> {
 // started its setup from Mochi. One watch at a time; it ends when Mochi
 // does (pushed to the extension's subscriptions).
 let watching: vscode.Disposable | undefined;
+
+// What happens once Copilot is ready. VS Code's setup leaves its own Chat
+// view in front, in the same side bar as Mochi's tab, so the panel sets this
+// to bring her back to Mochi (MOCHI-16). Otherwise, a notification.
+let copilotReady: () => Promise<void> = async () => {
+  await vscode.window.showInformationMessage(welcomeStrings.gotABrain);
+};
+export function whenCopilotIsReady(handler: () => Promise<void>): void {
+  copilotReady = handler;
+}
 export const copilotWatch: vscode.Disposable = { dispose: () => stopWatching() };
 
 function stopWatching(): void {
@@ -256,7 +266,7 @@ function confirmWhenCopilotIsReady(): void {
       const models = await vscode.lm.selectChatModels({ vendor: "copilot" });
       if (models.some(isUsable)) {
         stopWatching();
-        void vscode.window.showInformationMessage(welcomeStrings.gotABrain);
+        void copilotReady();
       }
     } catch {
       // Still not ready; the next change looks again.

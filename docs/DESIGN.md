@@ -12,7 +12,9 @@ panel's look, colors, type, and avatar art (see "Not designed yet").
 - **Cozy and never in the way:** warm and encouraging, never scary or noisy.
 - **Original art and voice only.**
 - **Words with every icon:** an icon never stands alone, and screen readers
-  get plain words, never icon names like `$(mochi-purring)`.
+  get plain words, never icon names like `$(mochi-purring)`. One exception:
+  the send arrow inside the panel's box, like other chat boxes, with "Send"
+  as its tooltip and what screen readers say.
 - **Private in what it shows:** prompts show file names, never full paths.
   Personal names stay out of the public repo, in the personal layer.
 - **No em dashes** in anything Mochi says or any doc.
@@ -111,8 +113,10 @@ in its one stylesheet, not the panel.
   this" explains the selected code, or the error under the cursor (or the
   first in the file); with neither: "Select some code, or click on an
   error, and I'll explain it."
-- **At the bottom:** a box, "Ask Mochi anything" (the name from the pack),
-  with "Send". Enter sends, Shift+Enter adds a line. It works like "Mochi:
+- **At the bottom:** a box, "Ask Mochi anything" (the name from the pack):
+  one rounded frame that grows as she types, with a round send arrow inside
+  it at the bottom right, in the theme's button color, faded until there's
+  something to send. Enter sends, Shift+Enter adds a line. It works like "Mochi:
   Ask": selected code goes through the share gate, and text that looks like
   a password or API key gets "Careful: this looks like it might contain a
   password or API key. Send anyway?" first. Answers show in the "Mochi"
@@ -121,6 +125,12 @@ in its one stylesheet, not the panel.
 - **Keyboard and screen readers:** real buttons and a labelled box, focus
   outlines in the theme's focus color, and the greeting and hints announced
   politely. High contrast themes get borders on buttons.
+
+![The panel in Dark Modern, with text in the box](design/screenshots/panel-preview-dark.png)
+![The panel in Light Modern, with the box empty](design/screenshots/panel-preview-light.png)
+
+*Previews rendered in Chrome with Dark Modern's and Light Modern's colors
+filled in for VS Code's theme variables, not screenshots of VS Code itself.*
 
 ## Prompts and dialogs
 - **Sharing:** a modal dialog that names the AI and says exactly what would
@@ -273,8 +283,10 @@ in its one stylesheet, not the panel.
   - no brain and no Copilot setup in the editor: "To answer questions I need
     a brain. Choose a brain shows what you can use." with "Choose a brain";
   - brains but none chosen yet: nothing more.
-  Once Copilot is ready after she set it up from Mochi: "Got a brain! Ask me
-  anything."
+  Once Copilot is ready after she set it up from Mochi, Mochi brings her
+  back to its tab (VS Code's setup leaves its own Chat view in front) and
+  says "Got a brain! Ask me anything." in the panel, and the welcome line
+  now names the brain.
 - **Where sentences live:** every sentence above is in `src/strings.ts` (or
   the pack), never inline in code.
 
