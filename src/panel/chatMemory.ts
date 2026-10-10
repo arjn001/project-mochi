@@ -1,4 +1,5 @@
 import * as vscode from "vscode";
+import { remoteLabel } from "../actions/pythonProject";
 import { chatStrings, clearStrings } from "../strings";
 import { ChatLog } from "./chatLog";
 import { ChatStore } from "./chatStore";
@@ -9,6 +10,10 @@ export const CHATS_GENERATION = "mochi.chatsGeneration";
 // How long after the last change the chat is saved, so a streaming answer
 // is written once it settles, not with every word.
 const SAVE_AFTER_MS = 500;
+
+// Where the chat is kept, in words: "on this computer", or in a remote setup
+// the machine Mochi runs on, like "on this SSH machine".
+export const chatPlace = (): string => chatStrings.place(remoteLabel(vscode.env.remoteName));
 
 // What identifies this project: its workspace file, or its folders. With no
 // folder open, nothing: the chat lasts until VS Code closes.
@@ -119,7 +124,7 @@ export class ChatMemory implements vscode.Disposable {
       } catch {
         if (!this.told) {
           this.told = true;
-          this.chat.say(chatStrings.couldntSave);
+          this.chat.say(chatStrings.couldntSave(chatPlace()));
         }
       }
     });

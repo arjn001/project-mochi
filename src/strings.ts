@@ -43,8 +43,13 @@ export const chatStrings = {
   // What her side of the chat says when she clicks Explain.
   explainError: (line: number, file: string) => `Explain the error on line ${line} of ${file}`,
   explainSelection: (file: string) => `Explain the selected code from ${file}`,
-  // When the chat is empty.
-  empty: "Our chat stays on this computer. It can include code from our conversation; Clear chat removes it.",
+  // Where the chat is kept: her computer, or in a remote setup the machine
+  // Mochi runs on, named like Python setup names it ("SSH machine", "WSL
+  // distro", "container", "codespace").
+  place: (machine?: string) =>
+    machine === undefined ? "on this computer" : `${["WSL distro", "container", "codespace"].includes(machine) ? "in" : "on"} this ${machine}`,
+  // When the chat is empty. `place` is from place() above.
+  empty: (place: string) => `Our chat stays ${place}. It can include code from our conversation; Clear chat removes it.`,
   // The chip above the box for the code she has selected, and its x for
   // screen readers.
   attachment: (file: string, from?: number, to?: number) =>
@@ -62,7 +67,7 @@ export const chatStrings = {
   copy: "Copy",
   copied: "Copied",
   // Once per session, if the chat can't be saved, like on a full disk.
-  couldntSave: "I couldn't save our chat on this computer, so it lasts until VS Code closes.",
+  couldntSave: (place: string) => `I couldn't save our chat ${place}, so it lasts until VS Code closes.`,
 };
 
 // The share gate. Older lines still live in ai/askToShare.ts and

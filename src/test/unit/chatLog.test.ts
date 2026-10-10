@@ -1,5 +1,7 @@
 import * as assert from "node:assert";
+import { remoteLabel } from "../../actions/pythonProject";
 import { ChatChange, ChatLog } from "../../panel/chatLog";
+import { chatStrings } from "../../strings";
 
 function chat() {
   const changes: ChatChange[] = [];
@@ -146,5 +148,22 @@ describe("the chat", () => {
       { from: "mochi", text: "I'd need a brain to answer that. Want to set one up?", problem: true },
       { from: "her", text: "what's a list?" },
     ]);
+  });
+
+  it("says where the chat is kept: her computer, or the remote machine Mochi runs on", () => {
+    const place = (remote?: string) => chatStrings.place(remoteLabel(remote));
+    assert.strictEqual(
+      chatStrings.empty(place()),
+      "Our chat stays on this computer. It can include code from our conversation; Clear chat removes it."
+    );
+    assert.strictEqual(place("ssh-remote"), "on this SSH machine");
+    assert.strictEqual(place("wsl"), "in this WSL distro");
+    assert.strictEqual(place("dev-container"), "in this container");
+    assert.strictEqual(place("codespaces"), "in this codespace");
+    assert.strictEqual(place("something-new"), "on this remote machine");
+    assert.strictEqual(
+      chatStrings.couldntSave(place("ssh-remote")),
+      "I couldn't save our chat on this SSH machine, so it lasts until VS Code closes."
+    );
   });
 });
