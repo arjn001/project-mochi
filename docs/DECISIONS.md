@@ -35,7 +35,9 @@
   line, and actions like the theme and focus timer all work with no brain.
   AI is for chat, explaining code and errors, checking her work, and
   understanding when she says she finished something.
-- The first-run welcome has one optional step, "Pick a brain", in this order:
+- The first-run welcome starts small (MOCHI-42, see "The first-run
+  welcome" below). A fuller "Pick a brain" step may come later, in this
+  order:
   1. VS Code's built-in AI, through her Copilot sign-in, when it's available.
      No key in Mochi; it uses her Copilot plan (see "Copilot costs her
      plan" below). VS Code shows its own one-time permission prompt.
@@ -179,7 +181,8 @@ message.
     since she started it, but won't come back after a restart;
   - the saved list of her Claude models (the key itself stays).
 - It never touches her settings (speak-up level, Learning mode, the chosen
-  brain) or a saved AI key; the confirmation says so. Removing her Claude
+  brain), a saved AI key, or whether she's had the first-run welcome; the
+  confirmation says so. Removing her Claude
   key is "Mochi: Remove my Claude key" (MOCHI-53).
 - Chats and the Python-offer list are kept in one private store across
   projects, so Forget everything reaches all of them from any window. If
@@ -235,6 +238,30 @@ message.
   greeting; never both.
 - If a Python project is opening too, the Python offer waits until after the
   greeting.
+
+## The first-run welcome
+- A small version comes before the early preview (MOCHI-42, agreed
+  2026-10-09): Mochi opens its tab once, then shows one gentle notification
+  with a greeting (the cat's name from the pack), where Mochi lives (the
+  Mochi tab and the status bar), and a brain check.
+- The brain check only looks at what's available. It never asks a brain
+  anything, so it can't show Copilot's permission prompt or spend anything.
+  Right after VS Code starts, Copilot may not be listed yet, so with nothing
+  found it waits up to 8 seconds for VS Code's "models changed" event and
+  looks once more.
+- With a brain, it names the one Mochi would think with. With none, one line
+  on setting up Copilot (its free plan works) and "Set up Copilot"; in
+  editors without Copilot's setup, "Choose a brain" instead. With brains but
+  none chosen yet, it doesn't mention one: Mochi asks when she first asks
+  something.
+- After any Copilot setup she starts from Mochi (the welcome or "Set one
+  up"), Mochi says "Got a brain! Ask me anything." once Copilot is ready.
+- Once ever, across her windows. It waits through quiet mode and focus
+  sessions. Someone who used Mochi before the welcome existed is never
+  welcomed as new. "Forget everything" doesn't bring it back: it's about
+  installing Mochi, not about her days.
+- On that day it takes the greeting's place, and the Python offer waits for
+  it. It moves into the panel with MOCHI-16, through the greeting surface.
 
 ## Setting up a Python project
 - Mochi creates a virtual environment in `.venv`, the standard name the

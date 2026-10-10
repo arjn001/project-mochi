@@ -229,6 +229,19 @@ The default lines are in `packs/default/pack.json` (format in PACKS.md).
 - **If her personal touches can't be loaded:** "I couldn't load your
   personal touches, so I'm my usual self for now. They're kept safe, not
   deleted." Once per session.
+- **First-run welcome** (MOCHI-42, small version): Mochi's tab opens once,
+  and one gentle notification says "Meow, hi! I'm Mochi, your coding buddy.
+  I live in the Mochi tab, and my mood shows in the status bar." (the cat's
+  name comes from the pack), then one of:
+  - a brain is ready: "I can think with Copilot · Auto whenever you ask me
+    something.";
+  - no brain: "To answer questions I need a brain, and GitHub Copilot's free
+    plan works: just sign in with GitHub." with "Set up Copilot";
+  - no brain and no Copilot setup in the editor: "To answer questions I need
+    a brain. Choose a brain shows what you can use." with "Choose a brain";
+  - brains but none chosen yet: nothing more.
+  Once Copilot is ready after she set it up from Mochi: "Got a brain! Ask me
+  anything."
 - **Where sentences live:** every sentence above is in `src/strings.ts` (or
   the pack), never inline in code.
 
@@ -238,9 +251,9 @@ The default lines are in `packs/default/pack.json` (format in PACKS.md).
   first sketch. No panel UI is built until this is designed.
 - **Colors and type.**
 - **Avatar art and moods** for the panel (MOCHI-17).
-- **The first-run welcome and "Pick a brain"** (MOCHI-42): explain inside
-  Mochi's tab first, hand off to VS Code's Copilot setup only when she picks
-  it, and confirm "Got a brain! Ask me anything." when it's ready.
+- **A fuller "Pick a brain"** inside Mochi's tab, after the small welcome
+  (MOCHI-42): explain first, hand off to VS Code's Copilot setup only when
+  she picks it.
 - **The gift's "You've got a gift!" screen** (MOCHI-56).
 
 ## Icons
