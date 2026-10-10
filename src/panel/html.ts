@@ -50,6 +50,7 @@ export function panelHtml(page: PanelPage): string {
       <button class="mochi-brain" id="brain" type="button"></button>
     </div>
     <div class="mochi-chat" id="chat"></div>
+    <div class="mochi-hidden-label" id="announce" aria-live="polite"></div>
   </main>
   <footer class="mochi-bottom">
     <form class="mochi-ask" id="ask-form">

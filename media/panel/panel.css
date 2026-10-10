@@ -514,6 +514,7 @@ body.vscode-reduce-motion .mochi-paw {
 .mochi-chip:focus-visible,
 .mochi-brain:focus-visible,
 .mochi-leave-out:focus-visible,
+.mochi-bubble:focus-visible,
 .mochi-copy:focus-visible,
 .mochi-link:focus-visible {
   outline: 1px solid var(--mochi-focus);

@@ -63,7 +63,10 @@ export type ToPanel =
   // Whether what she asked was sent. If not, the panel puts it back.
   | { type: "asked"; sent: boolean }
   // "Forget everything": clear the unsent draft.
-  | { type: "forget" };
+  | { type: "forget" }
+  // Read once by screen readers, politely: a message from Mochi that's done
+  // (MOCHI-25).
+  | { type: "announce"; text: string };
 
 export type PanelButton = "explain" | "focus" | "dark" | "welcome" | "brain";
 

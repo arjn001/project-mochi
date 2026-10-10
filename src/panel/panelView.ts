@@ -91,11 +91,18 @@ export class MochiPanel implements vscode.WebviewViewProvider {
   }
 
   // The chat changed. A closed panel catches up when it opens.
-  chatChanged(change: ChatChange): void {
+  chatChanged(change: Exclude<ChatChange, { type: "done" }>): void {
     if (!this.visible) {
       return;
     }
     this.post(change.type === "all" ? { type: "chat", chat: this.actions.chat() } : change);
+  }
+
+  // Read once by screen readers, if she can see the panel.
+  announce(text: string): void {
+    if (this.visible) {
+      this.post({ type: "announce", text });
+    }
   }
 
   // Shows the panel without taking her focus, like when she clicks "Explain

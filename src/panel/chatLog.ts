@@ -6,8 +6,9 @@ import { SavedEntry } from "./chatStore";
 import { ChatEntry } from "./messages";
 
 // What changed, so the panel can redraw everything, or only add streamed
-// text to one message.
-export type ChatChange = { type: "all" } | { type: "append"; id: number; text: string };
+// text to one message. "done" says one of Mochi's messages is finished, so
+// screen readers can hear it (MOCHI-25).
+export type ChatChange = { type: "all" } | { type: "append"; id: number; text: string } | { type: "done"; entry: ChatEntry };
 
 export class ChatLog implements AnswerSurface {
   private list: ChatEntry[] = [];
@@ -48,10 +49,12 @@ export class ChatLog implements AnswerSurface {
   }
 
   finish(): void {
-    if (this.reply) {
-      this.reply.answering = undefined;
+    const reply = this.reply;
+    if (reply) {
+      reply.answering = undefined;
       this.reply = undefined;
       this.update(false);
+      this.changed({ type: "done", entry: reply });
     }
   }
 
@@ -87,8 +90,9 @@ export class ChatLog implements AnswerSurface {
 
   say(line: string): void {
     this.dropChips();
-    this.add("mochi", line);
+    const entry = this.add("mochi", line);
     this.update();
+    this.changed({ type: "done", entry });
   }
 
   async problem(line: string, action?: string): Promise<boolean> {
@@ -97,9 +101,12 @@ export class ChatLog implements AnswerSurface {
     entry.problem = true;
     if (!action) {
       this.update();
+      this.changed({ type: "done", entry });
       return false;
     }
-    return (await this.offer(entry, [action])) === action;
+    const picked = this.offer(entry, [action]);
+    this.changed({ type: "done", entry });
+    return (await picked) === action;
   }
 
   // Her click on a chip. Old chips, or anything unknown, do nothing.

@@ -217,4 +217,16 @@ describe("the chat", () => {
       assert.strictEqual(log.answering(), true);
     });
   });
+
+  it("says when each of Mochi's messages is done, so screen readers hear it once", async () => {
+    const { log, changes } = chat();
+    log.start("hi");
+    log.append("Hello!");
+    assert.ok(!changes.some((c) => c.type === "done"), "Not while it's still being written.");
+    log.finish();
+    log.say("A line.");
+    void log.problem("I'd need a brain to answer that.", "Set one up");
+    const done = changes.filter((c) => c.type === "done").map((c) => (c.type === "done" ? c.entry.text : ""));
+    assert.deepStrictEqual(done, ["Hello!", "A line.", "I'd need a brain to answer that."]);
+  });
 });

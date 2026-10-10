@@ -27,6 +27,7 @@ const askLabel = byId<HTMLLabelElement>("ask-label");
 const box = byId<HTMLTextAreaElement>("ask");
 const send = byId<HTMLButtonElement>("send");
 const chat = byId<HTMLDivElement>("chat");
+const announcer = byId<HTMLDivElement>("announce");
 const attachment = byId<HTMLDivElement>("attachment");
 const attachmentLabel = byId<HTMLSpanElement>("attachment-label");
 const leaveOut = byId<HTMLButtonElement>("leave-out");
@@ -219,6 +220,11 @@ function message(entry: ChatEntry): HTMLElement {
   }
   const column = element("div", "mochi-message-body");
   const bubble = element("div", "mochi-bubble");
+  // Mochi's answers can take focus, so she can move into one and read its
+  // code, which the announcement only names (MOCHI-25).
+  if (entry.from === "mochi") {
+    bubble.tabIndex = 0;
+  }
   fillBubble(bubble, entry);
   column.append(bubble);
   // What was shared with her message, like "shared lines 9 to 15 of
@@ -357,6 +363,11 @@ window.addEventListener("message", (event: MessageEvent<ToPanel>) => {
       break;
     case "hint":
       hint.textContent = message.text;
+      break;
+    case "announce":
+      // Emptied first, so the same words twice are still read twice.
+      announcer.textContent = "";
+      requestAnimationFrame(() => (announcer.textContent = message.text));
       break;
     case "asked":
       // Never lost: if it wasn't sent, it goes back in the box, unless
