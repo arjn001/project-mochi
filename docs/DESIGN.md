@@ -14,8 +14,9 @@ panel's look, colors, type, and avatar art (see "Not designed yet").
 - **Words with every icon:** an icon never stands alone, and screen readers
   get plain words, never icon names like `$(mochi-purring)`. Two exceptions,
   like other chat boxes: the send arrow inside the panel's box, with "Send"
-  as its tooltip and what screen readers say, and the x on the attachment
-  chip, with "Leave out homework.py, lines 9 to 15".
+  as its tooltip and what screen readers say (a stop square with "Stop"
+  while Mochi answers), and the x on the attachment chip, with "Leave out
+  homework.py, lines 9 to 15".
 - **Private in what it shows:** prompts show file names, never full paths.
   Personal names stay out of the public repo, in the personal layer.
 - **No em dashes** in anything Mochi says or any doc.
@@ -151,9 +152,17 @@ in its one stylesheet, not the panel.
 - **If the chat can't be saved**, once per session, as Mochi's message: "I
   couldn't save our chat on this computer, so it lasts until VS Code
   closes." (with the machine's name in a remote window).
+- **While Mochi answers** (MOCHI-25): three small paw prints in the empty
+  bubble, in quiet text, brightening in turn like little steps (still with
+  Reduce Motion). The round send button shows a stop square, "Stop", and
+  Escape stops too. A stopped answer ends with "Stopped" in quiet italics.
+  No notification.
 - **Keyboard and screen readers:** real buttons and a labelled box, focus
   outlines in the theme's focus color, and the greeting and hints announced
-  politely. High contrast themes get borders on buttons.
+  politely. Each of Mochi's messages is announced once when it's done: the
+  cat's name, then the text, with code blocks named ("Code block, 3
+  lines"), and "Stopped." for a stopped answer. Answer bubbles can take
+  focus. High contrast themes get borders on buttons.
 
 ![The panel in Dark Modern, with text in the box](design/screenshots/panel-preview-dark.png)
 ![The panel in Light Modern, with the box empty](design/screenshots/panel-preview-light.png)
@@ -163,6 +172,9 @@ in its one stylesheet, not the panel.
 
 ![The brain, a shared line, and the attachment chip, in Dark Modern](design/screenshots/chat-memory-preview-dark.png)
 ![The brain, a shared line, and the attachment chip, in Light Modern](design/screenshots/chat-memory-preview-light.png)
+
+![Paw prints while Mochi thinks, a stopped answer, and Stop, in Dark Modern](design/screenshots/answering-preview-dark.png)
+![Paw prints while Mochi thinks, a stopped answer, and Stop, in Light Modern](design/screenshots/answering-preview-light.png)
 
 *Previews rendered in Chrome with Dark Modern's and Light Modern's colors
 filled in for VS Code's theme variables, not screenshots of VS Code itself.

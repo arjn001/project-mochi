@@ -243,9 +243,22 @@ list (MOCHI-53).
   and only sends recent messages within a size budget.
 
 **While Mochi answers.**
-- **Streaming:** the answer appears as it's written (MOCHI-25).
-- **Stop:** a Stop button (and Escape) ends it right away; what's there
-  stays, marked "Stopped".
+- **Streaming:** the answer appears as it's written, in the chat only.
+  There's no "Mochi is thinking..." notification anymore (MOCHI-25).
+- **Thinking:** before the first words arrive, the answer's bubble shows
+  three paw prints that brighten in turn. With Reduce Motion on (VS Code's
+  setting, which gives the panel a `vscode-reduce-motion` class, checked in
+  VS Code's source 2026-10-10, or the system's), they stay still.
+- **Stop:** while Mochi answers, the send arrow becomes a stop square
+  ("Stop"), and Escape anywhere in the panel does the same. It ends the
+  answer right away; what's there stays, with "Stopped" at the end of the
+  bubble (just "Stopped" if nothing was written yet). It's saved that way,
+  and an answer cut off by a reload or crash comes back marked "Stopped"
+  too.
+- **One answer at a time:** while Mochi answers, Enter does nothing, so
+  what she's typing stays in the box (Shift+Enter still adds a line).
+  Starting something else, like "Explain with Mochi" from the editor, a
+  hint, or "Keep going", stops the answer being written first.
 - **Code blocks:** shown as code in the editor's font (no colors for now),
   with a **Copy** button above each. Copy only copies; it never runs or
   inserts anything.
@@ -376,8 +389,13 @@ send again.
   calls follow VS Code's proxy settings (see "Her own Claude key"). With no
   Copilot setup in the editor, "Set one up" opens Choose a brain, which
   offers "Add a Claude key".
-- *Screen readers:* new answers are announced politely when they finish,
-  not word by word. Everything works from the keyboard: Enter sends,
+- *Screen readers:* each of Mochi's messages is announced once, politely,
+  when it's done, never word by word: the cat's name, then the answer as
+  plain text ("Mochi: A list is a row of cozy boxes..."). Each code block
+  is named instead of read out ("Code block, 3 lines"), and a stopped
+  answer ends with "Stopped." Answer bubbles can take focus, so she can
+  move into one and read its code. While an answer is written, its message
+  is marked busy. Everything works from the keyboard: Enter sends,
   Shift+Enter adds a line, Escape stops, and focus stays in the box.
 - *High contrast and themes:* the chat uses VS Code's theme colors only.
 - *Other languages:* Mochi's own words live in the pack and `strings.ts`.

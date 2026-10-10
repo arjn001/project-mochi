@@ -12,20 +12,17 @@ update isn't listed.*
 
 - **Open pull requests:** none besides this one.
 - **In progress:**
-  - MOCHI-21 Build the chat interface: both parts merged (#49, #50). This
-    follow-up names the remote machine where the chat is kept, and fixes
-    the docs that said every chat stays on her computer. Done once it
-    merges.
+  - MOCHI-25 Stream replies as they're written: built and in review. Done
+    once it merges.
   - MOCHI-50 Design the visual identity, by Arjun.
-- **Next:** MOCHI-25 streaming polish: the send arrow turning into a stop
-  square, paw prints while Mochi thinks, Escape to stop, "Stopped", and an
-  announcement when an answer finishes.
+- **Next:** MOCHI-17 Art and moods, and the panel's look, once MOCHI-50 is
+  done. Then MOCHI-68, the early preview build.
 - **Waiting on:**
-  - Arjun to merge the MOCHI-21 follow-up.
+  - Arjun to try and merge MOCHI-25.
   - MOCHI-17 and the panel's look wait on MOCHI-50.
 
-**40 of 58 Jira tasks and subtasks done**. 2 of the 8
-categories are complete. 412 tests (374 unit, 38 integration) run on every
+**41 of 58 Jira tasks and subtasks done**. 2 of the 8
+categories are complete. 427 tests (389 unit, 38 integration) run on every
 pull request.
 
 ## Done
@@ -154,6 +151,11 @@ MOMENTS.md, PRESENCE.md, ARCHITECTURE.md, and BUILD_PLAN.md.
   chat, the attachment chip with its x, and "Clear chat" in the tab's ...
   menu. Forget everything reaches chats on remote machines the next time
   Mochi opens them there (MOCHI-21, part 2).
+- Streaming polish: one answer at a time, a stop square in the box and
+  Escape to stop, "Stopped" kept with the answer, paw prints while Mochi
+  thinks (still with Reduce Motion), and each finished message announced
+  once to screen readers, with code blocks named. The "Mochi is
+  thinking..." notification is gone (MOCHI-25).
 - Learning mode, on by default: the learning ladder for coursework-style
   requests, or direct answers with fixes when she turns it off. Only she can
   change it; a project's settings can't. "Explain with Mochi" follows it
@@ -168,9 +170,8 @@ MOMENTS.md, PRESENCE.md, ARCHITECTURE.md, and BUILD_PLAN.md.
 ## Next
 The order to the early preview (agreed 2026-10-09, also in BUILD_PLAN.md):
 1. **MOCHI-16 Build the side panel**, with VS Code theme styling only. Done.
-2. **MOCHI-21 Build the chat interface**: both parts merged; a small
-   follow-up in review.
-3. **MOCHI-25 Stream replies as they're written**, in the panel.
+2. **MOCHI-21 Build the chat interface.** Done.
+3. **MOCHI-25 Stream replies as they're written**, in the panel. In review.
 4. **MOCHI-17 Art and moods, and the panel's look**, once MOCHI-50 is done.
 5. **MOCHI-68 Early preview build for her**, default pack only.
 
@@ -211,6 +212,8 @@ Not before the preview:
   since Mochi's storage folder is where Mochi runs, and the chat names that
   machine. A rebuilt dev container starts with an empty chat. Not checked
   by hand over SSH yet.
+- Not checked by hand yet: the announcements with VoiceOver or NVDA, and
+  the paw prints with VS Code's Reduce Motion on (MOCHI-25).
 - Not checked by hand yet: a chat in one window when "Forget everything"
   runs in another (unit tested; the window clears when she comes back to
   it).
