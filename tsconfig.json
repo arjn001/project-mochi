@@ -9,5 +9,7 @@
     "sourceMap": true,
     "strict": true
   },
-  "include": ["src"]
+  "include": ["src"],
+  // The panel's script has its own config, with browser types.
+  "exclude": ["src/webview"]
 }

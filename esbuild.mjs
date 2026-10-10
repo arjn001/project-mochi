@@ -1,5 +1,5 @@
-// Bundles Mochi into one file, dist/extension.js: the only code in the
-// published .vsix. TypeScript still compiles everything to out/ for the
+// Bundles Mochi into dist/extension.js, and the panel's own script into
+// dist/webview/panel.js (MOCHI-16): the only code in the published .vsix. TypeScript still compiles everything to out/ for the
 // tests and the development-only tools (see DECISIONS.md, "Building and
 // packaging"). `node esbuild.mjs --watch` rebuilds on every change, for F5.
 //
@@ -24,14 +24,18 @@ const devToolsStayOut = {
   },
 };
 
-// The packages esbuild put in the bundle, sorted: files that add bytes to
-// it, not everything esbuild read and then left out as unused.
-function bundledPackages(metafile) {
+// The packages esbuild put in the bundles, sorted: files that add bytes to
+// them, not everything esbuild read and then left out as unused.
+function bundledPackages(metafiles) {
   const names = new Set();
-  for (const [input, { bytesInOutput }] of Object.entries(metafile.outputs["dist/extension.js"].inputs)) {
-    const match = /(?:^|\/)node_modules\/((?:@[^/]+\/)?[^/]+)\//.exec(input);
-    if (match && bytesInOutput > 0) {
-      names.add(match[1]);
+  for (const metafile of metafiles) {
+    for (const output of Object.values(metafile.outputs)) {
+      for (const [input, { bytesInOutput }] of Object.entries(output.inputs)) {
+        const match = /(?:^|\/)node_modules\/((?:@[^/]+\/)?[^/]+)\//.exec(input);
+        if (match && bytesInOutput > 0) {
+          names.add(match[1]);
+        }
+      }
     }
   }
   return [...names].sort().map((name) => {
@@ -83,6 +87,10 @@ function noticesProblems(packages) {
   return [`${NOTICES} doesn't match the bundle. Run npm run notices. Missing: ${missing.join(", ") || "none"}. Not bundled: ${extra.join(", ") || "none"}.`];
 }
 
+// The latest metafile of each bundle, so the notices are checked against
+// both together.
+const latest = new Map();
+
 // Tells VS Code's watch task when a build starts and ends, and prints errors
 // on one line it can read (see .vscode/tasks.json). Warnings count as errors.
 const progress = {
@@ -93,8 +101,11 @@ const progress = {
       for (const { text, location } of [...result.errors, ...result.warnings]) {
         console.error(`✘ [ERROR] ${text} (${location?.file}:${location?.line}:${location?.column})`);
       }
-      if (result.metafile && !writeNotices) {
-        for (const problem of noticesProblems(bundledPackages(result.metafile))) {
+      if (result.metafile) {
+        latest.set(build.initialOptions.outfile, result.metafile);
+      }
+      if (watch && latest.size === 2) {
+        for (const problem of noticesProblems(bundledPackages(latest.values()))) {
           console.error(`✘ [ERROR] ${problem}`);
         }
       }
@@ -103,7 +114,7 @@ const progress = {
   },
 };
 
-const options = {
+const extension = {
   entryPoints: ["src/extension.ts"],
   bundle: true,
   outfile: "dist/extension.js",
@@ -119,16 +130,31 @@ const options = {
   logLevel: "silent",
 };
 
+// The panel's script runs in the webview, a browser inside VS Code.
+const panel = {
+  entryPoints: ["src/webview/panel.ts"],
+  bundle: true,
+  outfile: "dist/webview/panel.js",
+  platform: "browser",
+  format: "iife",
+  target: "es2022",
+  sourcemap: true,
+  metafile: true,
+  plugins: [progress],
+  logLevel: "silent",
+};
+
 if (watch) {
-  await (await esbuild.context(options)).watch();
+  await Promise.all([extension, panel].map(async (options) => (await esbuild.context(options)).watch()));
 } else {
-  const result = await esbuild.build(options);
-  const packages = bundledPackages(result.metafile);
+  const results = await Promise.all([esbuild.build(extension), esbuild.build(panel)]);
+  const packages = bundledPackages(results.map((result) => result.metafile));
   if (writeNotices) {
     fs.writeFileSync(NOTICES, noticesText(packages));
     console.log(`Wrote ${NOTICES}: ${packages.map((pkg) => pkg.name).join(", ") || "no third-party code"}.`);
   }
-  if (result.errors.length > 0 || result.warnings.length > 0 || (!writeNotices && noticesProblems(packages).length > 0)) {
+  const failed = results.some((result) => result.errors.length > 0 || result.warnings.length > 0);
+  if (failed || (!writeNotices && noticesProblems(packages).length > 0)) {
     process.exit(1);
   }
 }
