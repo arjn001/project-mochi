@@ -248,7 +248,9 @@ The default lines are in `packs/default/pack.json` (format in PACKS.md).
 ## Not designed yet (MOCHI-50)
 - **The panel's look:** avatar, greeting, chat, quick buttons ("Explain this",
   "Focus 25 min", "Dark mode"), and the "Ask Mochi anything" box, as in the
-  first sketch. No panel UI is built until this is designed.
+  first sketch. The panel itself is built first with VS Code's theme only
+  (MOCHI-16), with its styles in one place and theme variables only, so
+  this look can be added later without rewriting it.
 - **Colors and type.**
 - **Avatar art and moods** for the panel (MOCHI-17).
 - **A fuller "Pick a brain"** inside Mochi's tab, after the small welcome
