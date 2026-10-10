@@ -159,10 +159,18 @@ Everything stays on her computer, in Mochi's private storage, never synced
 and never sent anywhere except to the brain she picked when she sends a
 message.
 - **Chat history:** up to 200 messages per project, for her 20 most recent
-  projects. **It can include code:** code she pastes into a message and
-  code the brain quotes in a reply are part of the conversation. "Clear
-  chat" removes a project's history. Attached code isn't saved with it; it's
-  kept only until VS Code closes.
+  projects, one file per project in Mochi's storage folder
+  (`globalStorageUri`), never in globalState, which loads into memory at
+  startup. Written atomically (a temp file, then a rename), named by a
+  hash. A damaged file means an empty chat, never an error. **It can include
+  code:** code she pastes into a message and code the brain quotes in a
+  reply are part of the conversation. "Clear chat" removes a project's
+  history. Attached code is never saved and is sent only once, with its
+  message; the chat keeps a line saying what was shared (MOCHI-21).
+- **In remote setups** (SSH, WSL, dev containers), the chat is kept on the
+  remote machine, where Mochi runs, next to her project's code (agreed
+  2026-10-10, after checking VS Code's source). Everything else Mochi keeps
+  is in globalState, on her own computer.
 - **Her personal layer:** her name, her lines, and style notes.
 - **About her day, for the greeting:** when she last coded, the project's
   folder name, the day she was last greeted, and today's greeting line.
@@ -179,7 +187,9 @@ message.
   nothing on disk.
 - **"Mochi: Forget everything"** (MOCHI-65), after confirming in a dialog,
   clears:
-  - every chat, in every project (with MOCHI-21);
+  - every chat, in every project. Chats on this machine go right away;
+    chats on another machine (a remote setup) go the next time Mochi opens
+    them there, through a generation counted up in globalState;
   - her personal layer, including a damaged copy kept aside;
   - what Mochi remembers about her days: when and where she last coded, the
     day she was last greeted and today's greeting line, tonight's late-night
@@ -193,9 +203,9 @@ message.
   confirmation says so. Removing her Claude
   key is "Mochi: Remove my Claude key" (MOCHI-53).
 - Chats and the Python-offer list are kept in one private store across
-  projects, so Forget everything reaches all of them from any window. If
-  one part can't be cleared, the rest still are, and Mochi offers to try
-  again.
+  projects, so Forget everything reaches all of them from any window
+  (chats on a remote machine, the next time Mochi opens them). If one part
+  can't be cleared, the rest still are, and Mochi offers to try again.
 
 ## Which problems count as errors
 - Errors always count, for "Explain with Mochi" and "Need a paw?".
@@ -373,6 +383,12 @@ message.
   chips under the answer. Chips she didn't pick go away when she moves on.
 - What she clicked shows as her side of the chat: "Explain the error on
   line 12 of homework.py", "Give me a hint".
+- Each question also sends the recent messages, newest first within about
+  3,000 words, or a quarter of the brain's limit if that's less, through
+  `Provider.send`'s history, for Copilot and Claude brains alike. Kind lines
+  and unanswered messages are left out (MOCHI-21).
+- The brain at the top of the chat, the attachment chip with its x, and
+  "Clear chat" in the tab's ... menu (MOCHI-21).
 
 ## Building and packaging
 - Mochi is packaged into a `.vsix` with `npm run package`.

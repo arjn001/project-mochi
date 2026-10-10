@@ -12,9 +12,10 @@ panel's look, colors, type, and avatar art (see "Not designed yet").
 - **Cozy and never in the way:** warm and encouraging, never scary or noisy.
 - **Original art and voice only.**
 - **Words with every icon:** an icon never stands alone, and screen readers
-  get plain words, never icon names like `$(mochi-purring)`. One exception:
-  the send arrow inside the panel's box, like other chat boxes, with "Send"
-  as its tooltip and what screen readers say.
+  get plain words, never icon names like `$(mochi-purring)`. Two exceptions,
+  like other chat boxes: the send arrow inside the panel's box, with "Send"
+  as its tooltip and what screen readers say, and the x on the attachment
+  chip, with "Leave out homework.py, lines 9 to 15".
 - **Private in what it shows:** prompts show file names, never full paths.
   Personal names stay out of the public repo, in the personal layer.
 - **No em dashes** in anything Mochi says or any doc.
@@ -132,6 +133,22 @@ in its one stylesheet, not the panel.
   chips under the answer, and a problem is Mochi's message with a warning
   border and a chip. When it's empty: "Our chat stays on this computer. It
   can include code from our conversation; Clear chat removes it."
+- **The brain at the top of the chat** (MOCHI-21): a small rounded button in
+  quiet text, "Copilot · Auto", or "Choose a brain" when Mochi would ask
+  first. One click opens Choose a brain. Screen readers hear "Copilot ·
+  Auto. Choose a brain".
+- **What was shared:** under her message, in quiet text, "shared lines 9 to
+  15 of homework.py". Saved with the chat, never the code.
+- **The attachment chip:** while she has code selected, a rounded chip at
+  the top of the box, "homework.py, lines 9 to 15", with an x that leaves it
+  out until she selects something else. The x's tooltip and screen reader
+  label: "Leave out homework.py, lines 9 to 15".
+- **"Clear chat"** in the ... menu of Mochi's tab (and "Mochi: Clear chat"):
+  a dialog, "Clear this chat?" with "This can't be undone.", "Clear" and
+  "Keep it". An empty chat isn't asked about.
+- **If the chat can't be saved**, once per session, as Mochi's message: "I
+  couldn't save our chat on this computer, so it lasts until VS Code
+  closes."
 - **Keyboard and screen readers:** real buttons and a labelled box, focus
   outlines in the theme's focus color, and the greeting and hints announced
   politely. High contrast themes get borders on buttons.
@@ -141,6 +158,9 @@ in its one stylesheet, not the panel.
 
 ![The chat in Dark Modern](design/screenshots/chat-preview-dark.png)
 ![The chat in Light Modern](design/screenshots/chat-preview-light.png)
+
+![The brain, a shared line, and the attachment chip, in Dark Modern](design/screenshots/chat-memory-preview-dark.png)
+![The brain, a shared line, and the attachment chip, in Light Modern](design/screenshots/chat-memory-preview-light.png)
 
 *Previews rendered in Chrome with Dark Modern's and Light Modern's colors
 filled in for VS Code's theme variables, not screenshots of VS Code itself.

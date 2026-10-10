@@ -1,6 +1,6 @@
 # Progress
 
-Where Mochi stands, as of 2026-10-09. Jira (space MOCHI) is the source of
+Where Mochi stands, as of 2026-10-10. Jira (space MOCHI) is the source of
 truth for task status; this doc is the readable summary, plus Arjun's likes
 and dislikes. "Current state" is updated at the end of every task, as part
 of that task's last commit. The rest is updated at the end of each working
@@ -10,22 +10,20 @@ session.
 *As of the last commit of the latest task, so the pull request carrying this
 update isn't listed.*
 
-- **Open pull requests:** #48 (MOCHI-16 follow-up: back to Mochi after
-  Copilot setup, and the send arrow inside the box).
+- **Open pull requests:** none besides this one.
 - **In progress:**
-  - MOCHI-21 Build the chat interface: part 1 (the chat in the panel) built
-    and in review. Part 2 (memory and context) is next.
-  - MOCHI-16: its follow-up, #48, is in review; Done once it merges.
+  - MOCHI-21 Build the chat interface: part 1 merged (#49), part 2 (memory
+    and context) built and in review. Done once it merges.
   - MOCHI-50 Design the visual identity, by Arjun.
-- **Next:** MOCHI-21 part 2: chats saved per project as files, recent
-  messages sent along, the brain at the top, the attachment chip, and
-  "Clear chat".
+- **Next:** MOCHI-25 streaming polish: the send arrow turning into a stop
+  square, paw prints while Mochi thinks, Escape to stop, "Stopped", and an
+  announcement when an answer finishes.
 - **Waiting on:**
-  - Arjun to merge #48, then try and merge MOCHI-21 part 1.
+  - Arjun to try and merge MOCHI-21 part 2.
   - MOCHI-17 and the panel's look wait on MOCHI-50.
 
-**39 of 58 Jira tasks and subtasks done**. 2 of the 8
-categories are complete. 376 tests (341 unit, 35 integration) run on every
+**40 of 58 Jira tasks and subtasks done**. 2 of the 8
+categories are complete. 411 tests (373 unit, 38 integration) run on every
 pull request.
 
 ## Done
@@ -145,6 +143,15 @@ MOMENTS.md, PRESENCE.md, ARCHITECTURE.md, and BUILD_PLAN.md.
   https links that always show their domain; code blocks with Copy; next
   steps and problems as chips. It replaced the output panel and "Mochi:
   Ask (preview)" (MOCHI-21, part 1).
+- The chat's memory, part 2: each project's chat kept in its own file,
+  written atomically, up to 200 messages for her 20 most recent projects,
+  and back when she opens the project again. A damaged file means an empty
+  chat; a chat that can't be saved says so once. The recent messages go
+  along with each question, within about 3,000 words. Attached code is sent
+  once, and her message shows what was shared. The brain at the top of the
+  chat, the attachment chip with its x, and "Clear chat" in the tab's ...
+  menu. Forget everything reaches chats on remote machines the next time
+  Mochi opens them there (MOCHI-21, part 2).
 - Learning mode, on by default: the learning ladder for coursework-style
   requests, or direct answers with fixes when she turns it off. Only she can
   change it; a project's settings can't. "Explain with Mochi" follows it
@@ -158,9 +165,8 @@ MOMENTS.md, PRESENCE.md, ARCHITECTURE.md, and BUILD_PLAN.md.
 
 ## Next
 The order to the early preview (agreed 2026-10-09, also in BUILD_PLAN.md):
-1. **MOCHI-16 Build the side panel**, with VS Code theme styling only (its
-   follow-up, #48, in review).
-2. **MOCHI-21 Build the chat interface**: part 1 in review, part 2 next.
+1. **MOCHI-16 Build the side panel**, with VS Code theme styling only. Done.
+2. **MOCHI-21 Build the chat interface**: part 1 merged, part 2 in review.
 3. **MOCHI-25 Stream replies as they're written**, in the panel.
 4. **MOCHI-17 Art and moods, and the panel's look**, once MOCHI-50 is done.
 5. **MOCHI-68 Early preview build for her**, default pack only.
@@ -198,6 +204,12 @@ Not before the preview:
   socket paths). The clean-profile .vsix check uses both.
 - PRESENCE.md and ARCHITECTURE.md still quote the old code hint ("Want me
   to explain this error?"); it's "Need a paw?" now.
+- In remote setups, chats live on the remote machine, next to her project,
+  since Mochi's storage folder is where Mochi runs. A rebuilt dev container
+  starts with an empty chat. Not checked by hand over SSH yet.
+- Not checked by hand yet: a chat in one window when "Forget everything"
+  runs in another (unit tested; the window clears when she comes back to
+  it).
 - Mochi now runs in Restricted Mode, in a limited way (MOCHI-28). Anything
   new that runs a program in her folder must check workspace trust first.
 - Every new sentence goes in `src/strings.ts` or the pack. Older sentences

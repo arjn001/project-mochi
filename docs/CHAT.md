@@ -141,10 +141,27 @@ model. It only shows in the Command Palette while a key is saved.
 
 ## 3. The conversation
 
-**One per project, kept on her computer.**
-- Each project (workspace) has its own conversation, kept in Mochi's private
-  storage on her own computer (even when she works over SSH, in WSL, or in a
-  container). Opening the project again brings it back.
+**One per project, kept with the project** (MOCHI-21, part 2).
+- Each project (workspace) has its own conversation, kept in a file of its
+  own in Mochi's private storage folder (`globalStorageUri`). Opening the
+  project again brings it back. A project is its workspace file, or its
+  folders, so a multi-root workspace has one conversation, and opening or
+  closing folders switches to that project's chat.
+- **Where:** the folder is wherever Mochi runs. On her own computer that's
+  her computer; over SSH, in WSL, or in a dev container, it's that machine,
+  next to her project's code (checked in VS Code's source, 2026-10-10: a
+  remote window's storage folder comes from the server). A rebuilt
+  container starts with an empty chat.
+- **Why files:** globalState loads into memory in every window when VS Code
+  starts, and 20 chats of 200 messages would be several megabytes.
+- **Written safely:** a temp file, then renamed over the old one, so a crash
+  can't leave half a chat. File names are a hash, so no folder name or path
+  shows in Mochi's storage. Chips and attached code are never saved.
+- **A damaged or unreadable file** means an empty chat, with the usual empty
+  line, never an error. The next message replaces it.
+- **If the chat can't be saved** (a full disk, a read-only folder), the chat
+  keeps working, and Mochi says once per session: "I couldn't save our chat
+  on this computer, so it lasts until VS Code closes."
 - No folder open: the conversation lasts until VS Code closes.
 - Never synced, never sent anywhere except to the brain she picked, and
   only when she sends a message.
@@ -158,40 +175,57 @@ model. It only shows in the Command Palette while a key is saved.
 - **"Clear chat"** empties this project's conversation, after asking:
   "Clear this chat? This can't be undone." with "Clear" and "Keep it".
 - **"Mochi: Forget everything"** clears every conversation in every project,
+  on every machine (see below),
   her personal layer, and everything Mochi remembers about her days (see
   DECISIONS.md, "What Mochi keeps"), after asking in a dialog:
   "Forget everything?" with "This clears your chats, your name and personal
   touches, and everything Mochi remembers about your days. Your settings and
   any saved AI key stay as they are." and "Forget everything" or "Keep it".
+- **How Forget everything reaches other machines:** it counts a generation
+  up in globalState, which is always on her own computer and shared by her
+  local and remote windows, and deletes this machine's chats. A chat folder
+  marked with an older generation is deleted the next time Mochi opens it,
+  on any machine. Other open windows clear their chat when she comes back
+  to them, and never save an old chat back.
 
 **What's sent, and nothing more.**
 - What she types, plus what she attaches, plus **only the recent messages**
-  of this conversation, so the brain can follow along. They're picked
-  newest first within a size budget (a few thousand words, and always within
-  the brain's own limit). The rest stays in the history on her computer but
-  isn't sent. This keeps answers fast and protects her quota or her bill.
+  of this conversation, so the brain can follow along. They're her messages
+  and the answers to them, picked newest first within 16,000 characters
+  (about 3,000 words), or a quarter of what the brain can take if that's
+  less, and never cut in half. Kind lines about problems, and messages that
+  got no answer, aren't sent. The rest stays in the chat but isn't sent.
+  This keeps answers fast and protects her quota or her bill
+  (`src/ai/history.ts`).
 - Mochi never reads her files, screen, or terminal on its own.
 - **Attachments show as chips** above the box, naming the file and lines:
-  `homework.py, lines 9 to 15`. Each has an x to remove it before sending.
-  Adding one goes through the share gate, which names the brain ("Share
-  lines 9 to 15 of homework.py with Copilot?"). `.env` and key files are
-  never attached, and text that looks like a password or API key gets a
-  warning first.
+  `homework.py, lines 9 to 15`, while she has code selected. The x leaves it
+  out until she selects something else; screen readers hear "Leave out
+  homework.py, lines 9 to 15". Sending still goes through the share gate,
+  which names the brain ("Share lines 9 to 15 of homework.py with
+  Copilot?"). `.env` and key files are never attached, and text that looks
+  like a password or API key gets a warning first.
 - **The same warning for what she types:** if she pastes something that
   looks like an API key or password, Mochi asks before sending: "Careful:
   this looks like it might contain a password or API key. Send anyway?"
-- **Attachments aren't saved with the history.** The chat keeps the chip
-  ("shared lines 9 to 15 of homework.py"), but the attached code itself is
-  kept only until VS Code closes. After a restart, the brain no longer sees
-  it; she can attach it again. (Code that appears in messages is saved, as
-  above.)
+- **Attached code is sent once, with its message** (agreed 2026-10-10).
+  Her message shows what went with it ("shared lines 9 to 15 of
+  homework.py"), and that line is saved, never the code. Later questions
+  carry only a note of what was shared, so code never reaches a brain the
+  share gate didn't approve it for, even after she switches brains. A
+  hint or fix after "Explain with Mochi" still sends the same code to the
+  same brain, as approved. She can attach it again anytime. (Code that
+  appears in messages is saved, as above.)
 
-**The brain at the top.** The chat header shows the current brain, like
-"Copilot · Auto". One click opens "Which brain should Mochi think with?":
+**The brain at the top.** The top of the chat shows the current brain, like
+"Copilot · Auto", or "Choose a brain" when Mochi would ask first. It's
+looked up without asking any brain anything, and again when brains come or
+go, her pick changes, or her Claude key does. One click opens "Which brain
+should Mochi think with?":
 "Let Mochi choose" (with its current pick, like "Now: Copilot · Auto"),
 then every brain Mochi can see, with "Uses your Copilot plan" as a quiet
-line, and the one in use marked. Until the panel exists, "Mochi: Choose a
-brain" opens the same list (MOCHI-53).
+line, and the one in use marked. "Mochi: Choose a brain" opens the same
+list (MOCHI-53).
 - **Which brain:** her pick (the `mochi.brain` setting), otherwise Copilot's
   Auto. Mochi never picks another model without her. With no Auto and no
   pick, it shows the list when she asks; if she closes it, Mochi answers
@@ -305,10 +339,16 @@ send again.
 - *Untrusted folder (Restricted Mode):* chat works; attachments still go
   through the share gate. Nothing is run.
 - *Single file, no folder:* chat works; the conversation lasts the session.
+- *Cloned project, or a folder opened later:* opening a folder starts that
+  project's chat, saved from then on.
 
 **Changes over time**
 - Brains come and go (signed out, an extension added): Mochi listens for
-  VS Code's "models changed" event and updates the list and the header.
+  VS Code's "models changed" event and updates the list and the brain at
+  the top of the chat.
+- Folders opened or closed: the chat switches to that project's.
+- "Forget everything" in another window: this window's chat clears when
+  she comes back to it.
 - Learning mode changes take effect on the next message.
 - Her personal layer's style notes apply on the next message.
 
@@ -321,7 +361,8 @@ send again.
   reachable from a remote machine; Mochi says so plainly if the address
   can't be reached.
 - *VS Code for the Web:* not supported in version 1 (DECISIONS.md).
-- *Multi-root workspaces:* one conversation for the whole workspace.
+- *Multi-root workspaces:* one conversation for the whole workspace, known
+  by its workspace file (or, for an unsaved one, its folders).
 - *Other editors (VSCodium, Cursor, and others from Open VSX):* Copilot may
   not exist, and the built-in AI list may be empty. The API key and local
   model options (MOCHI-53/54) are how Mochi works there.
