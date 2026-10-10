@@ -22,7 +22,9 @@
   --mochi-primary-hover: var(--vscode-button-hoverBackground);
   --mochi-box-background: var(--vscode-input-background);
   --mochi-box-text: var(--vscode-input-foreground);
-  --mochi-box-border: var(--vscode-input-border, transparent);
+  /* Many dark themes have no input border, so the frame falls back to the
+     theme's widget border. */
+  --mochi-box-border: var(--vscode-input-border, var(--vscode-widget-border, transparent));
   --mochi-placeholder: var(--vscode-input-placeholderForeground);
   --mochi-focus: var(--vscode-focusBorder);
   /* Only high contrast themes set this; elsewhere it's transparent. */
@@ -32,6 +34,8 @@
   --mochi-avatar-size: 48px;
   --mochi-gap: 8px;
   --mochi-corner: 2px;
+  --mochi-frame-corner: 8px;
+  --mochi-send-size: 26px;
 }
 
 /* The mood icons from Mochi's icon font, the same ones as the status bar.
@@ -125,31 +129,76 @@ body {
   display: none;
 }
 
-.mochi-ask {
+/* The box: one rounded frame holding what she types, with the send arrow
+   inside it at the bottom right. */
+.mochi-frame {
   display: flex;
   flex-direction: column;
-  align-items: flex-end;
-  gap: var(--mochi-gap);
+  gap: 4px;
+  padding: 8px 8px 6px 10px;
+  border: 1px solid var(--mochi-box-border);
+  border-radius: var(--mochi-frame-corner);
+  background: var(--mochi-box-background);
+}
+.mochi-frame:focus-within {
+  border-color: var(--mochi-focus);
 }
 
 .mochi-box {
   width: 100%;
   box-sizing: border-box;
-  padding: 4px 6px;
-  resize: vertical;
-  border: 1px solid var(--mochi-box-border);
-  border-radius: var(--mochi-corner);
+  max-height: 200px;
+  padding: 0;
+  resize: none;
+  border: none;
+  outline: none;
   color: var(--mochi-box-text);
-  background: var(--mochi-box-background);
+  background: transparent;
   font: inherit;
 }
 .mochi-box::placeholder {
   color: var(--mochi-placeholder);
 }
 
+.mochi-frame-row {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.mochi-send {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--mochi-send-size);
+  height: var(--mochi-send-size);
+  padding: 0;
+  border: 1px solid var(--mochi-contrast-border);
+  border-radius: 50%;
+  color: var(--mochi-primary-text);
+  background: var(--mochi-primary-background);
+  cursor: pointer;
+}
+.mochi-send:hover:not(:disabled) {
+  background: var(--mochi-primary-hover);
+}
+/* Nothing to send yet. */
+.mochi-send:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+.mochi-send-arrow {
+  width: 14px;
+  height: 14px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
 /* Keyboard focus is always visible, in the theme's focus color. */
 .mochi-button:focus-visible,
-.mochi-box:focus {
+.mochi-send:focus-visible {
   outline: 1px solid var(--mochi-focus);
   outline-offset: 1px;
 }

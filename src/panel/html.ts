@@ -50,8 +50,16 @@ export function panelHtml(page: PanelPage): string {
   <footer class="mochi-bottom">
     <form class="mochi-ask" id="ask-form">
       <label class="mochi-hidden-label" id="ask-label" for="ask"></label>
-      <textarea class="mochi-box" id="ask" rows="3"></textarea>
-      <button class="mochi-button mochi-primary" id="send" type="submit"></button>
+      <div class="mochi-frame">
+        <textarea class="mochi-box" id="ask" rows="2"></textarea>
+        <div class="mochi-frame-row">
+          <button class="mochi-send" id="send" type="submit" disabled>
+            <svg class="mochi-send-arrow" viewBox="0 0 16 16" aria-hidden="true" focusable="false">
+              <path d="M8 13V3M3.5 7.5L8 3l4.5 4.5"/>
+            </svg>
+          </button>
+        </div>
+      </div>
     </form>
   </footer>
   <script nonce="${page.nonce}" src="${page.scriptUri}"></script>
