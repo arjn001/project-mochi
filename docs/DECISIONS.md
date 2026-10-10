@@ -349,4 +349,6 @@ message.
   story in the description, and Tasks under it.
 - Small, natural commits, one logical change each, starting with the Jira key.
 - One branch per task, merged with a pull request.
-- Branches are kept after merging, never deleted.
+- After a merge, the Jira issue moves to Done with the merge commit in a
+  comment, and the branch is deleted locally and on GitHub (since
+  2026-10-09; branches used to be kept).
