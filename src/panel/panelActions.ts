@@ -10,6 +10,7 @@ import { readSpeakUp } from "../settings";
 import { chatStrings, panelStrings, welcomeStrings } from "../strings";
 import { AttachmentChip } from "./attachmentChip";
 import { ChatLog } from "./chatLog";
+import { chatPlace } from "./chatMemory";
 import { safeLink } from "./format";
 import { PanelButton, PanelState } from "./messages";
 import { PanelActions } from "./panelView";
@@ -52,7 +53,7 @@ export function panelActions(needs: Needs): PanelActions {
       ask: { label: panelStrings.ask(pack().name), send: panelStrings.send },
       brain: brainButton(needs.brain()),
       ...(attachment ? { attachment } : {}),
-      chat: { empty: chatStrings.empty, you: chatStrings.you, mochi: pack().name, copy: chatStrings.copy, copied: chatStrings.copied },
+      chat: { empty: chatStrings.empty(chatPlace()), you: chatStrings.you, mochi: pack().name, copy: chatStrings.copy, copied: chatStrings.copied },
     };
   };
 

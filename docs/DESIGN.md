@@ -132,7 +132,9 @@ in its one stylesheet, not the panel.
   their domain, like "Python tutorial (docs.python.org)". Next steps are
   chips under the answer, and a problem is Mochi's message with a warning
   border and a chip. When it's empty: "Our chat stays on this computer. It
-  can include code from our conversation; Clear chat removes it."
+  can include code from our conversation; Clear chat removes it." In a
+  remote window it names the machine: "on this SSH machine", "in this WSL
+  distro", "in this container", "in this codespace".
 - **The brain at the top of the chat** (MOCHI-21): a small rounded button in
   quiet text, "Copilot · Auto", or "Choose a brain" when Mochi would ask
   first. One click opens Choose a brain. Screen readers hear "Copilot ·
@@ -148,7 +150,7 @@ in its one stylesheet, not the panel.
   "Keep it". An empty chat isn't asked about.
 - **If the chat can't be saved**, once per session, as Mochi's message: "I
   couldn't save our chat on this computer, so it lasts until VS Code
-  closes."
+  closes." (with the machine's name in a remote window).
 - **Keyboard and screen readers:** real buttons and a labelled box, focus
   outlines in the theme's focus color, and the greeting and hints announced
   politely. High contrast themes get borders on buttons.

@@ -154,10 +154,12 @@
   errors, and a gentle corner nudge for key moments. Both stay silent in
   quiet mode.
 
-## What Mochi keeps on her computer
-Everything stays on her computer, in Mochi's private storage, never synced
-and never sent anywhere except to the brain she picked when she sends a
-message.
+## What Mochi keeps, and where
+Everything is kept in Mochi's private storage, never synced and never sent
+anywhere except to the brain she picked when she sends a message. All of it
+is on her own computer, except chats in remote setups (SSH, WSL, dev
+containers, Codespaces): those are kept on the remote machine, where Mochi
+runs, and "Forget everything" clears them the next time Mochi opens there.
 - **Chat history:** up to 200 messages per project, for her 20 most recent
   projects, one file per project in Mochi's storage folder
   (`globalStorageUri`), never in globalState, which loads into memory at
@@ -167,10 +169,11 @@ message.
   reply are part of the conversation. "Clear chat" removes a project's
   history. Attached code is never saved and is sent only once, with its
   message; the chat keeps a line saying what was shared (MOCHI-21).
-- **In remote setups** (SSH, WSL, dev containers), the chat is kept on the
-  remote machine, where Mochi runs, next to her project's code (agreed
-  2026-10-10, after checking VS Code's source). Everything else Mochi keeps
-  is in globalState, on her own computer.
+- **In remote setups** (SSH, WSL, dev containers, Codespaces), the chat is
+  kept on the remote machine, where Mochi runs, next to her project's code
+  (agreed 2026-10-10, after checking VS Code's source), and the chat says
+  so: "Our chat stays on this SSH machine." Everything else Mochi keeps is
+  in globalState, on her own computer.
 - **Her personal layer:** her name, her lines, and style notes.
 - **About her day, for the greeting:** when she last coded, the project's
   folder name, the day she was last greeted, and today's greeting line.

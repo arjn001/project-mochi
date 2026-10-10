@@ -161,7 +161,8 @@ model. It only shows in the Command Palette while a key is saved.
   line, never an error. The next message replaces it.
 - **If the chat can't be saved** (a full disk, a read-only folder), the chat
   keeps working, and Mochi says once per session: "I couldn't save our chat
-  on this computer, so it lasts until VS Code closes."
+  on this computer, so it lasts until VS Code closes." (or "on this SSH
+  machine", and so on, in a remote window).
 - No folder open: the conversation lasts until VS Code closes.
 - Never synced, never sent anywhere except to the brain she picked, and
   only when she sends a message.
@@ -171,7 +172,9 @@ model. It only shows in the Command Palette while a key is saved.
   code the brain quotes in its replies, is part of the conversation, so it's
   saved with it. Mochi says so plainly in the chat's empty state: "Our chat
   stays on this computer. It can include code from our conversation; Clear
-  chat removes it."
+  chat removes it." In a remote window it names that machine instead, as
+  Python setup does: "on this SSH machine", "in this WSL distro", "in this
+  container", "in this codespace".
 - **"Clear chat"** empties this project's conversation, after asking:
   "Clear this chat? This can't be undone." with "Clear" and "Keep it".
 - **"Mochi: Forget everything"** clears every conversation in every project,
@@ -356,7 +359,10 @@ send again.
 - *Windows, macOS, Linux:* the same everywhere. Keys go into each system's
   keychain through VS Code's secret storage.
 - *Remote (SSH, WSL, containers, Codespaces):* the built-in AI and secret
-  storage work there; keys stay on her own computer. Direct API calls
+  storage work there; keys stay on her own computer. Chats are kept on the
+  remote machine, where Mochi runs, and say so ("Our chat stays on this SSH
+  machine."); "Forget everything" clears them the next time Mochi opens
+  there. Direct API calls
   (MOCHI-53/54) run where Mochi runs, so a local model on her laptop isn't
   reachable from a remote machine; Mochi says so plainly if the address
   can't be reached.
@@ -393,7 +399,7 @@ memory gone.
   OpenAI-compatible option (MOCHI-54).
 - **The AI's fixed rules** (`src/ai/instructions.ts`): the ladder becomes
   conditional on Learning mode; the other rules stay always on.
-- **DECISIONS.md:** what Mochi keeps on her computer (including that chat
+- **DECISIONS.md:** what Mochi keeps, and where (including that chat
   history can contain code), "Forget everything", and the two rules: Mochi
   never calls the AI on its own, and nothing in a reply can make it act.
 - **ARCHITECTURE.md:** attached code is untrusted input that may contain
