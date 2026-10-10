@@ -75,7 +75,7 @@
       },
       {
         "command": "mochi.dim",
-        "title": "Dim things (darker theme)",
+        "title": "Switch to a dark theme",
         "category": "Mochi"
       },
       {

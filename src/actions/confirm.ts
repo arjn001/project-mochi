@@ -10,9 +10,9 @@ const perform = Symbol("perform");
 export type Undo = () => Promise<void>;
 
 export interface Action {
-  // The question, in Mochi's voice: "Want me to dim things with a darker theme?"
+  // The question, in Mochi's voice: "Want me to switch to a dark theme?"
   readonly question: string;
-  // The yes button: "Dim things".
+  // The yes button: "Switch to a dark theme".
   readonly yes: string;
   // Said after acting, next to an Undo button: "Done! Changed your mind?"
   readonly done: string;

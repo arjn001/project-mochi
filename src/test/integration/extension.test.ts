@@ -139,7 +139,7 @@ describe("Mochi in VS Code", () => {
     });
 
     it("switches all of VS Code to a darker theme after she says yes", async () => {
-      assert.strictEqual(await offer(dimAction(), presses("Dim things", undefined)), "done");
+      assert.strictEqual(await offer(dimAction(), presses("Switch to a dark theme", undefined)), "done");
       assert.strictEqual(theme(), "Dark Modern");
     });
 
@@ -149,7 +149,7 @@ describe("Mochi in VS Code", () => {
     });
 
     it("puts her old theme back with Undo", async () => {
-      assert.strictEqual(await offer(dimAction(), presses("Dim things", "Undo")), "undone");
+      assert.strictEqual(await offer(dimAction(), presses("Switch to a dark theme", "Undo")), "undone");
       assert.strictEqual(theme(), "Light Modern");
     });
 

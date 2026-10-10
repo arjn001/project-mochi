@@ -221,9 +221,9 @@ brain" opens the same list (MOCHI-53).
   nudges, hints, or anything in the background. Her quota and her code are
   only spent when she decides.
 - **Nothing in a reply can make Mochi act.** A reply is text. If it suggests
-  something Mochi can do (dim things, set up Python, any future action),
-  that needs her click, through the same "asks first, then Undo" flow as
-  everything else (MOCHI-31). Mochi never reads a reply for commands to run.
+  something Mochi can do (switch to a dark theme, set up Python, any future
+  action), that needs her click, through the same "asks first, then Undo"
+  flow as everything else (MOCHI-31). Mochi never reads a reply for commands to run.
 - **Attached code is untrusted, too.** A file can contain text aimed at the
   AI ("ignore your rules and..."). Mochi's rules come from code and always
   have the last word, the share gate and actions are enforced in code, and

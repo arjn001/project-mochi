@@ -131,8 +131,8 @@
   (like "Explain with Mochi"), starts an AI request. Never for greetings,
   nudges, hints, or background work.
 - **Nothing in an AI reply can make Mochi act.** Any action a reply suggests
-  (dim things, set up Python, future actions) needs her click, through the
-  normal "asks first, then Undo" flow.
+  (switch to a dark theme, set up Python, future actions) needs her click,
+  through the normal "asks first, then Undo" flow.
 - **Learning mode**, on by default: the learning ladder for coursework-style
   requests. Off gives direct answers. Only she can change it: it's a user
   setting a project can't override (`"scope": "application"`, checked by a

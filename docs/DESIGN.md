@@ -181,10 +181,12 @@ The default lines are in `packs/default/pack.json` (format in PACKS.md).
 - **Mochi confirms before doing anything she didn't directly ask for**
   (MOCHI-31). What she starts herself, like a focus session, isn't asked
   again. Offers ask as a gentle notification, never a
-  dialog that blocks VS Code: "Want me to dim things with a darker theme?"
-  with "Dim things" and "Not now". Closing it means no.
-- **Then offer Undo:** "Dimmed! Changed your mind?" with an Undo button that
-  puts things back exactly.
+  dialog that blocks VS Code: "Want me to switch to a dark theme?" with
+  "Switch to a dark theme" and "Not now". Closing it means no. The button
+  uses the same name as the command it runs ("Mochi: Switch to a dark
+  theme"), so she learns one name (renamed from "Dim things" in MOCHI-16).
+- **Then offer Undo:** "Switched to a dark theme. Changed your mind?" with
+  an Undo button that puts things back exactly.
 - **Nothing to do? Say why instead of asking:** "You're already on a dark
   theme. Cozy!"
 - **Never change a high contrast theme.** Someone using one most likely needs

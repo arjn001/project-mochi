@@ -67,8 +67,8 @@ MOMENTS.md, PRESENCE.md, ARCHITECTURE.md, and BUILD_PLAN.md.
 **Actions (MOCHI-26), partly done.**
 - Mochi confirms before doing anything she didn't directly ask for, with Undo
   afterwards (MOCHI-31).
-- "Dim things": switches all of VS Code to Dark Modern, never touches high
-  contrast themes (MOCHI-27).
+- "Switch to a dark theme" (was "Dim things"): switches all of VS Code to
+  Dark Modern, never touches high contrast themes (MOCHI-27).
 - Focus timer: "Focusing · 18 min left" in the mood line, saved across
   reloads, "Another round" or "Done" when time's up (MOCHI-29).
 - Explaining an error or selected code, on the learning ladder: explain
