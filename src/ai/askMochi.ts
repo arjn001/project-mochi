@@ -1,5 +1,6 @@
 // What happens when she asks Mochi something. Plain code with no VS Code
 // dependency, so the whole flow can be unit tested with a fake brain.
+import { Turn } from "./history";
 import { Provider } from "./provider";
 import { Ask, GatedRequest, Request, throughShareGate } from "./shareGate";
 
@@ -18,7 +19,9 @@ export async function askMochi(
   provider: Provider | undefined,
   instructions: string,
   askToShare: Ask,
-  signal?: AbortSignal
+  signal?: AbortSignal,
+  // The recent messages sent along (MOCHI-21).
+  history: readonly Turn[] = []
 ): Promise<Asked> {
   if (!provider || !(await provider.isAvailable())) {
     return { status: "noBrain" };
@@ -27,7 +30,7 @@ export async function askMochi(
   if (gate.status !== "sent") {
     return gate;
   }
-  return { status: "answer", text: provider.send(gate.request, instructions, signal), request: gate.request };
+  return { status: "answer", text: provider.send(gate.request, instructions, { history, signal }), request: gate.request };
 }
 
 // The one prompt when there's no brain (see DECISIONS.md: no nagging).

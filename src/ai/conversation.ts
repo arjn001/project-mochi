@@ -1,12 +1,13 @@
 import * as vscode from "vscode";
-import { brainStrings } from "../strings";
+import { brainStrings, chatStrings } from "../strings";
 import { AnswerSurface } from "./answerSurface";
 import { BrainPicker, setUpABrain } from "./brainPicker";
 import { NO_BRAIN, askMochi } from "./askMochi";
 import { askToShare } from "./askToShare";
 import { CONSOLE_BILLING } from "./claude";
+import { Turn, historyBudget, recentTurns } from "./history";
 import { BrainError, Provider, brainHelpButtons, brainProblemMessages } from "./provider";
-import { GatedRequest, Request, followUp } from "./shareGate";
+import { GatedRequest, Request, describe, followUp } from "./shareGate";
 
 // The chip after "I'd need a brain to answer that."
 const SET_UP = "Set one up";
@@ -25,8 +26,14 @@ export class Conversation {
   constructor(
     private readonly brains: Pick<BrainPicker, "forQuestion">,
     private readonly instructions: () => string,
-    private readonly surface: AnswerSurface
+    private readonly surface: AnswerSurface,
+    // The chat so far, for the recent messages sent along (MOCHI-21).
+    private readonly chat: () => Parameters<typeof recentTurns>[0] = () => []
   ) {}
+
+  private history(provider: Provider | undefined): Turn[] {
+    return recentTurns(this.chat(), historyBudget(provider?.maxInputTokens));
+  }
 
   // Asks through the share gate. Returns what was sent, so a follow-up can
   // reuse it without asking her again, or undefined if nothing was sent.
@@ -38,7 +45,8 @@ export class Conversation {
     }
     const provider = brain.kind === "use" ? brain.provider : undefined;
     const controller = new AbortController();
-    const result = await askMochi(request, provider, this.instructions(), askToShare, controller.signal);
+    const history = this.history(provider);
+    const result = await askMochi(request, provider, this.instructions(), askToShare, controller.signal, history);
 
     switch (result.status) {
       case "noBrain":
@@ -57,8 +65,10 @@ export class Conversation {
       case "answer": {
         this.provider = provider;
         const sent = result.request;
-        const again: Again = (soFar, signal) => provider!.send(sent, this.instructions(), signal, soFar);
-        await this.show(heading, result.text, controller, again, brain.kind === "use" ? brain.note : undefined);
+        const again: Again = (soFar, signal) => provider!.send(sent, this.instructions(), { history, signal, soFar });
+        // Under her message: what was shared with it, never the code.
+        const shared = sent.attachments.length > 0 ? chatStrings.shared(sent.attachments.map(describe).join(" and ")) : undefined;
+        await this.show(heading, result.text, controller, again, brain.kind === "use" ? brain.note : undefined, shared);
         if (brain.kind === "use") {
           await brain.noted?.();
         }
@@ -75,8 +85,10 @@ export class Conversation {
     const provider = this.provider;
     const asked = followUp(approved, message);
     const controller = new AbortController();
-    const text = provider.send(asked, this.instructions(), controller.signal);
-    const again: Again = (soFar, signal) => provider.send(asked, this.instructions(), signal, soFar);
+    // Includes the answer before, like the explanation a hint follows.
+    const history = this.history(provider);
+    const text = provider.send(asked, this.instructions(), { history, signal: controller.signal });
+    const again: Again = (soFar, signal) => provider.send(asked, this.instructions(), { history, signal, soFar });
     await this.show(heading, text, controller, again);
   }
 
@@ -101,9 +113,10 @@ export class Conversation {
     controller: AbortController,
     again: Again,
     // "Quick note: ..." when a stand-in brain answers, once per change.
-    note?: string
+    note?: string,
+    shared?: string
   ): Promise<void> {
-    this.surface.start(heading);
+    this.surface.start(heading, shared);
     if (note) {
       this.surface.append(`${note}\n\n`);
     }

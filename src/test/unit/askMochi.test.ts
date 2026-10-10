@@ -1,6 +1,7 @@
 import * as assert from "node:assert";
 import { askMochi } from "../../ai/askMochi";
 import { compose } from "../../ai/compose";
+import { Turn } from "../../ai/history";
 import { Provider } from "../../ai/provider";
 import { Answer, Attachment, GatedRequest, throughShareGate } from "../../ai/shareGate";
 
@@ -15,12 +16,12 @@ const errors: Attachment = {
 
 // A fake brain that answers in two pieces and remembers what reached it.
 function fakeBrain(available = true) {
-  const received: { request: GatedRequest; instructions: string }[] = [];
+  const received: { request: GatedRequest; instructions: string; history: readonly Turn[] }[] = [];
   const brain: Provider = {
     name: "Fake Brain",
     isAvailable: async () => available,
-    send: async function* (request, instructions) {
-      received.push({ request, instructions });
+    send: async function* (request, instructions, options) {
+      received.push({ request, instructions, history: options?.history ?? [] });
       yield "Hello ";
       yield "there!";
     },
@@ -44,6 +45,18 @@ describe("asking Mochi", () => {
     const result = await askMochi({ message: "Hi!", attachments: [] }, brain, "Be kind.", answering("cancel"));
     assert.strictEqual(result.status, "answer");
     assert.strictEqual(result.status === "answer" && (await collect(result.text)), "Hello there!");
+  });
+
+  it("sends the recent messages along", async () => {
+    const { brain, received } = fakeBrain();
+    const history: Turn[] = [
+      { from: "her", text: "what's a list?" },
+      { from: "mochi", text: "A row of boxes." },
+    ];
+    const result = await askMochi({ message: "and a tuple?", attachments: [] }, brain, "", answering("cancel"), undefined, history);
+    assert.ok(result.status === "answer");
+    await collect(result.text);
+    assert.deepStrictEqual(received[0].history, history);
   });
 
   it("offers to set up a brain when there is none, or it isn't available", async () => {

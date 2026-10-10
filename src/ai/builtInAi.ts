@@ -1,6 +1,6 @@
 import * as vscode from "vscode";
 import { compose } from "./compose";
-import { BrainError, BrainProblem, Provider } from "./provider";
+import { BrainError, BrainProblem, Provider, SendOptions } from "./provider";
 import { GatedRequest } from "./shareGate";
 
 // One brain from VS Code's built-in AI: a Copilot model, or a model another
@@ -14,17 +14,24 @@ export class ModelBrain implements Provider {
     readonly name: string
   ) {}
 
+  get maxInputTokens(): number {
+    return this.model.maxInputTokens;
+  }
+
   async isAvailable(): Promise<boolean> {
     return true;
   }
 
-  async *send(request: GatedRequest, instructions: string, signal?: AbortSignal): AsyncIterable<string> {
+  async *send(request: GatedRequest, instructions: string, { history = [], signal }: SendOptions = {}): AsyncIterable<string> {
     const model = this.model;
     // VS Code has no "system" role, so Mochi's instructions go first, and a
-    // short reply from the assistant marks where her question begins.
+    // short reply from the assistant marks where the conversation begins.
     const messages = [
       vscode.LanguageModelChatMessage.User(instructions),
       vscode.LanguageModelChatMessage.Assistant("Understood. I'll answer as described, and follow those rules."),
+      ...history.map((turn) =>
+        turn.from === "her" ? vscode.LanguageModelChatMessage.User(turn.text) : vscode.LanguageModelChatMessage.Assistant(turn.text)
+      ),
       vscode.LanguageModelChatMessage.User(compose(request)),
     ];
     const cancel = new vscode.CancellationTokenSource();

@@ -47,6 +47,9 @@ export const chatStrings = {
   empty: "Our chat stays on this computer. It can include code from our conversation; Clear chat removes it.",
   // Who said it, for screen readers. Mochi's side uses the pack's name.
   you: "You",
+  // Under her message, when something was shared with it. Kept with the
+  // chat, without the code.
+  shared: (what: string) => `shared ${what}`,
   copy: "Copy",
   copied: "Copied",
   // Once per session, if the chat can't be saved, like on a full disk.

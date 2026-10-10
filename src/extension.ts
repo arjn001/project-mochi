@@ -112,7 +112,7 @@ export function activate(context: vscode.ExtensionContext): MochiApi {
   const brains = new BrainPicker(context.globalState, claudeModels);
   const chooseBrain = brains.register();
   const claudeCommands = registerClaudeKeyCommands(claudeKey, claudeModels, brains);
-  const conversation = new Conversation(brains, () => instructionsFor(pack(), readLearningMode()), chat);
+  const conversation = new Conversation(brains, () => instructionsFor(pack(), readLearningMode()), chat, () => chat.saved());
   const explain = registerExplain(conversation, chat);
 
   // A gentle "Need a paw?" next to an error she's been stuck on (MOCHI-34).

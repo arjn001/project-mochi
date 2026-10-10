@@ -28,9 +28,12 @@ export class ChatLog implements AnswerSurface {
     return this.list;
   }
 
-  start(asked: string): void {
+  start(asked: string, shared?: string): void {
     this.dropChips();
-    this.add("her", asked);
+    const her = this.add("her", asked);
+    if (shared) {
+      her.shared = shared;
+    }
     this.reply = this.add("mochi", "");
     this.update();
   }

@@ -251,6 +251,12 @@ body {
   color: var(--mochi-quiet-text);
 }
 
+/* Under her message: what was shared with it. */
+.mochi-shared {
+  color: var(--mochi-quiet-text);
+  font-size: 0.9em;
+}
+
 /* Next steps under a message, like "Give me a hint" or "Keep going". */
 .mochi-chips {
   display: flex;

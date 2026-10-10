@@ -8,6 +8,7 @@
 import Anthropic, { type ClientOptions } from "@anthropic-ai/sdk";
 import { randomUUID } from "node:crypto";
 import { claudeKeyStrings } from "../strings";
+import { Turn } from "./history";
 import { BrainError, BrainHelp, BrainProblem } from "./provider";
 
 // The only address her key is sent to.
@@ -277,12 +278,24 @@ export async function listModels(claude: Anthropic): Promise<Listing> {
 // from her side, after the answer so far.
 export const KEEP_GOING = "Please keep going from exactly where you stopped, without repeating anything.";
 
-// What's sent: her message, and for "Keep going", the answer so far and
-// KEEP_GOING. With nothing written yet (a model that thought until the
-// limit), there's nothing to continue, so her message is asked again.
-export function conversationFor(message: string, soFar?: string): Anthropic.MessageParam[] {
+// What's sent: the recent messages, her message, and for "Keep going", the
+// answer so far and KEEP_GOING. With nothing written yet (a model that
+// thought until the limit), there's nothing to continue, so her message is
+// asked again.
+export function conversationFor(message: string, soFar?: string, history: readonly Turn[] = []): Anthropic.MessageParam[] {
+  const before: Anthropic.MessageParam[] = history.map((turn) => ({ role: turn.from === "her" ? "user" : "assistant", content: turn.text }));
   const asked: Anthropic.MessageParam = { role: "user", content: message };
-  return soFar ? [asked, { role: "assistant", content: soFar }, { role: "user", content: KEEP_GOING }] : [asked];
+  return soFar
+    ? [...before, asked, { role: "assistant", content: soFar }, { role: "user", content: KEEP_GOING }]
+    : [...before, asked];
+}
+
+export interface AnswerOptions {
+  history?: readonly Turn[];
+  signal?: AbortSignal;
+  // Only for tests.
+  idleMs?: number;
+  soFar?: string;
 }
 
 // Streams Claude's answer as it's written. Mochi's rules go in the system
@@ -296,9 +309,7 @@ export async function* answer(
   model: string,
   instructions: string,
   message: string,
-  signal?: AbortSignal,
-  idleMs = IDLE_TIMEOUT_MS,
-  soFar?: string
+  { history, signal, idleMs = IDLE_TIMEOUT_MS, soFar }: AnswerOptions = {}
 ): AsyncIterable<string> {
   const stop = new AbortController();
   const stopped = () => stop.abort();
@@ -321,7 +332,7 @@ export async function* answer(
         model,
         max_tokens: MAX_ANSWER_TOKENS,
         system: instructions,
-        messages: conversationFor(message, soFar),
+        messages: conversationFor(message, soFar, history),
       },
       { signal: stop.signal, headers: { [WATCH]: watchId } }
     );

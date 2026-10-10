@@ -1,17 +1,29 @@
 // The one interface every AI sits behind (see ARCHITECTURE.md). Plain code
 // with no VS Code dependency. The rest of Mochi never knows which AI answers.
 import { problemStrings } from "../strings";
+import { Turn } from "./history";
 import { GatedRequest } from "./shareGate";
+
+export interface SendOptions {
+  // The recent messages of the conversation, oldest first (MOCHI-21).
+  history?: readonly Turn[];
+  // Stops the answer.
+  signal?: AbortSignal;
+  // Continues an answer that reached the length limit, after "Keep going"
+  // (MOCHI-67).
+  soFar?: string;
+}
 
 export interface Provider {
   // Shown to her, including in the share gate's question.
   readonly name: string;
+  // How much the brain can take, in tokens, if it says.
+  readonly maxInputTokens?: number;
   // Whether this brain can answer right now, like Copilot being signed in.
   isAvailable(): Promise<boolean>;
   // Only takes a GatedRequest, so nothing reaches an AI without the share
-  // gate. Streams the answer back as it's written. `soFar` continues an
-  // answer that reached the length limit, after "Keep going" (MOCHI-67).
-  send(request: GatedRequest, instructions: string, signal?: AbortSignal, soFar?: string): AsyncIterable<string>;
+  // gate. Streams the answer back as it's written.
+  send(request: GatedRequest, instructions: string, options?: SendOptions): AsyncIterable<string>;
 }
 
 // Why a brain couldn't answer, in words Mochi can say kindly.

@@ -170,6 +170,11 @@ function message(entry: ChatEntry): HTMLElement {
   const bubble = element("div", "mochi-bubble");
   fillBubble(bubble, entry);
   column.append(bubble);
+  // What was shared with her message, like "shared lines 9 to 15 of
+  // homework.py".
+  if (entry.shared) {
+    column.append(element("span", "mochi-shared", entry.shared));
+  }
   if (entry.chips) {
     const chips = element("div", "mochi-chips");
     if (entry.chips.prompt) {

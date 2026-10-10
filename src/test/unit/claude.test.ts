@@ -381,7 +381,7 @@ describe("her own Claude key", () => {
         slowStream(call, [[0, [...start, delta("First bit")].map(sseEvent).join("")]], false, () => (streamAborted = true));
       const pieces: string[] = [];
       const error = await failure(async () => {
-        for await (const piece of answer(connect(KEY), "m", "rules", "hello", undefined, 50)) {
+        for await (const piece of answer(connect(KEY), "m", "rules", "hello", { idleMs: 50 })) {
           pieces.push(piece);
         }
       });
@@ -402,7 +402,7 @@ describe("her own Claude key", () => {
           true,
           () => undefined
         );
-      const pieces = await collect(answer(connect(KEY), "m", "rules", "hello", undefined, 50));
+      const pieces = await collect(answer(connect(KEY), "m", "rules", "hello", { idleMs: 50 }));
       assert.deepStrictEqual(pieces, ["Thought it through."]);
     });
   });
@@ -437,7 +437,7 @@ describe("her own Claude key", () => {
         );
       const stop = new AbortController();
       const pieces: string[] = [];
-      for await (const piece of answer(connect(KEY), "m", "rules", "hello", stop.signal)) {
+      for await (const piece of answer(connect(KEY), "m", "rules", "hello", { signal: stop.signal })) {
         pieces.push(piece);
         stop.abort();
       }
@@ -462,7 +462,7 @@ describe("her own Claude key", () => {
     it("keeps going: her message, the answer so far, then a turn asking to continue", async () => {
       reply = () => stream([...start, delta(" and the rest."), ...end()]);
       const pieces = await collect(
-        answer(connect(KEY), "m", "rules", "explain everything", undefined, undefined, "A long first part")
+        answer(connect(KEY), "m", "rules", "explain everything", { soFar: "A long first part" })
       );
       assert.deepStrictEqual(pieces, [" and the rest."]);
       assert.deepStrictEqual((calls[0].body as { messages: unknown }).messages, [
@@ -489,6 +489,20 @@ describe("her own Claude key", () => {
         messages: [{ role: "user", content: "what's a list?" }],
         stream: true,
       });
+    });
+
+    it("sends the recent messages first, so Claude can follow along", async () => {
+      reply = () => stream([...start, delta("Sure!"), ...end()]);
+      const history = [
+        { from: "her" as const, text: "what's a list?" },
+        { from: "mochi" as const, text: "A row of boxes." },
+      ];
+      await collect(answer(connect(KEY), "m", "rules", "and a tuple?", { history }));
+      assert.deepStrictEqual((calls[0].body as { messages: unknown }).messages, [
+        { role: "user", content: "what's a list?" },
+        { role: "assistant", content: "A row of boxes." },
+        { role: "user", content: "and a tuple?" },
+      ]);
     });
   });
 
