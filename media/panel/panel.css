@@ -36,6 +36,19 @@
   --mochi-corner: 2px;
   --mochi-frame-corner: 8px;
   --mochi-send-size: 26px;
+  /* The chat (MOCHI-21). */
+  --mochi-her-bubble: var(--vscode-button-secondaryBackground);
+  --mochi-her-text: var(--vscode-button-secondaryForeground);
+  --mochi-reply-bubble: var(--vscode-editorWidget-background, var(--vscode-input-background));
+  --mochi-problem-border: var(--vscode-inputValidation-warningBorder, var(--vscode-editorWarning-foreground));
+  --mochi-code-background: var(--vscode-textCodeBlock-background);
+  --mochi-code-font: var(--vscode-editor-font-family);
+  --mochi-code-font-size: var(--vscode-editor-font-size);
+  --mochi-link: var(--vscode-textLink-foreground);
+  --mochi-link-hover: var(--vscode-textLink-activeForeground);
+  --mochi-chip-border: var(--vscode-button-border, var(--vscode-widget-border, transparent));
+  --mochi-bubble-corner: 12px;
+  --mochi-message-cat-size: 20px;
 }
 
 /* The mood icons from Mochi's icon font, the same ones as the status bar.
@@ -51,7 +64,7 @@ body {
   display: flex;
   flex-direction: column;
   gap: calc(var(--mochi-gap) * 2);
-  min-height: calc(100vh - var(--mochi-gap) * 2);
+  height: 100vh;
   box-sizing: border-box;
   color: var(--mochi-text);
   background: var(--mochi-background);
@@ -91,8 +104,175 @@ body {
   margin: 0;
 }
 
+/* The middle holds the buttons and the chat. Only the chat scrolls. */
 .mochi-middle {
   flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--mochi-gap);
+}
+
+.mochi-chat {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--mochi-gap) * 1.5);
+  padding-block: var(--mochi-gap);
+}
+
+.mochi-chat-empty {
+  margin: auto 0 0;
+  color: var(--mochi-quiet-text);
+}
+
+.mochi-message {
+  display: flex;
+  gap: 6px;
+  align-items: flex-start;
+}
+.mochi-from-her {
+  justify-content: flex-end;
+}
+.mochi-message-body {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+  max-width: 88%;
+}
+.mochi-from-her .mochi-message-body {
+  align-items: flex-end;
+}
+
+/* The little cat beside each of Mochi's messages. */
+.mochi-message-cat {
+  flex: none;
+  font-family: "mochi-icons";
+  font-size: var(--mochi-message-cat-size);
+  line-height: 1;
+  color: var(--mochi-quiet-text);
+}
+.mochi-message-cat::before {
+  content: "\E001";
+}
+
+.mochi-bubble {
+  padding: 6px 10px;
+  border: 1px solid var(--mochi-contrast-border);
+  overflow-wrap: anywhere;
+}
+.mochi-from-her .mochi-bubble {
+  white-space: pre-wrap;
+  color: var(--mochi-her-text);
+  background: var(--mochi-her-bubble);
+  border-radius: var(--mochi-bubble-corner) var(--mochi-bubble-corner) 2px var(--mochi-bubble-corner);
+}
+.mochi-from-mochi .mochi-bubble {
+  background: var(--mochi-reply-bubble);
+  border-radius: var(--mochi-bubble-corner) var(--mochi-bubble-corner) var(--mochi-bubble-corner) 2px;
+}
+.mochi-problem .mochi-bubble {
+  border-color: var(--mochi-problem-border);
+}
+/* Nothing written yet: keep the bubble from collapsing to a sliver. */
+.mochi-bubble:empty {
+  min-width: 2em;
+  min-height: 1.4em;
+}
+
+.mochi-bubble p,
+.mochi-bubble ul,
+.mochi-bubble ol {
+  margin: 0 0 6px;
+  white-space: pre-wrap;
+}
+.mochi-bubble > :last-child {
+  margin-bottom: 0;
+}
+.mochi-bubble ul,
+.mochi-bubble ol {
+  padding-left: 1.4em;
+}
+.mochi-heading {
+  font-weight: 600;
+}
+
+.mochi-inline-code,
+.mochi-code pre {
+  font-family: var(--mochi-code-font);
+  font-size: var(--mochi-code-font-size);
+}
+.mochi-inline-code {
+  padding: 0 3px;
+  border-radius: var(--mochi-corner);
+  background: var(--mochi-code-background);
+}
+
+.mochi-code {
+  margin: 0 0 6px;
+  border: 1px solid var(--mochi-contrast-border);
+  border-radius: 4px;
+  background: var(--mochi-code-background);
+}
+.mochi-code pre {
+  margin: 0;
+  padding: 2px 10px 8px;
+  overflow-x: auto;
+}
+.mochi-code-top {
+  display: flex;
+  justify-content: flex-end;
+  padding: 4px 4px 0;
+}
+.mochi-copy {
+  padding: 1px 6px;
+  border: 1px solid var(--mochi-chip-border);
+  border-radius: var(--mochi-corner);
+  color: var(--mochi-button-text);
+  background: var(--mochi-button-background);
+  font: inherit;
+  font-size: 0.9em;
+  cursor: pointer;
+}
+.mochi-copy:hover {
+  background: var(--mochi-button-hover);
+}
+
+.mochi-link {
+  color: var(--mochi-link);
+}
+.mochi-link:hover {
+  color: var(--mochi-link-hover);
+}
+.mochi-link-domain {
+  color: var(--mochi-quiet-text);
+}
+
+/* Next steps under a message, like "Give me a hint" or "Keep going". */
+.mochi-chips {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+.mochi-chips-prompt {
+  width: 100%;
+  color: var(--mochi-quiet-text);
+}
+.mochi-chip {
+  padding: 2px 10px;
+  border: 1px solid var(--mochi-chip-border);
+  border-radius: 999px;
+  color: var(--mochi-text);
+  background: transparent;
+  font: inherit;
+  cursor: pointer;
+}
+.mochi-chip:hover {
+  background: var(--mochi-button-hover);
 }
 
 .mochi-actions {
@@ -198,7 +378,10 @@ body {
 
 /* Keyboard focus is always visible, in the theme's focus color. */
 .mochi-button:focus-visible,
-.mochi-send:focus-visible {
+.mochi-send:focus-visible,
+.mochi-chip:focus-visible,
+.mochi-copy:focus-visible,
+.mochi-link:focus-visible {
   outline: 1px solid var(--mochi-focus);
   outline-offset: 1px;
 }
