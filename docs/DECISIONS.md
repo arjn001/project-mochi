@@ -165,7 +165,10 @@ message.
   kept only until VS Code closes.
 - **Her personal layer:** her name, her lines, and style notes.
 - **About her day, for the greeting:** when she last coded, the project's
-  folder name, and the day she was last greeted.
+  folder name, the day she was last greeted, and today's greeting line.
+- **The panel's unsent draft:** what she typed in the Ask box and didn't
+  send, kept by VS Code for the panel. "Forget everything" clears it, right
+  away if the panel is open, otherwise the next time it opens.
 - **Small reminders:** tonight's late-night nudge, which projects were
   offered Python setup, a focus session's end time.
 - **Her Claude models:** the ids and names from the last Claude model
@@ -179,8 +182,9 @@ message.
   - every chat, in every project (with MOCHI-21);
   - her personal layer, including a damaged copy kept aside;
   - what Mochi remembers about her days: when and where she last coded, the
-    day she was last greeted, tonight's late-night nudge, and which projects
-    were offered Python setup;
+    day she was last greeted and today's greeting line, tonight's late-night
+    nudge, and which projects were offered Python setup;
+  - the panel's unsent draft;
   - a focus session's saved end time. A session that's running keeps going,
     since she started it, but won't come back after a restart;
   - the saved list of her Claude models (the key itself stays).
@@ -236,8 +240,12 @@ message.
   counting absence can feel like guilt.
 - Mochi remembers when she last coded and the project's folder name (never a
   path or anything from her code), saving at most once a minute.
-- Shown as a fading notification until the panel exists, through a small
-  greeting surface the panel will take over.
+- Shown at the top of Mochi's panel, through the greeting surface (MOCHI-16).
+  One line is picked a day and kept, so the panel shows the same line every
+  time she opens it that day, in every window. A fading notification only
+  when the panel isn't visible. Opening the panel shows today's line even
+  in quiet mode, since she opened it; that doesn't count as the day's
+  greeting.
 - On her first-ever day, the first-run welcome (MOCHI-42) replaces the
   greeting; never both.
 - If a Python project is opening too, the Python offer waits until after the
@@ -317,6 +325,28 @@ message.
   internet or a restricted network is a common reason. On Linux, a failed
   setup mentions the usual cause, a missing python3-venv package.
 
+## The panel
+- Mochi's tab is a webview view, built first with VS Code's theme only
+  (MOCHI-16); its look is added later (MOCHI-50, MOCHI-17).
+- A strict content security policy: nothing is allowed unless listed, and
+  the list is the stylesheet and icon font from Mochi's files and one
+  script carrying a fresh nonce. No inline styles or scripts.
+  `localResourceRoots` is only `media/` and `dist/webview/`.
+- All styles live in one stylesheet, `media/panel/panel.css`, using only VS
+  Code's `--vscode-*` variables through `--mochi-*` tokens defined in its
+  first block. A unit test fails on any raw color.
+- No framework and no new dependency. The Webview UI Toolkit was deprecated
+  on 2025-01-01, and codicons would be a CC-BY dependency.
+- Mochi holds everything the panel shows and sends it whenever the panel
+  opens or something changes; the panel has no words of its own. Every
+  message from the panel is checked, and anything unknown is ignored. No
+  `retainContextWhenHidden`.
+- Buttons use the same names as the commands they run.
+- The Ask box uses the same flow as "Mochi: Ask", until the chat (MOCHI-21).
+- Text she types that looks like a password or API key is asked about
+  first ("Send anyway?"), in the panel and in "Mochi: Ask". It lives in the
+  share gate.
+
 ## Building and packaging
 - Mochi is packaged into a `.vsix` with `npm run package`.
 - Mochi is bundled with esbuild (MOCHI-14, before its first runtime
@@ -331,6 +361,10 @@ message.
   install folder, not from where the code sits, since the bundle lives in
   `dist/`.
 - F5 runs two watchers: TypeScript (for `out/`) and esbuild (for `dist/`).
+- The panel's script is a second bundle, `dist/webview/panel.js`, built for
+  the browser inside VS Code, with its own TypeScript settings
+  (`src/webview/tsconfig.json`) so it gets browser types and nothing from
+  Node. CI allows exactly these two files of code in the .vsix.
 - Runtime dependencies are bundled too, so `npm run package` leaves
   `node_modules` out (`--no-dependencies`). Only `vscode` stays external.
 - esbuild warnings fail the build.

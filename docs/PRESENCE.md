@@ -10,10 +10,12 @@ Mochi shows up in four places, from always visible to only when it helps.
   "Mochi" tab beside Chat. See "Living on the right side" below.
 - At the top: Mochi's avatar and a greeting about her day
   ("Good evening! What are we making?").
-- In the middle: the chat with Mochi.
-- Quick buttons for common actions, like "Explain this", "Focus 25 min", and
-  "Dark mode".
+- In the middle: the chat with Mochi (MOCHI-21).
+- Quick buttons for common actions: "Explain this", "Start a focus session",
+  and "Switch to a dark theme", named like their commands.
 - At the bottom: an "Ask Mochi anything" box.
+- Built in MOCHI-16 with VS Code's theme only; the look comes later (see
+  DESIGN.md, "Mochi's panel").
 
 ## 2. Status bar: always there
 - A small line in the status bar with Mochi's mood, like "Mochi is purring".

@@ -16,9 +16,10 @@ her click.
 - **After the late-night hour:** "Hi, night owl!" instead of a time of day,
   since "Good night" sounds like goodbye.
 - **Her name:** used in a greeting only when she has set one.
-- **Where:** a gentle notification that fades on its own, until the panel
-  exists (MOCHI-16). On her first-ever day, the first-run welcome (MOCHI-42)
-  replaces it; never both.
+- **Where:** at the top of Mochi's panel, the same line all day (MOCHI-16),
+  and a gentle notification that fades on its own only when the panel isn't
+  visible. On her first-ever day, the first-run welcome (MOCHI-42) replaces
+  it; never both.
 - **Never:** a wall of text, a list of tips, counting or guilt about time
   away, in quiet mode, or when a focus session is already running. Chatty
   mode greets once a day too.
