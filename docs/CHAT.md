@@ -3,7 +3,8 @@
 How talking to Mochi works: where the brain comes from, what a conversation
 holds, what's sent, learning mode, and what Mochi says when things go wrong.
 This is behavior only. How the chat looks (layout, colors, the avatar) comes
-from DESIGN.md (MOCHI-50), and no panel UI is built before it.
+from DESIGN.md (MOCHI-50). The panel is built first with VS Code's theme
+only, and its look is added later.
 
 Checked against the tools and docs as of 2026-10-06. Sources are at the end.
 

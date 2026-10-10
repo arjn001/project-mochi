@@ -10,9 +10,24 @@ and understand in one sitting. Each milestone ends with something real to use.
   done.
 
 ## In parallel: the visual identity
-**MOCHI-50 Design the visual identity** starts now, alongside Milestone 1, and
-is done separately. It lands as DESIGN.md. It is a hard requirement before
-MOCHI-16 Build the side panel: no panel UI is built until it's merged.
+**MOCHI-50 Design the visual identity** is done separately and lands in
+DESIGN.md. It no longer blocks the panel (changed 2026-10-09): MOCHI-16 is
+built first with VS Code's theme only, with its styles in one place and
+theme variables only, so the look can be added later without rewriting it.
+
+## Order to the early preview (from 2026-10-09)
+1. **MOCHI-42 First-run welcome**, small version: one greeting, where Mochi
+   lives, and a brain check.
+2. **MOCHI-67 Keep going after a long answer.**
+3. **MOCHI-16 Build the side panel**, with VS Code theme styling only.
+4. **MOCHI-21 Build the chat interface.**
+5. **MOCHI-25 Stream replies as they're written**, in the panel.
+6. **MOCHI-17 Create the companion's art and moods**, and the panel's look,
+   once MOCHI-50 is done.
+7. **MOCHI-68 Early preview build for her.**
+
+MOCHI-60 (Windows and macOS in CI) comes before the public release, not
+before the preview.
 
 ## Milestone 1: Mochi exists
 1. **MOCHI-52 Check the name and ID are free on the Marketplace.** You'll see:
@@ -96,7 +111,8 @@ Macs.
 
 29. **MOCHI-41 Build the private personal layer.** You'll see: a personal
     layer laid over the default pack, kept in private storage.
-30. **MOCHI-42 First-run welcome.** You'll see: a hello, the AI choice, and the
+30. **MOCHI-42 First-run welcome.** (A small version moved ahead of the
+    early preview.) You'll see: a hello, the AI choice, and the
     "Got a gift file?" link.
 31. **MOCHI-43 "Make it yours" page.** You'll see: every setting editable, plus
     import and export.

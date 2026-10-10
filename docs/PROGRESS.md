@@ -12,19 +12,17 @@ update isn't listed.*
 
 - **Open pull requests:** none.
 - **In progress:**
-  - MOCHI-53 Connect Claude: Part 2 (her own Claude key, with the official
-    Claude SDK) is built and in review.
+  - MOCHI-42 First-run welcome, small version: built and in review.
   - MOCHI-50 Design the visual identity, by Arjun.
-- **Next:** Arjun orders the work that doesn't need the panel (see "Next").
+- **Next:** MOCHI-67 Keep going after a long answer, then MOCHI-16, the
+  panel with VS Code's theme only (see "Next").
 - **Waiting on:**
-  - Arjun to test Part 2 with his test Claude key (its own Console
-    workspace with a spend limit), pasted only into Mochi's hidden input
-    box, then merge it.
-  - The panel work (MOCHI-16, MOCHI-17, MOCHI-21, MOCHI-25) waits on
-    DESIGN.md being finished (MOCHI-50).
+  - Arjun to try the welcome and merge MOCHI-42.
+  - MOCHI-17 and the panel's look wait on MOCHI-50. The panel itself no
+    longer does.
 
-**36 of 56 Jira tasks and subtasks done**. 2 of the 8
-categories are complete. 311 tests (279 unit, 32 integration) run on every
+**37 of 58 Jira tasks and subtasks done**. 2 of the 8
+categories are complete. 322 tests (289 unit, 33 integration) run on every
 pull request.
 
 ## Done
@@ -60,6 +58,11 @@ MOMENTS.md, PRESENCE.md, ARCHITECTURE.md, and BUILD_PLAN.md.
   line after 2 minutes, while she's typing in that file. Errors only, once
   per session, known by message and nearby code, kept in memory only
   (MOCHI-34).
+- The first-run welcome, small version: Mochi's tab opens once, and one
+  note says hello (with the pack's name for the cat), where Mochi lives,
+  and which brain it would use, or how to set up Copilot with a button.
+  Once ever, never with that day's greeting, and "Got a brain! Ask me
+  anything." once Copilot is ready (MOCHI-42).
 
 **Actions (MOCHI-26), partly done.**
 - Mochi confirms before doing anything she didn't directly ask for, with Undo
@@ -129,22 +132,25 @@ MOMENTS.md, PRESENCE.md, ARCHITECTURE.md, and BUILD_PLAN.md.
 ## In progress
 - **MOCHI-50 Design the visual identity**, by Arjun, separately. The icons are
   done; the panel's look, colors, type, and avatar art are not (see DESIGN.md,
-  "Not designed yet"). This blocks MOCHI-16 (panel), MOCHI-17 (art), and
-  MOCHI-21 (chat UI in the panel).
+  "Not designed yet"). This blocks MOCHI-17 (art) and the panel's look, but
+  not the panel: MOCHI-16 is built first with VS Code's theme only.
 
 ## Next
-How chat works is designed in docs/CHAT.md. Work that doesn't need the
-panel, for Arjun to order:
-1. **MOCHI-54 OpenAI-compatible services and local model servers** (Ollama,
-   LM Studio).
+The order to the early preview (agreed 2026-10-09, also in BUILD_PLAN.md):
+1. **MOCHI-67 Keep going after a long answer.**
+2. **MOCHI-16 Build the side panel**, with VS Code theme styling only, styles
+   in one place and theme variables only.
+3. **MOCHI-21 Build the chat interface.**
+4. **MOCHI-25 Stream replies as they're written**, in the panel.
+5. **MOCHI-17 Art and moods, and the panel's look**, once MOCHI-50 is done.
+6. **MOCHI-68 Early preview build for her**, default pack only.
 
-Then:
-5. **Before publishing (Release):** MOCHI-60 Windows and macOS in CI,
-   MOCHI-61 "Mochi: Report a problem", MOCHI-62 decide on web support, and
-   MOCHI-63 localization.
-6. **After DESIGN.md is finished:** MOCHI-17, MOCHI-16, MOCHI-21, then
-   MOCHI-25 (streaming in the chat). The early preview for her comes after
-   Milestone 3, with the default pack only.
+Not before the preview:
+- **MOCHI-54 OpenAI-compatible services and local model servers** (Ollama,
+  LM Studio).
+- **Before publishing (Release):** MOCHI-60 Windows and macOS in CI,
+  MOCHI-61 "Mochi: Report a problem", MOCHI-62 decide on web support, and
+  MOCHI-63 localization.
 
 ## Loose ends to remember
 - Remove the temporary "Mochi: Ask (preview)" command when the panel chat
@@ -157,8 +163,9 @@ Then:
   greet on demand. Remove
   or replace them when "Make it yours" (MOCHI-43) or gifts (MOCHI-56) land.
 - "Set one up" opens VS Code's Copilot setup, or Choose a brain in editors
-  without it. MOCHI-42 replaces it with "Pick a brain" inside Mochi's tab,
-  plus a "Got a brain!" confirmation.
+  without it, and "Got a brain!" follows once Copilot is ready. A fuller
+  "Pick a brain" inside Mochi's tab may come after the small welcome.
+- The welcome is a notification for now; MOCHI-16 moves it into the panel.
 - Claude answers are capped at 4,000 tokens, and models that always think
   (Opus 5.5, Fable 5.1) count their thinking toward it. If their answers get
   cut short in testing, revisit `MAX_ANSWER_TOKENS` in `src/ai/claude.ts`.
@@ -196,6 +203,9 @@ Then:
 ## What Arjun likes
 - **How we work:** explain first, small steps Arjun can run and understand, and
   being told what just happened and why.
+- **Jira and branches handled automatically:** In Progress with the branch,
+  the PR link as a comment, then Done with the merge commit, and the branch
+  deleted (see CLAUDE.md).
 - **Moving faster now:** several tasks in a row is fine, asking questions
   along the way. Once he approves a task's plan, all its commits get done
   without stopping, except for new decisions, his manual tests, and the
@@ -222,7 +232,6 @@ Then:
 ## What Arjun doesn't like, or asked to avoid
 - **Any Claude attribution** in commits or pull requests ("Generated with
   Claude Code", Co-Authored-By lines).
-- **Deleting branches** after merging. Keep every branch.
 - **Shortcut-only steps** (F5 doesn't work on Arjun's keyboard). Name the menu
   path first, the shortcut in brackets, and where things are on screen.
 - **Lecturing** at night (water, sleep). Mochi is a buddy, not a parent.
@@ -242,5 +251,5 @@ Then:
 - Keep C2PA metadata on design files, and describe how assets were made
   accurately (see DESIGN.md, Icons).
 - Mochi never ships its own AI key; each user brings their own brain.
-- The visual identity is designed separately, and no panel UI is built before
-  it.
+- The visual identity is designed separately. The panel is built first with
+  VS Code's theme only, and its look is added later (changed 2026-10-09).

@@ -24,6 +24,20 @@ export const brainStrings = {
     `Quick note: ${missing} isn't available right now, so I'm thinking with ${used} instead. Mochi: Choose a brain changes this.`,
 };
 
+// The first-run welcome (MOCHI-42). `companion` is the pack's name for the
+// cat. "the Mochi tab" is the tab's own label, which packs can't change.
+export const welcomeStrings = {
+  hello: (companion: string) => `Meow, hi! I'm ${companion}, your coding buddy.`,
+  where: "I live in the Mochi tab, and my mood shows in the status bar.",
+  ready: (brain: string) => `I can think with ${brain} whenever you ask me something.`,
+  copilot: "To answer questions I need a brain, and GitHub Copilot's free plan works: just sign in with GitHub.",
+  choose: "To answer questions I need a brain. Choose a brain shows what you can use.",
+  setUpCopilot: "Set up Copilot",
+  chooseBrain: "Choose a brain",
+  // Once Copilot is ready after she started its setup from Mochi.
+  gotABrain: "Got a brain! Ask me anything.",
+};
+
 // Her own Claude key: "Mochi: Add a Claude key" and "Mochi: Remove my Claude
 // key" (MOCHI-53, part 2).
 export const claudeKeyStrings = {

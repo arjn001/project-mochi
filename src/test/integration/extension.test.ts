@@ -234,6 +234,13 @@ describe("Mochi in VS Code", () => {
     });
   });
 
+  describe("the first-run welcome", () => {
+    it("welcomed this fresh profile once, and never again", async () => {
+      const api = (await vscode.extensions.getExtension<MochiApi>("arjungyawali.mochi-companion")!.activate()) as MochiApi;
+      assert.strictEqual(await api.welcomer!.welcome(), undefined, "Already welcomed when Mochi started.");
+    });
+  });
+
   describe("the greeting when VS Code opens", () => {
     const settings = () => vscode.workspace.getConfiguration("mochi");
     async function greeter() {
