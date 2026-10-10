@@ -349,6 +349,51 @@ body {
   border-color: var(--mochi-focus);
 }
 
+/* The chip for the code she has selected, above what she types. */
+.mochi-attachment {
+  display: flex;
+  align-items: center;
+  align-self: flex-start;
+  gap: 2px;
+  max-width: 100%;
+  padding: 1px 2px 1px 8px;
+  border: 1px solid var(--mochi-chip-border);
+  border-radius: 999px;
+  color: var(--mochi-text);
+  font-size: 0.9em;
+}
+.mochi-attachment-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.mochi-leave-out {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  color: var(--mochi-quiet-text);
+  background: transparent;
+  cursor: pointer;
+}
+.mochi-leave-out:hover {
+  color: var(--mochi-text);
+  background: var(--mochi-button-hover);
+}
+.mochi-leave-out-x {
+  width: 12px;
+  height: 12px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+}
+
 .mochi-box {
   width: 100%;
   box-sizing: border-box;
@@ -406,6 +451,7 @@ body {
 .mochi-send:focus-visible,
 .mochi-chip:focus-visible,
 .mochi-brain:focus-visible,
+.mochi-leave-out:focus-visible,
 .mochi-copy:focus-visible,
 .mochi-link:focus-visible {
   outline: 1px solid var(--mochi-focus);

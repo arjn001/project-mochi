@@ -255,6 +255,24 @@ describe("Mochi in VS Code", () => {
       assert.ok(!api.chat!.entries().some((e) => e.from === "her" && e.text === "hi"), "Her text goes back in the box, not into the chat.");
     });
 
+    it("shows a chip for the selected lines, and leaves them out after the x", async () => {
+      const api = (await vscode.extensions.getExtension<MochiApi>("arjungyawali.mochi-companion")!.activate()) as MochiApi;
+      const doc = await vscode.workspace.openTextDocument({ language: "python", content: "x = 1\ny = 2\nprint(x + y)\n" });
+      const editor = await vscode.window.showTextDocument(doc);
+      editor.selection = new vscode.Selection(0, 0, 2, 0);
+      assert.deepStrictEqual(api.attachment!.shown(), {
+        label: "an untitled file, lines 1 to 2",
+        leaveOut: "Leave out an untitled file, lines 1 to 2",
+      });
+      api.attachment!.leaveOut();
+      assert.strictEqual(api.attachment!.shown(), undefined);
+      assert.deepStrictEqual(api.attachment!.attached(), []);
+      // Selecting something else brings it back.
+      editor.selection = new vscode.Selection(2, 0, 2, 5);
+      assert.strictEqual(api.attachment!.shown()?.label, "an untitled file, line 3");
+      await vscode.commands.executeCommand("workbench.action.revertAndCloseActiveEditor");
+    });
+
     it("forgets the chat with Forget everything", async () => {
       const api = (await vscode.extensions.getExtension<MochiApi>("arjungyawali.mochi-companion")!.activate()) as MochiApi;
       await api.chat!.problem("A line to forget.");

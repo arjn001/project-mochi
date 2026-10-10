@@ -55,6 +55,14 @@ export function panelHtml(page: PanelPage): string {
     <form class="mochi-ask" id="ask-form">
       <label class="mochi-hidden-label" id="ask-label" for="ask"></label>
       <div class="mochi-frame">
+        <div class="mochi-attachment" id="attachment" hidden>
+          <span class="mochi-attachment-label" id="attachment-label"></span>
+          <button class="mochi-leave-out" id="leave-out" type="button">
+            <svg class="mochi-leave-out-x" viewBox="0 0 16 16" aria-hidden="true" focusable="false">
+              <path d="M4.5 4.5l7 7M11.5 4.5l-7 7"/>
+            </svg>
+          </button>
+        </div>
         <textarea class="mochi-box" id="ask" rows="2"></textarea>
         <div class="mochi-frame-row">
           <button class="mochi-send" id="send" type="submit" disabled>

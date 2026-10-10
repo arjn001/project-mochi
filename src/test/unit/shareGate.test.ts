@@ -1,5 +1,6 @@
 import * as assert from "node:assert";
-import { Answer, Attachment, TYPED_SECRET_QUESTION, followUp, question, throughShareGate } from "../../ai/shareGate";
+import { compose } from "../../ai/compose";
+import { Answer, Attachment, GatedRequest, TYPED_SECRET_QUESTION, chipLabel, describe as describeAttachment, followUp, question, throughShareGate } from "../../ai/shareGate";
 
 const errorLines: Attachment = {
   kind: "errorContext",
@@ -134,5 +135,30 @@ describe("share gate", () => {
       question([errorLines, file], "Copilot"),
       "Share lines 9 to 15 of homework.py (the error on line 12) and the open file notes.md with Copilot?"
     );
+  });
+
+  describe("selected code, with its lines (MOCHI-21)", () => {
+    const lines = { kind: "selection" as const, label: "homework.py", text: "x = 1", from: 9, to: 15 };
+    const one = { kind: "selection" as const, label: "homework.py", text: "x = 1", from: 9, to: 9 };
+
+    it("names the lines in the share gate's question", () => {
+      assert.strictEqual(question([lines], "Copilot"), "Share lines 9 to 15 of homework.py with Copilot?");
+      assert.strictEqual(question([one], "Copilot"), "Share line 9 of homework.py with Copilot?");
+    });
+
+    it("shows a chip above the box, and says what the x does", () => {
+      assert.strictEqual(chipLabel(lines), "homework.py, lines 9 to 15");
+      assert.strictEqual(chipLabel(one), "homework.py, line 9");
+      assert.strictEqual(chipLabel({ kind: "selection", label: "homework.py", text: "" }), "homework.py");
+    });
+
+    it("tells the brain which lines they are", () => {
+      const sent = { message: "Why?", attachments: [lines] } as unknown as GatedRequest;
+      assert.match(compose(sent), /Selected code from homework\.py, lines 9 to 15:\n```\nx = 1\n```/);
+    });
+
+    it("still reads well without lines, like Explain this", () => {
+      assert.strictEqual(describeAttachment(selection), "the selected code from homework.py");
+    });
   });
 });

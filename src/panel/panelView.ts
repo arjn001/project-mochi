@@ -12,6 +12,8 @@ export interface PanelActions {
   ask(text: string): Promise<boolean>;
   button(button: PanelButton): Promise<void>;
   chip(entry: number, chip: string): void;
+  // The x on the attachment chip.
+  leaveOut(): void;
   copy(text: string): Promise<void>;
   openLink(url: string): Promise<void>;
 }
@@ -151,6 +153,9 @@ export class MochiPanel implements vscode.WebviewViewProvider {
         break;
       case "chip":
         this.actions.chip(message.entry, message.chip);
+        break;
+      case "leaveOut":
+        this.actions.leaveOut();
         break;
       case "copy":
         await this.actions.copy(message.text);

@@ -27,6 +27,9 @@ const askLabel = byId<HTMLLabelElement>("ask-label");
 const box = byId<HTMLTextAreaElement>("ask");
 const send = byId<HTMLButtonElement>("send");
 const chat = byId<HTMLDivElement>("chat");
+const attachment = byId<HTMLDivElement>("attachment");
+const attachmentLabel = byId<HTMLSpanElement>("attachment-label");
+const leaveOut = byId<HTMLButtonElement>("leave-out");
 const buttons: Record<Exclude<PanelButton, "welcome">, HTMLButtonElement> = {
   explain: byId("explain"),
   focus: byId("focus"),
@@ -250,6 +253,11 @@ function show(state: PanelState): void {
   askLabel.textContent = state.ask.label;
   box.placeholder = state.ask.label;
   labels = state.chat;
+  // The selected code that would go along, with an x to leave it out.
+  attachment.hidden = !state.attachment;
+  attachmentLabel.textContent = state.attachment?.label ?? "";
+  leaveOut.title = state.attachment?.leaveOut ?? "";
+  leaveOut.setAttribute("aria-label", state.attachment?.leaveOut ?? "");
   // An arrow on screen; "Send" as its tooltip and for screen readers.
   send.title = state.ask.send;
   send.setAttribute("aria-label", state.ask.send);
@@ -317,6 +325,11 @@ for (const [name, button] of Object.entries(buttons)) {
   });
 }
 welcome.addEventListener("click", () => vscode.postMessage({ type: "button", button: "welcome" }));
+leaveOut.addEventListener("click", () => {
+  vscode.postMessage({ type: "leaveOut" });
+  // The chip goes away, so her focus goes back to the box.
+  box.focus();
+});
 
 box.addEventListener("input", () => {
   saveDraft();

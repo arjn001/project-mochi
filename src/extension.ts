@@ -27,6 +27,7 @@ import { GreetingSurface, notificationGreeting } from "./presence/greetingSurfac
 import { nightOf } from "./moments/lateNight";
 import { MochiPanel } from "./panel/panelView";
 import { panelActions } from "./panel/panelActions";
+import { AttachmentChip } from "./panel/attachmentChip";
 import { ChatLog } from "./panel/chatLog";
 import { CHATS_GENERATION, ChatMemory } from "./panel/chatMemory";
 import { ChatStore } from "./panel/chatStore";
@@ -47,6 +48,7 @@ export interface MochiApi {
   // The chat, and the panel's own "send", to test the chat in real VS Code.
   chat?: ChatLog;
   memory?: ChatMemory;
+  attachment?: AttachmentChip;
   ask?: (text: string) => Promise<boolean>;
 }
 
@@ -145,12 +147,15 @@ export function activate(context: vscode.ExtensionContext): MochiApi {
   // Mochi's panel, the "Mochi" tab (MOCHI-16): the cat's mood and today's
   // greeting, quick buttons, and the Ask box, styled only from VS Code's
   // theme.
+  // The chip above the box while she has code selected.
+  const attachment = new AttachmentChip(() => refreshPanel());
   const actions = panelActions({
     timer,
     greeter,
     pack,
     conversation,
     chat,
+    attachment,
     setUpCopilot: signInToCopilot,
     brain: () => brainNow,
     hint: (text) => panel.hint(text),
@@ -225,7 +230,7 @@ export function activate(context: vscode.ExtensionContext): MochiApi {
   ]);
 
   // Anything added here is cleaned up when Mochi shuts down.
-  context.subscriptions.push(names, claudeKey, claudeCommands, chooseBrain, copilotWatch, open, home, mood, followSpeakUp, focus, timer, explain, stuck, dim, lateNight, coding, python, pythonOffer, forget, memory, followBrain);
+  context.subscriptions.push(names, claudeKey, claudeCommands, chooseBrain, copilotWatch, open, home, mood, followSpeakUp, focus, timer, explain, stuck, dim, lateNight, coding, python, pythonOffer, forget, memory, followBrain, attachment);
 
   return {
     moodText: () => mood.text,
@@ -235,6 +240,7 @@ export function activate(context: vscode.ExtensionContext): MochiApi {
     panel: context.extensionMode === vscode.ExtensionMode.Test ? panel : undefined,
     chat: context.extensionMode === vscode.ExtensionMode.Test ? chat : undefined,
     memory: context.extensionMode === vscode.ExtensionMode.Test ? memory : undefined,
+    attachment: context.extensionMode === vscode.ExtensionMode.Test ? attachment : undefined,
     ask: context.extensionMode === vscode.ExtensionMode.Test ? actions.ask : undefined,
   };
 }

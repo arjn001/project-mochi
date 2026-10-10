@@ -39,6 +39,9 @@ export interface PanelState {
   // The brain at the top of the chat, like "Copilot · Auto", or "Choose a
   // brain". One click opens Choose a brain.
   brain: { label: string; tooltip: string; spoken: string };
+  // The chip above the box for the code she has selected, like
+  // "homework.py, lines 9 to 15", and its x's words for screen readers.
+  attachment?: { label: string; leaveOut: string };
   ask: { label: string; send: string };
   chat: { empty: string; you: string; mochi: string; copy: string; copied: string };
 }
@@ -64,6 +67,8 @@ export type FromPanel =
   | { type: "ask"; text: string }
   | { type: "button"; button: PanelButton }
   | { type: "chip"; entry: number; chip: string }
+  // The x on the attachment chip: send without the selected code.
+  | { type: "leaveOut" }
   // Copy only copies: Mochi puts the text on her clipboard, nothing else.
   | { type: "copy"; text: string }
   // Opened through VS Code, and only if it's an https link (format.ts).
@@ -95,6 +100,8 @@ export function toFromPanel(value: unknown): FromPanel | undefined {
       return Number.isInteger(message.entry) && typeof message.chip === "string" && message.chip.length <= 10
         ? { type: "chip", entry: message.entry as number, chip: message.chip }
         : undefined;
+    case "leaveOut":
+      return { type: "leaveOut" };
     case "copy":
       return typeof message.text === "string" && message.text.length <= MAX_COPY_LENGTH ? { type: "copy", text: message.text } : undefined;
     case "openLink":

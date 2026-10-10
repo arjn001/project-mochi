@@ -45,6 +45,11 @@ export const chatStrings = {
   explainSelection: (file: string) => `Explain the selected code from ${file}`,
   // When the chat is empty.
   empty: "Our chat stays on this computer. It can include code from our conversation; Clear chat removes it.",
+  // The chip above the box for the code she has selected, and its x for
+  // screen readers.
+  attachment: (file: string, from?: number, to?: number) =>
+    from === undefined || to === undefined ? file : from === to ? `${file}, line ${from}` : `${file}, lines ${from} to ${to}`,
+  leaveOut: (chip: string) => `Leave out ${chip}`,
   // The brain at the top of the chat opens this, with the command's name.
   chooseBrain: "Choose a brain",
   // What screen readers hear for it: "Copilot · Auto. Choose a brain".

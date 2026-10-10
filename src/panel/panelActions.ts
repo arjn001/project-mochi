@@ -1,6 +1,5 @@
 import * as vscode from "vscode";
 import { brainButton } from "../ai/brains";
-import { selectedCode } from "../ai/selection";
 import { Conversation } from "../ai/conversation";
 import { errorInEditor } from "../ai/explainCommands";
 import { FocusTimer } from "../focus/timer";
@@ -9,6 +8,7 @@ import { Pack } from "../packs/format";
 import { moodLine, moodParts } from "../presence/mood";
 import { readSpeakUp } from "../settings";
 import { chatStrings, panelStrings, welcomeStrings } from "../strings";
+import { AttachmentChip } from "./attachmentChip";
 import { ChatLog } from "./chatLog";
 import { safeLink } from "./format";
 import { PanelButton, PanelState } from "./messages";
@@ -20,6 +20,7 @@ interface Needs {
   pack: () => Pack;
   conversation: Conversation;
   chat: ChatLog;
+  attachment: AttachmentChip;
   setUpCopilot: () => Promise<void>;
   // The brain Mochi would think with now, or undefined when it would ask.
   brain: () => string | undefined;
@@ -36,6 +37,7 @@ export function panelActions(needs: Needs): PanelActions {
 
   const state = (): PanelState => {
     const today = greeter.todays();
+    const attachment = needs.attachment.shown();
     const welcomeButton = today.button === "setUpCopilot" ? welcomeStrings.setUpCopilot : today.button === "chooseBrain" ? welcomeStrings.chooseBrain : undefined;
     return {
       // The same mood as the status bar, from the same rules.
@@ -49,14 +51,16 @@ export function panelActions(needs: Needs): PanelActions {
       },
       ask: { label: panelStrings.ask(pack().name), send: panelStrings.send },
       brain: brainButton(needs.brain()),
+      ...(attachment ? { attachment } : {}),
       chat: { empty: chatStrings.empty, you: chatStrings.you, mochi: pack().name, copy: chatStrings.copy, copied: chatStrings.copied },
     };
   };
 
-  // Today's Ask flow: what she typed, plus any code she has selected, through
-  // the share gate (which also warns about text that looks like a secret).
+  // What she typed, plus the code she has selected unless she left it out,
+  // through the share gate (which also warns about text that looks like a
+  // secret).
   const ask = async (text: string): Promise<boolean> =>
-    (await conversation.ask({ message: text, attachments: selectedCode() }, text)) !== undefined;
+    (await conversation.ask({ message: text, attachments: needs.attachment.attached() }, text)) !== undefined;
 
   const button = async (pressed: PanelButton): Promise<void> => {
     switch (pressed) {
@@ -106,6 +110,7 @@ export function panelActions(needs: Needs): PanelActions {
     ask,
     button,
     chip: (entry, chip) => needs.chat.choose(entry, chip),
+    leaveOut: () => needs.attachment.leaveOut(),
     // Copy only copies.
     copy: async (text) => {
       await vscode.env.clipboard.writeText(text);
