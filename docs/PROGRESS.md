@@ -12,18 +12,20 @@ update isn't listed.*
 
 - **Open pull requests:** none besides this one.
 - **In progress:**
-  - MOCHI-21 Build the chat interface: part 1 merged (#49), part 2 (memory
-    and context) built and in review. Done once it merges.
+  - MOCHI-21 Build the chat interface: both parts merged (#49, #50). This
+    follow-up names the remote machine where the chat is kept, and fixes
+    the docs that said every chat stays on her computer. Done once it
+    merges.
   - MOCHI-50 Design the visual identity, by Arjun.
 - **Next:** MOCHI-25 streaming polish: the send arrow turning into a stop
   square, paw prints while Mochi thinks, Escape to stop, "Stopped", and an
   announcement when an answer finishes.
 - **Waiting on:**
-  - Arjun to try and merge MOCHI-21 part 2.
+  - Arjun to merge the MOCHI-21 follow-up.
   - MOCHI-17 and the panel's look wait on MOCHI-50.
 
 **40 of 58 Jira tasks and subtasks done**. 2 of the 8
-categories are complete. 411 tests (373 unit, 38 integration) run on every
+categories are complete. 412 tests (374 unit, 38 integration) run on every
 pull request.
 
 ## Done
@@ -166,7 +168,8 @@ MOMENTS.md, PRESENCE.md, ARCHITECTURE.md, and BUILD_PLAN.md.
 ## Next
 The order to the early preview (agreed 2026-10-09, also in BUILD_PLAN.md):
 1. **MOCHI-16 Build the side panel**, with VS Code theme styling only. Done.
-2. **MOCHI-21 Build the chat interface**: part 1 merged, part 2 in review.
+2. **MOCHI-21 Build the chat interface**: both parts merged; a small
+   follow-up in review.
 3. **MOCHI-25 Stream replies as they're written**, in the panel.
 4. **MOCHI-17 Art and moods, and the panel's look**, once MOCHI-50 is done.
 5. **MOCHI-68 Early preview build for her**, default pack only.
@@ -205,8 +208,9 @@ Not before the preview:
 - PRESENCE.md and ARCHITECTURE.md still quote the old code hint ("Want me
   to explain this error?"); it's "Need a paw?" now.
 - In remote setups, chats live on the remote machine, next to her project,
-  since Mochi's storage folder is where Mochi runs. A rebuilt dev container
-  starts with an empty chat. Not checked by hand over SSH yet.
+  since Mochi's storage folder is where Mochi runs, and the chat names that
+  machine. A rebuilt dev container starts with an empty chat. Not checked
+  by hand over SSH yet.
 - Not checked by hand yet: a chat in one window when "Forget everything"
   runs in another (unit tested; the window clears when she comes back to
   it).
