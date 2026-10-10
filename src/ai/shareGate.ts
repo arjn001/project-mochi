@@ -1,7 +1,8 @@
 // The share gate: the only way anything reaches an AI (see ARCHITECTURE.md).
 // Plain code with no VS Code dependency, so it can be unit tested alone.
 //
-// What she types herself goes through, because pressing send is her click.
+// What she types herself goes through, because pressing send is her click,
+// unless it looks like a password or API key: then she's asked first.
 // Anything Mochi attaches on its own (selected code, errors, the open file)
 // is only sent after she says yes to a question naming the AI it goes to.
 
@@ -28,7 +29,12 @@ export type GatedRequest = Request & { readonly [passed]: true };
 export type Answer = "share" | "sendWithout" | "cancel";
 
 // Asks her the question. In VS Code this is a dialog; in tests, a fake.
-export type Ask = (question: string) => Promise<Answer>;
+// "typedSecret" is the warning about what she typed: its only yes is
+// "Send anyway", answered as "share".
+export type Ask = (question: string, about?: "attachments" | "typedSecret") => Promise<Answer>;
+
+// When what she typed looks like a password or API key.
+export const TYPED_SECRET_QUESTION = `${SECRET_WARNING} Send anyway?`;
 
 export type GateResult =
   | { status: "sent"; request: GatedRequest }
@@ -68,11 +74,14 @@ export async function throughShareGate(request: Request, provider: string, ask: 
   if (secretFile) {
     return { status: "refused", reason: refusalFor(secretFile.label) };
   }
+  if (looksSecret(request.message) && (await ask(TYPED_SECRET_QUESTION, "typedSecret")) !== "share") {
+    return { status: "notSent" };
+  }
   if (request.attachments.length === 0) {
     return request.message.trim() === "" ? { status: "notSent" } : { status: "sent", request: stamp(request) };
   }
 
-  const answer = await ask(question(request.attachments, provider));
+  const answer = await ask(question(request.attachments, provider), "attachments");
   if (answer === "share") {
     return { status: "sent", request: stamp(request) };
   }

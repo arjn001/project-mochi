@@ -24,6 +24,14 @@ export const brainStrings = {
     `Quick note: ${missing} isn't available right now, so I'm thinking with ${used} instead. Mochi: Choose a brain changes this.`,
 };
 
+// The share gate. Older lines still live in ai/askToShare.ts and
+// ai/secrets.ts until MOCHI-63.
+export const shareStrings = {
+  // After "Careful: this looks like it might contain a password or API key.
+  // Send anyway?" about what she typed.
+  sendAnyway: "Send anyway",
+};
+
 // The first-run welcome (MOCHI-42). `companion` is the pack's name for the
 // cat. "the Mochi tab" is the tab's own label, which packs can't change.
 export const welcomeStrings = {
