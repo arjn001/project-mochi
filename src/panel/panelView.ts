@@ -1,14 +1,19 @@
 import { randomBytes } from "node:crypto";
 import * as vscode from "vscode";
 import { panelHtml } from "./html";
-import { FromPanel, PanelButton, PanelState, ToPanel, toFromPanel } from "./messages";
+import { ChatChange } from "./chatLog";
+import { ChatEntry, FromPanel, PanelButton, PanelState, ToPanel, toFromPanel } from "./messages";
 
 // What the panel asks the rest of Mochi to do.
 export interface PanelActions {
   state(): PanelState;
+  chat(): readonly ChatEntry[];
   // True if it was sent, so the panel knows whether to put the text back.
   ask(text: string): Promise<boolean>;
   button(button: PanelButton): Promise<void>;
+  chip(entry: number, chip: string): void;
+  copy(text: string): Promise<void>;
+  openLink(url: string): Promise<void>;
 }
 
 // Mochi's panel, the "Mochi" tab in the secondary side bar (MOCHI-16). A
@@ -74,11 +79,35 @@ export class MochiPanel implements vscode.WebviewViewProvider {
     });
   }
 
-  // Shows the latest state, if the panel is open.
+  // Shows the latest state and the whole chat, if the panel is open.
   refresh(): void {
     if (this.visible) {
-      this.post({ type: "show", state: this.actions.state() });
+      this.post({ type: "show", state: this.actions.state(), chat: this.actions.chat() });
     }
+  }
+
+  // The chat changed. A closed panel catches up when it opens.
+  chatChanged(change: ChatChange): void {
+    if (!this.visible) {
+      return;
+    }
+    this.post(change.type === "all" ? { type: "chat", chat: this.actions.chat() } : change);
+  }
+
+  // Shows the panel without taking her focus, like when she clicks "Explain
+  // with Mochi" in the editor.
+  reveal(): void {
+    if (this.view) {
+      if (!this.view.visible) {
+        this.view.show(true);
+      }
+      return;
+    }
+    // Not opened yet in this window: open Mochi's tab, then hand her focus
+    // back to the editor she was in.
+    void vscode.commands
+      .executeCommand("mochi.open")
+      .then(() => vscode.commands.executeCommand("workbench.action.focusActiveEditorGroup"));
   }
 
   hint(text: string): void {
@@ -119,6 +148,15 @@ export class MochiPanel implements vscode.WebviewViewProvider {
         break;
       case "button":
         await this.actions.button(message.button);
+        break;
+      case "chip":
+        this.actions.chip(message.entry, message.chip);
+        break;
+      case "copy":
+        await this.actions.copy(message.text);
+        break;
+      case "openLink":
+        await this.actions.openLink(message.url);
         break;
     }
   }

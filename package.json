@@ -54,11 +54,6 @@
         "category": "Mochi"
       },
       {
-        "command": "mochi.ask",
-        "title": "Ask (preview)",
-        "category": "Mochi"
-      },
-      {
         "command": "mochi.explainError",
         "title": "Explain this error",
         "category": "Mochi"

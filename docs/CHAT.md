@@ -209,11 +209,15 @@ brain" opens the same list (MOCHI-53).
 - **Streaming:** the answer appears as it's written (MOCHI-25).
 - **Stop:** a Stop button (and Escape) ends it right away; what's there
   stays, marked "Stopped".
-- **Code blocks:** shown as code, with the language's colors, and a **Copy**
-  button on each. Copy only copies; it never runs or inserts anything.
-- **The answer is untrusted text.** It's shown as Markdown with HTML turned
-  off, and links never run commands. The panel has a strict content
-  security policy.
+- **Code blocks:** shown as code in the editor's font (no colors for now),
+  with a **Copy** button above each. Copy only copies; it never runs or
+  inserts anything.
+- **The answer is untrusted text.** Only a small safe subset is formatted
+  (paragraphs, headings, lists, code, bold, italic, inline code, links), and
+  it's built from text nodes, never as HTML, so nothing in an answer can
+  become live HTML. Links are clickable only for https, always show where
+  they go, and open through VS Code; they never run commands. The panel has
+  a strict content security policy (DECISIONS.md, "The chat").
 
 **Two rules for every brain.**
 - **Mochi never calls the AI on its own.** Only her message, or her click
@@ -252,7 +256,9 @@ handing me answers."
 ## 5. When things go wrong
 
 Every failure gets one kind line, from the pack (so her personal layer can
-reword them), and never a raw error. Each one says what she can do.
+reword them), and never a raw error. Each one says what she can do. It
+appears in the chat as Mochi's message, with a chip for what she can do
+(MOCHI-21).
 
 | What happened | What Mochi says (default pack) | What she can do |
 |---|---|---|

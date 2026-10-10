@@ -345,10 +345,34 @@ message.
   message from the panel is checked, and anything unknown is ignored. No
   `retainContextWhenHidden`.
 - Buttons use the same names as the commands they run.
-- The Ask box uses the same flow as "Mochi: Ask", until the chat (MOCHI-21).
 - Text she types that looks like a password or API key is asked about
-  first ("Send anyway?"), in the panel and in "Mochi: Ask". It lives in the
-  share gate.
+  first ("Send anyway?"). It lives in the share gate.
+
+## The chat
+- Answers show in the chat in Mochi's panel (MOCHI-21), which replaced the
+  "Mochi" output panel and the temporary "Mochi: Ask (preview)" command.
+  Explain answers there too, and opening the chat from the editor doesn't
+  take her focus.
+- Answers are formatted from a small safe subset only: paragraphs,
+  headings, lists, code blocks, bold, italic, inline code, and links.
+  Everything else stays text, as written. The panel builds them with
+  createElement and text nodes, never innerHTML; unit tests feed it
+  hostile answers (script tags, onerror attributes, javascript: links, HTML
+  in code, broken markdown), and a test fails if the panel's script ever
+  uses innerHTML or anything like it.
+- Links are clickable only for https, with no user name or password hidden
+  in them, and they always show where they go: a bare address as itself,
+  and a link's own text with its domain next to it. They open through VS
+  Code's openExternal, which asks first for sites she hasn't trusted.
+  Anything else stays text.
+- Code blocks use the editor's font, with no colors for now, and a Copy
+  button that only copies.
+- Kind lines about problems appear in the chat as Mochi's message, with a
+  chip when she can do something ("Set one up", "Add a Claude key", "Open
+  the Claude Console", "Keep going"). The learning ladder's next steps are
+  chips under the answer. Chips she didn't pick go away when she moves on.
+- What she clicked shows as her side of the chat: "Explain the error on
+  line 12 of homework.py", "Give me a hint".
 
 ## Building and packaging
 - Mochi is packaged into a `.vsix` with `npm run package`.

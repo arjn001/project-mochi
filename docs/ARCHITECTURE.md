@@ -85,9 +85,11 @@ Mochi never ships its own AI key; each user brings their own brain.
 Local models can be added later as one more provider.
 
 Answers show through one small interface, the answer surface
-(`src/ai/answerSurface.ts`): start, add text as it streams, finish, and offer
-next steps. For now the "Mochi" output panel implements it; the panel chat
-(MOCHI-21) implements the same interface and replaces it.
+(`src/ai/answerSurface.ts`): start, add text as it streams, finish, offer
+next steps, and say a kind line about a problem. The chat in Mochi's panel
+implements it (`src/panel/chatLog.ts`, MOCHI-21). The panel draws answers
+from a small safe subset (`src/panel/format.ts`) with text nodes only,
+never as HTML.
 
 ## Packs and the personal layer
 A pack is a folder with a `pack.json` (name, voice, phrases, moods) and art

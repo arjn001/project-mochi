@@ -8,35 +8,16 @@ import { CONSOLE_BILLING } from "./claude";
 import { BrainError, Provider, brainHelpButtons, brainProblemMessages } from "./provider";
 import { GatedRequest, Request, followUp } from "./shareGate";
 
+// The chip after "I'd need a brain to answer that."
+const SET_UP = "Set one up";
+
 // Continues an answer from what was written so far (MOCHI-67).
 type Again = (soFar: string, signal: AbortSignal) => AsyncIterable<string>;
 
-// One kind line, with a button when there's something she can do. An
-// answer that reached the length limit isn't a problem, so it's a gentle
-// note, not a warning.
-async function showProblem(error: BrainError, keepGoing: () => Promise<void>): Promise<void> {
-  const message = brainProblemMessages[error.problem];
-  const show = error.problem === "cutOff" ? vscode.window.showInformationMessage : vscode.window.showWarningMessage;
-  if (!error.help) {
-    await show(message);
-    return;
-  }
-  const button = brainHelpButtons[error.help];
-  if ((await show(message, button)) !== button) {
-    return;
-  }
-  if (error.help === "addClaudeKey") {
-    await vscode.commands.executeCommand("mochi.addClaudeKey");
-  } else if (error.help === "keepGoing") {
-    await keepGoing();
-  } else {
-    await vscode.env.openExternal(vscode.Uri.parse(CONSOLE_BILLING));
-  }
-}
-
-// One place that asks a brain and shows the answer, used by "Mochi: Ask"
-// and by Explain. Handles no brain, refusals, the share gate, streaming,
-// cancelling, and kind error messages.
+// One place that asks a brain and shows the answer in the chat, used by
+// the panel's box and by Explain. Handles no brain, refusals, the share
+// gate, streaming, cancelling, and kind lines about problems, which appear
+// in the chat with a chip when she can do something (MOCHI-21).
 export class Conversation {
   // The brain that answered last, so a follow-up stays with it.
   private provider: Provider | undefined;
@@ -52,7 +33,7 @@ export class Conversation {
   async ask(request: Request, heading: string): Promise<GatedRequest | undefined> {
     const brain = await this.brains.forQuestion();
     if (brain.kind === "waiting") {
-      this.say(heading, brainStrings.waiting);
+      this.surface.say(brainStrings.waiting);
       return undefined;
     }
     const provider = brain.kind === "use" ? brain.provider : undefined;
@@ -60,15 +41,16 @@ export class Conversation {
     const result = await askMochi(request, provider, this.instructions(), askToShare, controller.signal);
 
     switch (result.status) {
-      case "noBrain": {
-        const setUp = "Set one up";
-        if ((await vscode.window.showInformationMessage(NO_BRAIN, setUp)) === setUp) {
-          await setUpABrain();
-        }
+      case "noBrain":
+        // Not awaited: what she typed goes back in the box right away.
+        void this.surface.problem(NO_BRAIN, SET_UP).then(async (clicked) => {
+          if (clicked) {
+            await setUpABrain();
+          }
+        });
         return undefined;
-      }
       case "refused":
-        vscode.window.showInformationMessage(result.reason);
+        this.surface.say(result.reason);
         return undefined;
       case "notSent":
         return undefined;
@@ -98,11 +80,19 @@ export class Conversation {
     await this.show(heading, text, controller, again);
   }
 
-  // One line from Mochi, with no brain involved.
-  private say(heading: string, line: string): void {
-    this.surface.start(heading, "Mochi");
-    this.surface.append(line);
-    this.surface.finish();
+  // One kind line, with a chip when there's something she can do.
+  private async showProblem(error: BrainError, keepGoing: () => Promise<void>): Promise<void> {
+    const button = error.help && brainHelpButtons[error.help];
+    if (!(await this.surface.problem(brainProblemMessages[error.problem], button))) {
+      return;
+    }
+    if (error.help === "addClaudeKey") {
+      await vscode.commands.executeCommand("mochi.addClaudeKey");
+    } else if (error.help === "keepGoing") {
+      await keepGoing();
+    } else {
+      await vscode.env.openExternal(vscode.Uri.parse(CONSOLE_BILLING));
+    }
   }
 
   private async show(
@@ -113,7 +103,7 @@ export class Conversation {
     // "Quick note: ..." when a stand-in brain answers, once per change.
     note?: string
   ): Promise<void> {
-    this.surface.start(heading, `Mochi (${this.provider?.name ?? "Mochi"})`);
+    this.surface.start(heading);
     if (note) {
       this.surface.append(`${note}\n\n`);
     }
@@ -138,7 +128,7 @@ export class Conversation {
           const problem = error instanceof BrainError ? error : new BrainError("other", String(error));
           const soFar = written;
           // Not awaited, so "Mochi is thinking..." closes right away.
-          void showProblem(problem, () => this.keepGoing(again, soFar));
+          void this.showProblem(problem, () => this.keepGoing(again, soFar));
         }
         this.surface.finish();
       }

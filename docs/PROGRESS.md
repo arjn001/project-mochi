@@ -10,18 +10,22 @@ session.
 *As of the last commit of the latest task, so the pull request carrying this
 update isn't listed.*
 
-- **Open pull requests:** none.
+- **Open pull requests:** #48 (MOCHI-16 follow-up: back to Mochi after
+  Copilot setup, and the send arrow inside the box).
 - **In progress:**
-  - MOCHI-16 Build the side panel, with VS Code's theme only: built and in
-    review.
+  - MOCHI-21 Build the chat interface: part 1 (the chat in the panel) built
+    and in review. Part 2 (memory and context) is next.
+  - MOCHI-16: its follow-up, #48, is in review; Done once it merges.
   - MOCHI-50 Design the visual identity, by Arjun.
-- **Next:** MOCHI-21, the chat in the panel.
+- **Next:** MOCHI-21 part 2: chats saved per project as files, recent
+  messages sent along, the brain at the top, the attachment chip, and
+  "Clear chat".
 - **Waiting on:**
-  - Arjun to try the panel and merge MOCHI-16.
+  - Arjun to merge #48, then try and merge MOCHI-21 part 1.
   - MOCHI-17 and the panel's look wait on MOCHI-50.
 
 **39 of 58 Jira tasks and subtasks done**. 2 of the 8
-categories are complete. 345 tests (311 unit, 34 integration) run on every
+categories are complete. 376 tests (341 unit, 35 integration) run on every
 pull request.
 
 ## Done
@@ -46,7 +50,7 @@ MOMENTS.md, PRESENCE.md, ARCHITECTURE.md, and BUILD_PLAN.md.
   "Ask Mochi anything" box using today's Ask flow. A strict content
   security policy, one stylesheet with theme variables only (checked by a
   test), and no new dependency. Typed text that looks like a password or
-  API key is asked about first, in the panel and "Mochi: Ask". "Dim things"
+  API key is asked about first. "Dim things"
   is now "Switch to a dark theme" (MOCHI-16).
 
 **Moments (MOCHI-32), partly done.**
@@ -82,8 +86,8 @@ MOMENTS.md, PRESENCE.md, ARCHITECTURE.md, and BUILD_PLAN.md.
   first, then a hint or the fix only if she asks. From the lightbulb next to
   an error or "Mochi: Explain this" on a right-click. Shares only the error
   plus 3 lines each side, never `.env` or key files, and warns about text
-  that looks like a password. Answers show in the "Mochi" output panel
-  without taking focus, until the panel chat exists (MOCHI-30).
+  that looks like a password. Answers show in the chat in Mochi's panel,
+  without taking focus (MOCHI-30, MOCHI-21).
 - Setting up a Python project: "Mochi: Set up a Python project" creates
   `.venv` in the terminal panel, then asks before installing
   `requirements.txt` or adding `.venv` to `.gitignore`, and ends with the
@@ -112,7 +116,7 @@ MOMENTS.md, PRESENCE.md, ARCHITECTURE.md, and BUILD_PLAN.md.
 **AI chat (MOCHI-20), partly done.**
 - Share gate that TypeScript won't let anything skip (MOCHI-23).
 - VS Code's built-in AI through Copilot, and a temporary "Mochi: Ask
-  (preview)" command (MOCHI-22). **Mochi gave its first real answer on
+  (preview)" command, retired by the chat (MOCHI-22). **Mochi gave its first real answer on
   2026-10-05.**
 - Mochi's personality from the pack, with fixed rules no pack can remove, a
   warm "let's do it together" for homework requests, and example exchanges
@@ -135,6 +139,12 @@ MOMENTS.md, PRESENCE.md, ARCHITECTURE.md, and BUILD_PLAN.md.
   was written and offers "Keep going", which continues the same answer.
   Claude-key brains only, since VS Code's language model API doesn't say
   why a Copilot answer ended (MOCHI-67).
+- The chat in Mochi's panel, part 1: her messages and Mochi's answers in
+  bubbles, with the little cat; answers formatted from a small safe subset,
+  built from text nodes and never as HTML (tested with hostile answers);
+  https links that always show their domain; code blocks with Copy; next
+  steps and problems as chips. It replaced the output panel and "Mochi:
+  Ask (preview)" (MOCHI-21, part 1).
 - Learning mode, on by default: the learning ladder for coursework-style
   requests, or direct answers with fixes when she turns it off. Only she can
   change it; a project's settings can't. "Explain with Mochi" follows it
@@ -148,10 +158,9 @@ MOMENTS.md, PRESENCE.md, ARCHITECTURE.md, and BUILD_PLAN.md.
 
 ## Next
 The order to the early preview (agreed 2026-10-09, also in BUILD_PLAN.md):
-1. **MOCHI-16 Build the side panel**, with VS Code theme styling only (in
-   review).
-2. **MOCHI-21 Build the chat interface**, in the panel, replacing the
-   output panel for answers.
+1. **MOCHI-16 Build the side panel**, with VS Code theme styling only (its
+   follow-up, #48, in review).
+2. **MOCHI-21 Build the chat interface**: part 1 in review, part 2 next.
 3. **MOCHI-25 Stream replies as they're written**, in the panel.
 4. **MOCHI-17 Art and moods, and the panel's look**, once MOCHI-50 is done.
 5. **MOCHI-68 Early preview build for her**, default pack only.
@@ -164,8 +173,6 @@ Not before the preview:
   MOCHI-63 localization.
 
 ## Loose ends to remember
-- Remove the temporary "Mochi: Ask (preview)" command when the panel chat
-  (MOCHI-21) lands.
 - Not checked by hand yet: whether a change to her personal layer in one
   window shows up in another window that's already open (it does after a
   restart). It needs two development windows on the normal profile.
@@ -178,8 +185,6 @@ Not before the preview:
   "Pick a brain" inside Mochi's tab may come after the small welcome.
 - Not checked yet: whether VS Code reopens on the last selected tab in the
   secondary side bar (PRESENCE.md). Worth a look while testing the panel.
-- The panel's Ask box sends answers to the "Mochi" output panel until the
-  chat (MOCHI-21) shows them in the panel itself.
 - Claude answers are capped at 4,000 tokens (no extended thinking), and
   models that always think (Opus 5.5, Fable 5.1) count their thinking toward
   it. "Keep going" picks up an answer that reached it (MOCHI-67).
@@ -192,8 +197,7 @@ Not before the preview:
   ELECTRON_RUN_AS_NODE`, and a short `--user-data-dir` path (macOS limits
   socket paths). The clean-profile .vsix check uses both.
 - PRESENCE.md and ARCHITECTURE.md still quote the old code hint ("Want me
-  to explain this error?"); it's "Need a paw?" now. BUILD_PLAN.md says
-  MOCHI-30's answer shows in the panel; it's the output panel for now.
+  to explain this error?"); it's "Need a paw?" now.
 - Mochi now runs in Restricted Mode, in a limited way (MOCHI-28). Anything
   new that runs a program in her folder must check workspace trust first.
 - Every new sentence goes in `src/strings.ts` or the pack. Older sentences

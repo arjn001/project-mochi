@@ -45,9 +45,9 @@ describe("Mochi in VS Code", () => {
   });
 
   describe("asking Mochi", () => {
-    it("registers the Ask command", async () => {
+    it("no longer has the temporary Ask command: the panel's box replaced it", async () => {
       const commands = await vscode.commands.getCommands(true);
-      assert.ok(commands.includes("mochi.ask"), "The mochi.ask command is not registered.");
+      assert.ok(!commands.includes("mochi.ask"));
     });
 
     it("registers Choose a brain", async () => {
@@ -239,6 +239,20 @@ describe("Mochi in VS Code", () => {
       const api = (await vscode.extensions.getExtension<MochiApi>("arjungyawali.mochi-companion")!.activate()) as MochiApi;
       await vscode.commands.executeCommand("mochi.open");
       assert.strictEqual(await api.panel!.whenVisible(10_000, true), true, "The panel's script never said it was ready.");
+    });
+  });
+
+  describe("the chat", () => {
+    it("answers 'hi' with no brain: the kind line and its chip, and her text comes back", async () => {
+      const api = (await vscode.extensions.getExtension<MochiApi>("arjungyawali.mochi-companion")!.activate()) as MochiApi;
+      // The test copy of VS Code has no Copilot and no Claude key.
+      assert.strictEqual(await api.ask!("hi"), false, "Not sent, so the panel puts it back in the box.");
+      const last = api.chat!.entries().at(-1)!;
+      assert.strictEqual(last.from, "mochi");
+      assert.strictEqual(last.problem, true);
+      assert.strictEqual(last.text, "I'd need a brain to answer that. Want to set one up?");
+      assert.deepStrictEqual(last.chips?.choices.map((c) => c.label), ["Set one up"]);
+      assert.ok(!api.chat!.entries().some((e) => e.from === "her" && e.text === "hi"), "Her text goes back in the box, not into the chat.");
     });
   });
 

@@ -46,6 +46,7 @@ export function panelHtml(page: PanelPage): string {
       <button class="mochi-button" id="dark" type="button"></button>
     </div>
     <p class="mochi-hint" id="hint" aria-live="polite"></p>
+    <div class="mochi-chat" id="chat"></div>
   </main>
   <footer class="mochi-bottom">
     <form class="mochi-ask" id="ask-form">

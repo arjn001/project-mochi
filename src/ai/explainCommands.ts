@@ -1,5 +1,6 @@
 import * as path from "node:path";
 import * as vscode from "vscode";
+import { chatStrings } from "../strings";
 import { isMochiError } from "../diagnostics";
 import { AnswerSurface } from "./answerSurface";
 import { Conversation } from "./conversation";
@@ -37,7 +38,7 @@ export function errorInEditor(editor: vscode.TextEditor): vscode.Diagnostic | un
 }
 
 async function explainError(conversation: Conversation, surface: AnswerSurface, error: CodeError): Promise<void> {
-  const heading = `Explaining the error on line ${error.line} of ${error.file}`;
+  const heading = chatStrings.explainError(error.line, error.file);
   // Learning mode decides where to start: explain first, or the fix.
   let step: Step = firstStep(readLearningMode());
   const approved = await conversation.ask(errorRequest(step, error), heading);
@@ -52,7 +53,8 @@ async function explainError(conversation: Conversation, surface: AnswerSurface, 
       return;
     }
     step = choice.step;
-    await conversation.followUp(approved, stepMessage(step), `${choice.label}: line ${error.line} of ${error.file}`);
+    // Her side of the chat says what she picked, like "Give me a hint".
+    await conversation.followUp(approved, stepMessage(step), choice.label);
   }
 }
 
@@ -92,7 +94,7 @@ export function registerExplain(conversation: Conversation, surface: AnswerSurfa
       return;
     }
     const file = fileLabel(editor.document);
-    await conversation.ask(selectionRequest(file, editor.document.getText(editor.selection)), `Explaining the selected code from ${file}`);
+    await conversation.ask(selectionRequest(file, editor.document.getText(editor.selection)), chatStrings.explainSelection(file));
   });
 
   return vscode.Disposable.from(lightbulb, onError, onSelection);
