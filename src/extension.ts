@@ -9,7 +9,9 @@ import { registerAskCommand } from "./ai/askCommand";
 import { Conversation } from "./ai/conversation";
 import { registerExplain } from "./ai/explainCommands";
 import { createOutputSurface } from "./ai/outputSurface";
-import { BrainPicker, copilotWatch, signInToCopilot } from "./ai/brainPicker";
+import { BrainPicker, copilotWatch, signInToCopilot, whenCopilotIsReady } from "./ai/brainPicker";
+import { welcomeText } from "./moments/welcome";
+import { welcomeStrings } from "./strings";
 import { ClaudeModels } from "./ai/claudeBrains";
 import { ClaudeKey } from "./ai/claudeKey";
 import { registerClaudeKeyCommands } from "./ai/claudeKeyCommands";
@@ -132,12 +134,30 @@ export function activate(context: vscode.ExtensionContext): MochiApi {
   // On her first-ever day, the first-run welcome takes the greeting's place
   // (MOCHI-42); never both. It's kept as today's greeting, in the panel.
   const welcomer = new Welcomer(context.globalState, pack, () => timer.isRunning(), () => brains.check(), signInToCopilot, async (text, button) => {
-    greeter.keepToday({ day: nightOf(new Date()), text, ...(button ? { button } : {}) });
+    greeter.keepToday({ day: nightOf(new Date()), text, ...(button ? { button } : {}), welcome: true });
     const visible = await panel.whenVisible(5_000, true);
     panel.refresh();
     return visible;
   });
   const greeted = restored.then(async () => (await welcomer.welcome()) ?? greeter.greet());
+
+  // Copilot is only Mochi's brain: she never needs its own chat. VS Code's
+  // setup shows its Chat view in Mochi's place, so once Copilot is ready,
+  // Mochi brings her back to its tab and confirms there. A welcome line
+  // that said she needed a brain now names it.
+  whenCopilotIsReady(async () => {
+    const today = greeter.todays();
+    if (today.welcome) {
+      greeter.keepToday({ day: today.day, text: welcomeText(pack().name, await brains.check()).text, welcome: true });
+    }
+    await vscode.commands.executeCommand("mochi.open");
+    if (await panel.whenVisible(5_000, true)) {
+      panel.refresh();
+      panel.hint(welcomeStrings.gotABrain);
+    } else {
+      void vscode.window.showInformationMessage(welcomeStrings.gotABrain);
+    }
+  });
   // When and where she last coded, for tomorrow's greeting.
   const coding = rememberCoding(context.globalState);
 

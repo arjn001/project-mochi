@@ -99,6 +99,9 @@ export interface TodaysGreeting {
   day: string;
   text: string;
   button?: "setUpCopilot" | "chooseBrain";
+  // The first-run welcome, so its brain sentence can be brought up to date
+  // once she sets one up.
+  welcome?: true;
 }
 
 // The saved greeting, if it's from `day` and looks right; otherwise a new one
@@ -112,5 +115,5 @@ export function toTodaysGreeting(value: unknown, day: string): TodaysGreeting | 
     return undefined;
   }
   const button = saved.button === "setUpCopilot" || saved.button === "chooseBrain" ? saved.button : undefined;
-  return { day, text: saved.text, ...(button ? { button } : {}) };
+  return { day, text: saved.text, ...(button ? { button } : {}), ...(saved.welcome === true ? { welcome: true as const } : {}) };
 }

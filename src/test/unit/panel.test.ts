@@ -112,6 +112,11 @@ describe("Mochi's panel", () => {
       assert.strictEqual(toTodaysGreeting({ day: "2026-10-09", text: "Good morning!" }, "2026-10-10"), undefined);
     });
 
+    it("remembers which line is the welcome, so it can name the brain later", () => {
+      assert.strictEqual(toTodaysGreeting({ day: "2026-10-10", text: "Hi!", welcome: true }, "2026-10-10")?.welcome, true);
+      assert.strictEqual(toTodaysGreeting({ day: "2026-10-10", text: "Hi!", welcome: "yes" }, "2026-10-10")?.welcome, undefined);
+    });
+
     it("keeps the welcome's button, and ignores anything odd", () => {
       assert.strictEqual(toTodaysGreeting({ day: "2026-10-10", text: "Hi!", button: "setUpCopilot" }, "2026-10-10")?.button, "setUpCopilot");
       assert.strictEqual(toTodaysGreeting({ day: "2026-10-10", text: "Hi!", button: "format" }, "2026-10-10")?.button, undefined);

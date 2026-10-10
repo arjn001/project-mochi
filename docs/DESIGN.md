@@ -273,8 +273,10 @@ in its one stylesheet, not the panel.
   - no brain and no Copilot setup in the editor: "To answer questions I need
     a brain. Choose a brain shows what you can use." with "Choose a brain";
   - brains but none chosen yet: nothing more.
-  Once Copilot is ready after she set it up from Mochi: "Got a brain! Ask me
-  anything."
+  Once Copilot is ready after she set it up from Mochi, Mochi brings her
+  back to its tab (VS Code's setup leaves its own Chat view in front) and
+  says "Got a brain! Ask me anything." in the panel, and the welcome line
+  now names the brain.
 - **Where sentences live:** every sentence above is in `src/strings.ts` (or
   the pack), never inline in code.
 
