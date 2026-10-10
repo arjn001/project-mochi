@@ -167,6 +167,10 @@ The default lines are in `packs/default/pack.json` (format in PACKS.md).
   Claude key" for a key that stopped working and "Open the Claude Console"
   for billing and the general line (the full table is in CHAT.md,
   section 5).
+- **An answer that reached the length limit** (her Claude key only): what
+  was written stays, then a gentle note, "That got long, so I stopped here.
+  Want me to keep going?", with "Keep going", which continues the same
+  answer.
 - **When she closes the list without picking:** "I'll think once you pick a
   brain. Mochi: Choose a brain whenever you're ready."
 - **A stand-in brain:** at the top of her next answer, once per change:

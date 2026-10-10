@@ -9,8 +9,9 @@ export interface Provider {
   // Whether this brain can answer right now, like Copilot being signed in.
   isAvailable(): Promise<boolean>;
   // Only takes a GatedRequest, so nothing reaches an AI without the share
-  // gate. Streams the answer back as it's written.
-  send(request: GatedRequest, instructions: string, signal?: AbortSignal): AsyncIterable<string>;
+  // gate. Streams the answer back as it's written. `soFar` continues an
+  // answer that reached the length limit, after "Keep going" (MOCHI-67).
+  send(request: GatedRequest, instructions: string, signal?: AbortSignal, soFar?: string): AsyncIterable<string>;
 }
 
 // Why a brain couldn't answer, in words Mochi can say kindly.
@@ -25,10 +26,12 @@ export type BrainProblem =
   | "tooLong"
   | "offline"
   | "declined"
+  // The answer reached the length limit. Not an error: she can keep going.
+  | "cutOff"
   | "other";
 
 // What she can do about it, as a button next to the message.
-export type BrainHelp = "addClaudeKey" | "claudeBilling";
+export type BrainHelp = "addClaudeKey" | "claudeBilling" | "keepGoing";
 
 export class BrainError extends Error {
   constructor(readonly problem: BrainProblem, message: string, readonly help?: BrainHelp) {
@@ -48,6 +51,7 @@ export const brainProblemMessages: Record<BrainProblem, string> = {
   tooLong: problemStrings.tooLong,
   offline: problemStrings.offline,
   declined: problemStrings.declined,
+  cutOff: problemStrings.cutOff,
   other: "Something went wrong while Mochi was thinking. Try again in a moment.",
 };
 
@@ -55,4 +59,5 @@ export const brainProblemMessages: Record<BrainProblem, string> = {
 export const brainHelpButtons: Record<BrainHelp, string> = {
   addClaudeKey: problemStrings.addClaudeKey,
   claudeBilling: problemStrings.openConsole,
+  keepGoing: problemStrings.keepGoing,
 };

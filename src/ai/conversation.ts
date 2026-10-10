@@ -8,19 +8,27 @@ import { CONSOLE_BILLING } from "./claude";
 import { BrainError, Provider, brainHelpButtons, brainProblemMessages } from "./provider";
 import { GatedRequest, Request, followUp } from "./shareGate";
 
-// One kind line, with a button when there's something she can do.
-async function showProblem(error: BrainError): Promise<void> {
+// Continues an answer from what was written so far (MOCHI-67).
+type Again = (soFar: string, signal: AbortSignal) => AsyncIterable<string>;
+
+// One kind line, with a button when there's something she can do. An
+// answer that reached the length limit isn't a problem, so it's a gentle
+// note, not a warning.
+async function showProblem(error: BrainError, keepGoing: () => Promise<void>): Promise<void> {
   const message = brainProblemMessages[error.problem];
+  const show = error.problem === "cutOff" ? vscode.window.showInformationMessage : vscode.window.showWarningMessage;
   if (!error.help) {
-    await vscode.window.showWarningMessage(message);
+    await show(message);
     return;
   }
   const button = brainHelpButtons[error.help];
-  if ((await vscode.window.showWarningMessage(message, button)) !== button) {
+  if ((await show(message, button)) !== button) {
     return;
   }
   if (error.help === "addClaudeKey") {
     await vscode.commands.executeCommand("mochi.addClaudeKey");
+  } else if (error.help === "keepGoing") {
+    await keepGoing();
   } else {
     await vscode.env.openExternal(vscode.Uri.parse(CONSOLE_BILLING));
   }
@@ -64,13 +72,16 @@ export class Conversation {
         return undefined;
       case "notSent":
         return undefined;
-      case "answer":
+      case "answer": {
         this.provider = provider;
-        await this.show(heading, result.text, controller, brain.kind === "use" ? brain.note : undefined);
+        const sent = result.request;
+        const again: Again = (soFar, signal) => provider!.send(sent, this.instructions(), signal, soFar);
+        await this.show(heading, result.text, controller, again, brain.kind === "use" ? brain.note : undefined);
         if (brain.kind === "use") {
           await brain.noted?.();
         }
         return result.request;
+      }
     }
   }
 
@@ -79,9 +90,12 @@ export class Conversation {
     if (!this.provider) {
       return;
     }
+    const provider = this.provider;
+    const asked = followUp(approved, message);
     const controller = new AbortController();
-    const text = this.provider.send(followUp(approved, message), this.instructions(), controller.signal);
-    await this.show(heading, text, controller);
+    const text = provider.send(asked, this.instructions(), controller.signal);
+    const again: Again = (soFar, signal) => provider.send(asked, this.instructions(), signal, soFar);
+    await this.show(heading, text, controller, again);
   }
 
   // One line from Mochi, with no brain involved.
@@ -95,6 +109,7 @@ export class Conversation {
     heading: string,
     text: AsyncIterable<string>,
     controller: AbortController,
+    again: Again,
     // "Quick note: ..." when a stand-in brain answers, once per change.
     note?: string
   ): Promise<void> {
@@ -102,20 +117,39 @@ export class Conversation {
     if (note) {
       this.surface.append(`${note}\n\n`);
     }
+    await this.stream(text, controller, again, "");
+  }
+
+  // Shows the answer as it streams. `before` is what this answer already
+  // said, so "Keep going" can be offered again if it reaches the limit
+  // twice.
+  private async stream(text: AsyncIterable<string>, controller: AbortController, again: Again, before: string): Promise<void> {
+    let written = before;
     await vscode.window.withProgress(
       { location: vscode.ProgressLocation.Notification, title: "Mochi is thinking...", cancellable: true },
       async (_progress, token) => {
         token.onCancellationRequested(() => controller.abort());
         try {
           for await (const piece of text) {
+            written += piece;
             this.surface.append(piece);
           }
         } catch (error) {
+          const problem = error instanceof BrainError ? error : new BrainError("other", String(error));
+          const soFar = written;
           // Not awaited, so "Mochi is thinking..." closes right away.
-          void showProblem(error instanceof BrainError ? error : new BrainError("other", String(error)));
+          void showProblem(problem, () => this.keepGoing(again, soFar));
         }
         this.surface.finish();
       }
     );
+  }
+
+  // "Keep going": the same brain and the same approved request, picking up
+  // from the answer so far. Nothing new is shared, so no share gate.
+  private async keepGoing(again: Again, soFar: string): Promise<void> {
+    const controller = new AbortController();
+    this.surface.resume();
+    await this.stream(again(soFar, controller.signal), controller, again, soFar);
   }
 }

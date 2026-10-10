@@ -80,13 +80,13 @@ class ClaudeBrain implements Provider {
     return (await this.models.key.get()) !== undefined;
   }
 
-  async *send(request: GatedRequest, instructions: string, signal?: AbortSignal): AsyncIterable<string> {
+  async *send(request: GatedRequest, instructions: string, signal?: AbortSignal, soFar?: string): AsyncIterable<string> {
     const key = await this.models.key.get();
     if (!key) {
       throw new BrainError("keyRejected", "There's no Claude key saved.", "addClaudeKey");
     }
     try {
-      yield* answer(connect(key), this.model.id, instructions, compose(request), signal);
+      yield* answer(connect(key), this.model.id, instructions, compose(request), signal, undefined, soFar);
     } catch (error) {
       const problem = toClaudeError(error);
       if (problem.problem === "notFound") {

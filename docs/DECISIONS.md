@@ -93,9 +93,13 @@
     her.
   - When a model refuses, Mochi doesn't retry with another model, since
     that would bill a model she didn't pick.
-  - Answers are capped at 4,000 tokens. Mochi waits 30 seconds for an
-    answer to start, and stops one that goes silent for 30 seconds,
-    keeping what was written.
+  - Answers are capped at 4,000 tokens, with no extended thinking. Mochi
+    waits 30 seconds for an answer to start, and stops one that goes silent
+    for 30 seconds, keeping what was written.
+  - An answer that reaches the cap offers "Keep going", which continues the
+    same answer with the same approved request (MOCHI-67). Claude-key
+    brains only: VS Code's language model API doesn't say why a Copilot
+    answer ended.
   - Low credit can come back as a plain 400, and Mochi never matches error
     text, so the general "Something went wrong" line offers "Open the
     Claude Console" for key-based brains. Copilot's lines have no buttons.

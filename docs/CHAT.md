@@ -93,6 +93,19 @@ a model that's still thinking isn't cut off. When a model refuses, Mochi
 says so kindly and doesn't retry with another model, since that would bill
 a model she didn't pick.
 
+**Keep going** (MOCHI-67). An answer that reaches the 4,000-token limit
+keeps what was written, then Mochi says "That got long, so I stopped here.
+Want me to keep going?" with "Keep going". That sends the same approved
+request, the answer so far, and a short turn asking Claude to continue
+without repeating (newer models reject a request that ends on their own
+words), and the rest joins the same answer. Nothing new is shared, so
+there's no share-gate question. It can be offered again, and each click is
+billed. If a thinking model used the whole limit before writing anything,
+"Keep going" asks her question again. **Claude-key brains only:** VS Code's
+language model API (checked against `@types/vscode` 1.125, 2026-10-09)
+streams only the text and never says why an answer ended, so Mochi can't
+tell when a Copilot answer was cut off.
+
 **Which models exist, over time.** The listing is asked again after 10
 minutes, when she opens a list, and when a model isn't found. The last
 listing that worked is kept (model ids and names only), so a moment offline
@@ -264,6 +277,7 @@ that line offers the Console too.
 | 413: too much to send | "That's a bit too much for me to send at once. Could you share a smaller piece?" | |
 | No connection, no answer within 30 seconds, or 30 seconds of silence | "I can't reach the brain right now. Are we offline? Everything else still works, and I'll be here when you're back." | |
 | A refusal | "This brain chose not to answer that one. Want to ask it a different way?" | |
+| The 4,000-token limit (`max_tokens`) | "That got long, so I stopped here. Want me to keep going?" (a gentle note, not a warning) | "Keep going" |
 | Other 400s, 500s, anything else | "Something went wrong while Mochi was thinking. Try again in a moment." | "Open the Claude Console" (Billing) |
 
 Stopping an answer says nothing; what was written stays. Copilot's lines
