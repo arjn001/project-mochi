@@ -46,6 +46,11 @@ describe("Mochi's panel", () => {
       }
     });
 
+    it("keeps the paw prints still with Reduce Motion, VS Code's or the system's", () => {
+      assert.match(withoutComments, /body\.vscode-reduce-motion \.mochi-paw\s*\{[^}]*animation:\s*none/);
+      assert.match(withoutComments, /@media \(prefers-reduced-motion: reduce\)\s*\{\s*\.mochi-paw\s*\{[^}]*animation:\s*none/);
+    });
+
     it("defines Mochi's tokens in one place, the first block", () => {
       const firstBlock = withoutComments.slice(0, withoutComments.indexOf("}"));
       assert.match(firstBlock, /^\s*:root\s*\{/);

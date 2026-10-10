@@ -154,11 +154,46 @@ function blocks(answer: Block[], into: HTMLElement): void {
   }
 }
 
+const SVG = "http://www.w3.org/2000/svg";
+
+// One small paw print, drawn in the theme's quiet text color.
+function paw(): SVGSVGElement {
+  const svg = document.createElementNS(SVG, "svg");
+  svg.setAttribute("class", "mochi-paw");
+  svg.setAttribute("viewBox", "0 0 16 16");
+  const shapes: [string, Record<string, string>][] = [
+    ["ellipse", { cx: "8", cy: "10.8", rx: "3.3", ry: "2.7" }],
+    ["circle", { cx: "3.6", cy: "6.8", r: "1.45" }],
+    ["circle", { cx: "6.3", cy: "4.4", r: "1.55" }],
+    ["circle", { cx: "9.7", cy: "4.4", r: "1.55" }],
+    ["circle", { cx: "12.4", cy: "6.8", r: "1.45" }],
+  ];
+  for (const [tag, attributes] of shapes) {
+    const shape = document.createElementNS(SVG, tag);
+    for (const [name, value] of Object.entries(attributes)) {
+      shape.setAttribute(name, value);
+    }
+    svg.append(shape);
+  }
+  return svg;
+}
+
+// Three paw prints while Mochi thinks, before the first words arrive
+// (MOCHI-25). They pulse in turn, or stay still with Reduce Motion.
+function thinking(): HTMLElement {
+  const paws = element("span", "mochi-thinking");
+  paws.setAttribute("aria-hidden", "true");
+  paws.append(paw(), paw(), paw());
+  return paws;
+}
+
 // Her messages are shown exactly as she typed them; Mochi's are formatted.
 function fillBubble(bubble: HTMLElement, entry: ChatEntry): void {
   bubble.replaceChildren();
   if (entry.from === "her") {
     bubble.textContent = entry.text;
+  } else if (entry.answering && entry.text === "") {
+    bubble.append(thinking());
   } else {
     blocks(formatAnswer(entry.text), bubble);
     // What was written stays, marked as stopped (MOCHI-25).
@@ -172,6 +207,11 @@ function message(entry: ChatEntry): HTMLElement {
   const row = element("div", `mochi-message mochi-from-${entry.from}${entry.problem ? " mochi-problem" : ""}`);
   row.setAttribute("role", "group");
   row.setAttribute("aria-label", entry.from === "her" ? labels.you : labels.mochi);
+  // Screen readers know it's still being written, and hear it once it's
+  // done (see announce).
+  if (entry.answering) {
+    row.setAttribute("aria-busy", "true");
+  }
   if (entry.from === "mochi") {
     const cat = element("span", "mochi-message-cat");
     cat.setAttribute("aria-hidden", "true");
