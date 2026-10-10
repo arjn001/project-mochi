@@ -12,17 +12,16 @@ update isn't listed.*
 
 - **Open pull requests:** none.
 - **In progress:**
-  - MOCHI-67 Keep going after a long answer: built and in review.
+  - MOCHI-16 Build the side panel, with VS Code's theme only: built and in
+    review.
   - MOCHI-50 Design the visual identity, by Arjun.
-- **Next:** MOCHI-16, the panel with VS Code's theme only. Its plan waits on
-  Arjun's decisions.
+- **Next:** MOCHI-21, the chat in the panel.
 - **Waiting on:**
-  - Arjun to try and merge MOCHI-67.
-  - MOCHI-17 and the panel's look wait on MOCHI-50. The panel itself no
-    longer does.
+  - Arjun to try the panel and merge MOCHI-16.
+  - MOCHI-17 and the panel's look wait on MOCHI-50.
 
-**38 of 58 Jira tasks and subtasks done**. 2 of the 8
-categories are complete. 326 tests (293 unit, 33 integration) run on every
+**39 of 58 Jira tasks and subtasks done**. 2 of the 8
+categories are complete. 344 tests (310 unit, 34 integration) run on every
 pull request.
 
 ## Done
@@ -41,6 +40,14 @@ MOMENTS.md, PRESENCE.md, ARCHITECTURE.md, and BUILD_PLAN.md.
 **Companion presence (MOCHI-15), partly done.**
 - Status bar mood line with the Pillow Loaf icon font (MOCHI-18, MOCHI-58).
 - Speak-up setting and the gatekeeper (MOCHI-19).
+- Mochi's panel, with VS Code's theme only: the cat's mood, today's greeting
+  (one line a day; a notification only when the panel isn't visible), the
+  welcome on her first day, quick buttons named like their commands, and an
+  "Ask Mochi anything" box using today's Ask flow. A strict content
+  security policy, one stylesheet with theme variables only (checked by a
+  test), and no new dependency. Typed text that looks like a password or
+  API key is asked about first, in the panel and "Mochi: Ask". "Dim things"
+  is now "Switch to a dark theme" (MOCHI-16).
 
 **Moments (MOCHI-32), partly done.**
 - Quiet mode, live, with napping in the status bar (MOCHI-37).
@@ -141,13 +148,13 @@ MOMENTS.md, PRESENCE.md, ARCHITECTURE.md, and BUILD_PLAN.md.
 
 ## Next
 The order to the early preview (agreed 2026-10-09, also in BUILD_PLAN.md):
-1. **MOCHI-67 Keep going after a long answer** (in review).
-2. **MOCHI-16 Build the side panel**, with VS Code theme styling only, styles
-   in one place and theme variables only.
-3. **MOCHI-21 Build the chat interface.**
-4. **MOCHI-25 Stream replies as they're written**, in the panel.
-5. **MOCHI-17 Art and moods, and the panel's look**, once MOCHI-50 is done.
-6. **MOCHI-68 Early preview build for her**, default pack only.
+1. **MOCHI-16 Build the side panel**, with VS Code theme styling only (in
+   review).
+2. **MOCHI-21 Build the chat interface**, in the panel, replacing the
+   output panel for answers.
+3. **MOCHI-25 Stream replies as they're written**, in the panel.
+4. **MOCHI-17 Art and moods, and the panel's look**, once MOCHI-50 is done.
+5. **MOCHI-68 Early preview build for her**, default pack only.
 
 Not before the preview:
 - **MOCHI-54 OpenAI-compatible services and local model servers** (Ollama,
@@ -169,7 +176,10 @@ Not before the preview:
 - "Set one up" opens VS Code's Copilot setup, or Choose a brain in editors
   without it, and "Got a brain!" follows once Copilot is ready. A fuller
   "Pick a brain" inside Mochi's tab may come after the small welcome.
-- The welcome is a notification for now; MOCHI-16 moves it into the panel.
+- Not checked yet: whether VS Code reopens on the last selected tab in the
+  secondary side bar (PRESENCE.md). Worth a look while testing the panel.
+- The panel's Ask box sends answers to the "Mochi" output panel until the
+  chat (MOCHI-21) shows them in the panel itself.
 - Claude answers are capped at 4,000 tokens (no extended thinking), and
   models that always think (Opus 5.5, Fable 5.1) count their thinking toward
   it. "Keep going" picks up an answer that reached it (MOCHI-67).
