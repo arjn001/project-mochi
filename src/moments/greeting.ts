@@ -89,3 +89,28 @@ export function greetingText(pack: Pack, context: GreetingContext): string {
   }
   return lines.join(" ");
 }
+
+// Today's greeting (MOCHI-16): one line a day, picked once and kept, so the
+// panel shows the same line every time she opens it that day. On her first
+// day it's the welcome (MOCHI-42), with its button.
+export interface TodaysGreeting {
+  // The greeting day, from nightOf(): a late night still counts as the day
+  // before.
+  day: string;
+  text: string;
+  button?: "setUpCopilot" | "chooseBrain";
+}
+
+// The saved greeting, if it's from `day` and looks right; otherwise a new one
+// is picked.
+export function toTodaysGreeting(value: unknown, day: string): TodaysGreeting | undefined {
+  if (typeof value !== "object" || value === null) {
+    return undefined;
+  }
+  const saved = value as Record<string, unknown>;
+  if (saved.day !== day || typeof saved.text !== "string" || saved.text === "") {
+    return undefined;
+  }
+  const button = saved.button === "setUpCopilot" || saved.button === "chooseBrain" ? saved.button : undefined;
+  return { day, text: saved.text, ...(button ? { button } : {}) };
+}

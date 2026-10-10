@@ -89,12 +89,38 @@ The default lines are in `packs/default/pack.json` (format in PACKS.md).
 - **No counting absence:** after time away, a warm "Welcome back! I missed
   you." or "Oh hi! Good to see you again.", never "It's been 3 days." A unit
   test checks the default lines.
-- **The greeting** (once a day, when VS Code opens): a gentle notification
-  that fades on its own, until the panel exists. Up to three short
+- **The greeting** (once a day, when VS Code opens): at the top of Mochi's
+  panel, the same line all day (MOCHI-16). A gentle notification that fades
+  on its own only when the panel isn't visible. Up to three short
   sentences: "Meow, good evening! Welcome back! I missed you. Back to
   homework-3?" The project line, "Back to {project}?" or "Picking up
   {project} again? I'm ready.", shows only when she opens the project she
   last coded in.
+
+## Mochi's panel (MOCHI-16)
+The "Mochi" tab, built first with VS Code's theme only. Its look (colors,
+type, art) comes later with MOCHI-50 and MOCHI-17, by changing the tokens
+in its one stylesheet, not the panel.
+- **At the top:** the cat (for now the status bar's mood icon, large, in the
+  theme's text color), the mood in words ("Mochi is purring", "Mochi is
+  napping", "Focusing · 18 min left"), and today's greeting, the same line
+  all day. On her first day, the welcome, with its button.
+- **Quick buttons**, each with the same name as the command it runs, so she
+  learns one name: "Explain this", "Start a focus session" (or "Stop the
+  focus session" while one runs), and "Switch to a dark theme". "Explain
+  this" explains the selected code, or the error under the cursor (or the
+  first in the file); with neither: "Select some code, or click on an
+  error, and I'll explain it."
+- **At the bottom:** a box, "Ask Mochi anything" (the name from the pack),
+  with "Send". Enter sends, Shift+Enter adds a line. It works like "Mochi:
+  Ask": selected code goes through the share gate, and text that looks like
+  a password or API key gets "Careful: this looks like it might contain a
+  password or API key. Send anyway?" first. Answers show in the "Mochi"
+  output panel until the chat (MOCHI-21). What she typed comes back if it
+  couldn't be sent, and an unsent draft survives the panel closing.
+- **Keyboard and screen readers:** real buttons and a labelled box, focus
+  outlines in the theme's focus color, and the greeting and hints announced
+  politely. High contrast themes get borders on buttons.
 
 ## Prompts and dialogs
 - **Sharing:** a modal dialog that names the AI and says exactly what would
@@ -181,10 +207,12 @@ The default lines are in `packs/default/pack.json` (format in PACKS.md).
 - **Mochi confirms before doing anything she didn't directly ask for**
   (MOCHI-31). What she starts herself, like a focus session, isn't asked
   again. Offers ask as a gentle notification, never a
-  dialog that blocks VS Code: "Want me to dim things with a darker theme?"
-  with "Dim things" and "Not now". Closing it means no.
-- **Then offer Undo:** "Dimmed! Changed your mind?" with an Undo button that
-  puts things back exactly.
+  dialog that blocks VS Code: "Want me to switch to a dark theme?" with
+  "Switch to a dark theme" and "Not now". Closing it means no. The button
+  uses the same name as the command it runs ("Mochi: Switch to a dark
+  theme"), so she learns one name (renamed from "Dim things" in MOCHI-16).
+- **Then offer Undo:** "Switched to a dark theme. Changed your mind?" with
+  an Undo button that puts things back exactly.
 - **Nothing to do? Say why instead of asking:** "You're already on a dark
   theme. Cozy!"
 - **Never change a high contrast theme.** Someone using one most likely needs
@@ -234,7 +262,8 @@ The default lines are in `packs/default/pack.json` (format in PACKS.md).
   personal touches, so I'm my usual self for now. They're kept safe, not
   deleted." Once per session.
 - **First-run welcome** (MOCHI-42, small version): Mochi's tab opens once,
-  and one gentle notification says "Meow, hi! I'm Mochi, your coding buddy.
+  and the top of the panel says (a notification if the panel doesn't
+  open) "Meow, hi! I'm Mochi, your coding buddy.
   I live in the Mochi tab, and my mood shows in the status bar." (the cat's
   name comes from the pack), then one of:
   - a brain is ready: "I can think with Copilot · Auto whenever you ask me

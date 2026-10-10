@@ -230,12 +230,13 @@ MOCHI-13.
 ```
 src/
   extension.ts   starts everything up
-  panel/         the panel and welcome webviews
+  panel/         the panel: its page, messages, and actions
+  webview/       the panel's own script, bundled for the browser
   presence/      status bar, code hints, nudges, presenter
   moments/       moments engine and gatekeeper
   ai/            providers and the share gate
   actions/       theme, Python setup, focus timer, explain
   packs/         loading packs, the personal layer, the gift file
-media/           the panel's HTML, CSS, and scripts
+media/           the panel's stylesheet, the icons, and the icon font
 packs/default/   the default pack
 ```

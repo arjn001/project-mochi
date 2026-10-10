@@ -31,7 +31,7 @@ class ExplainCodeActions implements vscode.CodeActionProvider {
 }
 
 // The error under the cursor, or the first one in the file.
-function errorInEditor(editor: vscode.TextEditor): vscode.Diagnostic | undefined {
+export function errorInEditor(editor: vscode.TextEditor): vscode.Diagnostic | undefined {
   const errors = vscode.languages.getDiagnostics(editor.document.uri).filter(isError);
   return errors.find((d) => d.range.contains(editor.selection.active)) ?? errors[0];
 }

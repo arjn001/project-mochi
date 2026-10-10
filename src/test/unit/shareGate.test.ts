@@ -1,5 +1,5 @@
 import * as assert from "node:assert";
-import { Answer, Attachment, followUp, question, throughShareGate } from "../../ai/shareGate";
+import { Answer, Attachment, TYPED_SECRET_QUESTION, followUp, question, throughShareGate } from "../../ai/shareGate";
 
 const errorLines: Attachment = {
   kind: "errorContext",
@@ -25,6 +25,34 @@ function fakeAsk(answer: Answer) {
 }
 
 describe("share gate", () => {
+  describe("what she typed that looks like a secret", () => {
+    const typed = "my key is sk-ant-api03-abcdefghijklmnopqrstuvwxyz, why doesn't it work?";
+
+    it("asks before sending, with the warning and Send anyway", async () => {
+      const asked: [string, string | undefined][] = [];
+      const result = await throughShareGate({ message: typed, attachments: [] }, "Claude", async (q, about) => {
+        asked.push([q, about]);
+        return "share";
+      });
+      assert.deepStrictEqual(asked, [
+        ["Careful: this looks like it might contain a password or API key. Send anyway?", "typedSecret"],
+      ]);
+      assert.strictEqual(TYPED_SECRET_QUESTION, asked[0][0]);
+      assert.strictEqual(result.status, "sent");
+    });
+
+    it("sends nothing when she cancels", async () => {
+      const result = await throughShareGate({ message: typed, attachments: [selection] }, "Claude", fakeAsk("cancel").ask);
+      assert.deepStrictEqual(result, { status: "notSent" });
+    });
+
+    it("asks about what she typed first, then about anything attached", async () => {
+      const her = fakeAsk("share");
+      await throughShareGate({ message: typed, attachments: [selection] }, "Copilot", her.ask);
+      assert.deepStrictEqual(her.asked, [TYPED_SECRET_QUESTION, "Share the selected code from homework.py with Copilot?"]);
+    });
+  });
+
   it("lets her own typed message through without asking", async () => {
     const her = fakeAsk("cancel");
     const result = await throughShareGate({ message: "What's a list?", attachments: [] }, "Claude", her.ask);

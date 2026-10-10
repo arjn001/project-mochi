@@ -24,6 +24,28 @@ export const brainStrings = {
     `Quick note: ${missing} isn't available right now, so I'm thinking with ${used} instead. Mochi: Choose a brain changes this.`,
 };
 
+// Mochi's panel (MOCHI-16). Each button uses the same name as the command
+// it runs, so she learns one name.
+export const panelStrings = {
+  explain: "Explain this",
+  explainHint: "Select some code, or click on an error, and I'll explain it.",
+  startFocus: "Start a focus session",
+  stopFocus: "Stop the focus session",
+  dark: "Switch to a dark theme",
+  // The box's placeholder and its label for screen readers. `companion` is
+  // the pack's name for the cat.
+  ask: (companion: string) => `Ask ${companion} anything`,
+  send: "Send",
+};
+
+// The share gate. Older lines still live in ai/askToShare.ts and
+// ai/secrets.ts until MOCHI-63.
+export const shareStrings = {
+  // After "Careful: this looks like it might contain a password or API key.
+  // Send anyway?" about what she typed.
+  sendAnyway: "Send anyway",
+};
+
 // The first-run welcome (MOCHI-42). `companion` is the pack's name for the
 // cat. "the Mochi tab" is the tab's own label, which packs can't change.
 export const welcomeStrings = {

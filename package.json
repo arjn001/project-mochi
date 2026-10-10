@@ -41,17 +41,12 @@
     "views": {
       "mochi": [
         {
+          "type": "webview",
           "id": "mochi.home",
           "name": "Mochi"
         }
       ]
     },
-    "viewsWelcome": [
-      {
-        "view": "mochi.home",
-        "contents": "Hi! Mochi is still settling in. More is coming soon."
-      }
-    ],
     "commands": [
       {
         "command": "mochi.open",
@@ -75,7 +70,7 @@
       },
       {
         "command": "mochi.dim",
-        "title": "Dim things (darker theme)",
+        "title": "Switch to a dark theme",
         "category": "Mochi"
       },
       {
@@ -247,7 +242,7 @@
   },
   "scripts": {
     "clean": "node -e \"for (const d of ['out', 'dist']) require('fs').rmSync(d, { recursive: true, force: true })\"",
-    "compile": "npm run clean && tsc -p ./ && node esbuild.mjs",
+    "compile": "npm run clean && tsc -p ./ && tsc -p src/webview && node esbuild.mjs",
     "watch:tsc": "tsc -watch -p ./",
     "watch:esbuild": "node esbuild.mjs --watch",
     "build:icons": "fantasticon",

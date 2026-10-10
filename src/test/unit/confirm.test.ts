@@ -17,8 +17,8 @@ function her(...answers: (string | undefined)[]) {
 function dimAction(options: { skip?: string; undoable?: boolean } = {}) {
   const log: string[] = [];
   const action = defineAction({
-    question: "Want me to dim things with a darker theme?",
-    yes: "Dim things",
+    question: "Want me to switch to a dark theme?",
+    yes: "Switch to a dark theme",
     done: "Done! Changed your mind?",
     skip: () => options.skip,
     act: async () => {
@@ -35,14 +35,14 @@ describe("confirm before acting", () => {
     const she = her(NOT_NOW);
     await offer(action, she.choose);
     assert.deepStrictEqual(she.seen[0], {
-      message: "Want me to dim things with a darker theme?",
-      buttons: ["Dim things", NOT_NOW],
+      message: "Want me to switch to a dark theme?",
+      buttons: ["Switch to a dark theme", NOT_NOW],
     });
   });
 
   it("acts only after she says yes", async () => {
     const { action, log } = dimAction();
-    assert.strictEqual(await offer(action, her("Dim things", undefined).choose), "done");
+    assert.strictEqual(await offer(action, her("Switch to a dark theme", undefined).choose), "done");
     assert.deepStrictEqual(log, ["acted"]);
   });
 
@@ -56,7 +56,7 @@ describe("confirm before acting", () => {
 
   it("offers Undo afterwards, and puts things back when she picks it", async () => {
     const { action, log } = dimAction();
-    const she = her("Dim things", UNDO);
+    const she = her("Switch to a dark theme", UNDO);
     assert.strictEqual(await offer(action, she.choose), "undone");
     assert.deepStrictEqual(she.seen[1], { message: "Done! Changed your mind?", buttons: [UNDO] });
     assert.deepStrictEqual(log, ["acted", "undone"]);
@@ -64,7 +64,7 @@ describe("confirm before acting", () => {
 
   it("doesn't offer Undo for things that can't be undone", async () => {
     const { action } = dimAction({ undoable: false });
-    const she = her("Dim things");
+    const she = her("Switch to a dark theme");
     assert.strictEqual(await offer(action, she.choose), "done");
     assert.strictEqual(she.seen.length, 1, "Only the question should have been shown.");
   });

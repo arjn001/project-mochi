@@ -139,7 +139,7 @@ describe("Mochi in VS Code", () => {
     });
 
     it("switches all of VS Code to a darker theme after she says yes", async () => {
-      assert.strictEqual(await offer(dimAction(), presses("Dim things", undefined)), "done");
+      assert.strictEqual(await offer(dimAction(), presses("Switch to a dark theme", undefined)), "done");
       assert.strictEqual(theme(), "Dark Modern");
     });
 
@@ -149,7 +149,7 @@ describe("Mochi in VS Code", () => {
     });
 
     it("puts her old theme back with Undo", async () => {
-      assert.strictEqual(await offer(dimAction(), presses("Dim things", "Undo")), "undone");
+      assert.strictEqual(await offer(dimAction(), presses("Switch to a dark theme", "Undo")), "undone");
       assert.strictEqual(theme(), "Light Modern");
     });
 
@@ -231,6 +231,14 @@ describe("Mochi in VS Code", () => {
     it("never loads the developer tools outside development mode", async () => {
       const commands = await vscode.commands.getCommands(true);
       assert.ok(!commands.includes("mochi.dev.menu"), "The developer tools must only exist when running from source.");
+    });
+  });
+
+  describe("the panel", () => {
+    it("opens and shows, with its script running", async () => {
+      const api = (await vscode.extensions.getExtension<MochiApi>("arjungyawali.mochi-companion")!.activate()) as MochiApi;
+      await vscode.commands.executeCommand("mochi.open");
+      assert.strictEqual(await api.panel!.whenVisible(10_000, true), true, "The panel's script never said it was ready.");
     });
   });
 

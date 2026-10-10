@@ -1,0 +1,170 @@
+/*
+ * Mochi's panel (MOCHI-16). The only stylesheet, and the one place the look
+ * lives. Every color comes from VS Code's theme, so the panel follows light,
+ * dark, and high contrast themes on its own.
+ *
+ * Rules (a unit test checks them):
+ * - No raw colors: no hex, rgb(), or hsl(). Only VS Code's --vscode-*
+ *   variables, through the --mochi-* tokens below.
+ * - The --mochi-* tokens are defined only in this first block. The panel's
+ *   look (MOCHI-50) changes these tokens and adds art, without touching the
+ *   page or its script.
+ */
+:root {
+  --mochi-text: var(--vscode-foreground);
+  --mochi-quiet-text: var(--vscode-descriptionForeground);
+  --mochi-background: var(--vscode-sideBar-background);
+  --mochi-button-background: var(--vscode-button-secondaryBackground);
+  --mochi-button-text: var(--vscode-button-secondaryForeground);
+  --mochi-button-hover: var(--vscode-button-secondaryHoverBackground);
+  --mochi-primary-background: var(--vscode-button-background);
+  --mochi-primary-text: var(--vscode-button-foreground);
+  --mochi-primary-hover: var(--vscode-button-hoverBackground);
+  --mochi-box-background: var(--vscode-input-background);
+  --mochi-box-text: var(--vscode-input-foreground);
+  --mochi-box-border: var(--vscode-input-border, transparent);
+  --mochi-placeholder: var(--vscode-input-placeholderForeground);
+  --mochi-focus: var(--vscode-focusBorder);
+  /* Only high contrast themes set this; elsewhere it's transparent. */
+  --mochi-contrast-border: var(--vscode-contrastBorder, transparent);
+  --mochi-font: var(--vscode-font-family);
+  --mochi-font-size: var(--vscode-font-size);
+  --mochi-avatar-size: 48px;
+  --mochi-gap: 8px;
+  --mochi-corner: 2px;
+}
+
+/* The mood icons from Mochi's icon font, the same ones as the status bar.
+   A placeholder avatar until the art (MOCHI-17). */
+@font-face {
+  font-family: "mochi-icons";
+  src: url("../font/mochi-icons.woff") format("woff");
+}
+
+body {
+  margin: 0;
+  padding: var(--mochi-gap) calc(var(--mochi-gap) * 2);
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--mochi-gap) * 2);
+  min-height: calc(100vh - var(--mochi-gap) * 2);
+  box-sizing: border-box;
+  color: var(--mochi-text);
+  background: var(--mochi-background);
+  font-family: var(--mochi-font);
+  font-size: var(--mochi-font-size);
+}
+
+.mochi-top {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--mochi-gap);
+}
+
+.mochi-avatar {
+  font-family: "mochi-icons";
+  font-size: var(--mochi-avatar-size);
+  line-height: 1;
+  color: var(--mochi-text);
+}
+.mochi-avatar[data-glyph="here"]::before {
+  content: "\E001";
+}
+.mochi-avatar[data-glyph="purring"]::before {
+  content: "\E002";
+}
+.mochi-avatar[data-glyph="napping"]::before {
+  content: "\E003";
+}
+
+.mochi-mood {
+  margin: 0;
+  color: var(--mochi-quiet-text);
+}
+
+.mochi-greeting {
+  margin: 0;
+}
+
+.mochi-middle {
+  flex: 1;
+}
+
+.mochi-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--mochi-gap);
+}
+
+.mochi-button {
+  padding: 4px 10px;
+  border: 1px solid var(--mochi-contrast-border);
+  border-radius: var(--mochi-corner);
+  color: var(--mochi-button-text);
+  background: var(--mochi-button-background);
+  font: inherit;
+  cursor: pointer;
+}
+.mochi-button:hover {
+  background: var(--mochi-button-hover);
+}
+.mochi-primary {
+  color: var(--mochi-primary-text);
+  background: var(--mochi-primary-background);
+}
+.mochi-primary:hover {
+  background: var(--mochi-primary-hover);
+}
+
+.mochi-hint {
+  margin: var(--mochi-gap) 0 0;
+  color: var(--mochi-quiet-text);
+}
+.mochi-hint:empty {
+  display: none;
+}
+
+.mochi-ask {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: var(--mochi-gap);
+}
+
+.mochi-box {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 4px 6px;
+  resize: vertical;
+  border: 1px solid var(--mochi-box-border);
+  border-radius: var(--mochi-corner);
+  color: var(--mochi-box-text);
+  background: var(--mochi-box-background);
+  font: inherit;
+}
+.mochi-box::placeholder {
+  color: var(--mochi-placeholder);
+}
+
+/* Keyboard focus is always visible, in the theme's focus color. */
+.mochi-button:focus-visible,
+.mochi-box:focus {
+  outline: 1px solid var(--mochi-focus);
+  outline-offset: 1px;
+}
+
+/* For screen readers only: the box's label, which sighted people see as the
+   placeholder. */
+.mochi-hidden-label {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+[hidden] {
+  display: none !important;
+}

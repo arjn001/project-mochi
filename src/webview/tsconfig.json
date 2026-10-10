@@ -1,0 +1,15 @@
+// The panel's script runs in the webview (a browser), not in Node, so it
+// gets browser types and nothing from Node or VS Code. Type-checked only:
+// esbuild bundles it to dist/webview/panel.js.
+{
+  "compilerOptions": {
+    "module": "ES2022",
+    "moduleResolution": "Bundler",
+    "target": "ES2022",
+    "lib": ["ES2022", "DOM"],
+    "types": [],
+    "strict": true,
+    "noEmit": true
+  },
+  "include": ["./**/*.ts", "../panel/messages.ts"]
+}
