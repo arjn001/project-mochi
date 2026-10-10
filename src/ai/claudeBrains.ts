@@ -2,7 +2,7 @@ import * as vscode from "vscode";
 import { ClaudeModel, answer, connect, listModels, toBrainError, toClaudeError, toSavedModels } from "./claude";
 import { ClaudeKey } from "./claudeKey";
 import { compose } from "./compose";
-import { BrainError, Provider } from "./provider";
+import { BrainError, Provider, SendOptions } from "./provider";
 import { GatedRequest } from "./shareGate";
 
 // The last model listing that worked, so a moment offline doesn't make her
@@ -68,25 +68,27 @@ export class ClaudeModels {
 // answer and handed only to the Claude client.
 class ClaudeBrain implements Provider {
   readonly name: string;
+  readonly maxInputTokens: number | undefined;
 
   constructor(
     private readonly models: ClaudeModels,
     private readonly model: ClaudeModel
   ) {
     this.name = model.name;
+    this.maxInputTokens = model.maxInputTokens ?? undefined;
   }
 
   async isAvailable(): Promise<boolean> {
     return (await this.models.key.get()) !== undefined;
   }
 
-  async *send(request: GatedRequest, instructions: string, signal?: AbortSignal, soFar?: string): AsyncIterable<string> {
+  async *send(request: GatedRequest, instructions: string, { history, signal, soFar }: SendOptions = {}): AsyncIterable<string> {
     const key = await this.models.key.get();
     if (!key) {
       throw new BrainError("keyRejected", "There's no Claude key saved.", "addClaudeKey");
     }
     try {
-      yield* answer(connect(key), this.model.id, instructions, compose(request), signal, undefined, soFar);
+      yield* answer(connect(key), this.model.id, instructions, compose(request), { history, signal, soFar });
     } catch (error) {
       const problem = toClaudeError(error);
       if (problem.problem === "notFound") {

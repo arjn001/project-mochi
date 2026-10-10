@@ -27,10 +27,14 @@ const askLabel = byId<HTMLLabelElement>("ask-label");
 const box = byId<HTMLTextAreaElement>("ask");
 const send = byId<HTMLButtonElement>("send");
 const chat = byId<HTMLDivElement>("chat");
+const attachment = byId<HTMLDivElement>("attachment");
+const attachmentLabel = byId<HTMLSpanElement>("attachment-label");
+const leaveOut = byId<HTMLButtonElement>("leave-out");
 const buttons: Record<Exclude<PanelButton, "welcome">, HTMLButtonElement> = {
   explain: byId("explain"),
   focus: byId("focus"),
   dark: byId("dark"),
+  brain: byId("brain"),
 };
 
 // The draft survives the panel being hidden and shown again.
@@ -170,6 +174,11 @@ function message(entry: ChatEntry): HTMLElement {
   const bubble = element("div", "mochi-bubble");
   fillBubble(bubble, entry);
   column.append(bubble);
+  // What was shared with her message, like "shared lines 9 to 15 of
+  // homework.py".
+  if (entry.shared) {
+    column.append(element("span", "mochi-shared", entry.shared));
+  }
   if (entry.chips) {
     const chips = element("div", "mochi-chips");
     if (entry.chips.prompt) {
@@ -238,9 +247,17 @@ function show(state: PanelState): void {
   buttons.explain.textContent = state.buttons.explain;
   buttons.focus.textContent = state.buttons.focus;
   buttons.dark.textContent = state.buttons.dark;
+  buttons.brain.textContent = state.brain.label;
+  buttons.brain.title = state.brain.tooltip;
+  buttons.brain.setAttribute("aria-label", state.brain.spoken);
   askLabel.textContent = state.ask.label;
   box.placeholder = state.ask.label;
   labels = state.chat;
+  // The selected code that would go along, with an x to leave it out.
+  attachment.hidden = !state.attachment;
+  attachmentLabel.textContent = state.attachment?.label ?? "";
+  leaveOut.title = state.attachment?.leaveOut ?? "";
+  leaveOut.setAttribute("aria-label", state.attachment?.leaveOut ?? "");
   // An arrow on screen; "Send" as its tooltip and for screen readers.
   send.title = state.ask.send;
   send.setAttribute("aria-label", state.ask.send);
@@ -308,6 +325,11 @@ for (const [name, button] of Object.entries(buttons)) {
   });
 }
 welcome.addEventListener("click", () => vscode.postMessage({ type: "button", button: "welcome" }));
+leaveOut.addEventListener("click", () => {
+  vscode.postMessage({ type: "leaveOut" });
+  // The chip goes away, so her focus goes back to the box.
+  box.focus();
+});
 
 box.addEventListener("input", () => {
   saveDraft();

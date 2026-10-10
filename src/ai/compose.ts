@@ -5,7 +5,9 @@ import { Attachment, GatedRequest } from "./shareGate";
 function describe(attachment: Attachment): string {
   switch (attachment.kind) {
     case "selection":
-      return `Selected code from ${attachment.label}`;
+      return attachment.from !== undefined && attachment.to !== undefined
+        ? `Selected code from ${attachment.label}, lines ${attachment.from} to ${attachment.to}`
+        : `Selected code from ${attachment.label}`;
     case "file":
       return `The open file ${attachment.label}`;
     case "errorContext":

@@ -3,7 +3,9 @@
 export interface AnswerSurface {
   // Starts a new answer to what she asked: `asked` is her side of the chat,
   // like "what's a list?" or "Explain the error on line 12 of homework.py".
-  start(asked: string): void;
+  // `shared` says what was shared with it, like "shared lines 9 to 15 of
+  // homework.py".
+  start(asked: string, shared?: string): void;
   // Adds text as the answer streams in.
   append(text: string): void;
   finish(): void;

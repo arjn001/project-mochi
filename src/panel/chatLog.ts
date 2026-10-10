@@ -2,6 +2,7 @@
 // surface everything that asks or explains writes to. Plain code with no
 // VS Code dependency. The panel shows what's here; nothing here is HTML.
 import { AnswerSurface } from "../ai/answerSurface";
+import { SavedEntry } from "./chatStore";
 import { ChatEntry } from "./messages";
 
 // What changed, so the panel can redraw everything, or only add streamed
@@ -27,9 +28,12 @@ export class ChatLog implements AnswerSurface {
     return this.list;
   }
 
-  start(asked: string): void {
+  start(asked: string, shared?: string): void {
     this.dropChips();
-    this.add("her", asked);
+    const her = this.add("her", asked);
+    if (shared) {
+      her.shared = shared;
+    }
     this.reply = this.add("mochi", "");
     this.update();
   }
@@ -95,6 +99,21 @@ export class ChatLog implements AnswerSurface {
     this.list = [];
     this.reply = undefined;
     this.update(false);
+  }
+
+  // A saved chat, put before anything said since Mochi started, so a
+  // question asked while it loaded isn't lost. Doesn't show the panel.
+  restore(saved: readonly SavedEntry[]): void {
+    const before = saved.map((entry) => ({ ...entry, id: this.nextId++ }));
+    this.list = [...before, ...this.list];
+    this.update(false);
+  }
+
+  // What's kept on disk: every message with something in it, without chips.
+  saved(): SavedEntry[] {
+    return this.list
+      .filter((entry) => entry.text !== "")
+      .map(({ from, text, problem, shared }) => ({ from, text, ...(problem ? { problem } : {}), ...(shared ? { shared } : {}) }));
   }
 
   private offer(entry: ChatEntry, choices: string[], prompt?: string): Promise<string | undefined> {

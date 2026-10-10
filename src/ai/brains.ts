@@ -5,7 +5,7 @@
 // any other model without her: with no Auto and no pick, it asks. On Copilot
 // Free and Student, Auto is the only model; every chat message uses her
 // Copilot plan (see DECISIONS.md), and Mochi only thinks when she asks.
-import { brainStrings } from "../strings";
+import { brainStrings, chatStrings } from "../strings";
 
 // What Mochi needs to know about a model VS Code's built-in AI offers.
 export interface BrainInfo {
@@ -38,6 +38,14 @@ const vendorName = (vendor: string) => VENDOR_NAMES[vendor] ?? vendor.charAt(0).
 // say Claude: "Claude Haiku 4.5".
 export const brainLabel = (brain: { vendor: string; name: string }) =>
   brain.vendor === CLAUDE_VENDOR ? brain.name : `${vendorName(brain.vendor)} · ${brain.name}`;
+
+// The brain at the top of the chat (MOCHI-21): its name, or the command's
+// name when Mochi would ask her first. One click opens Choose a brain.
+export function brainButton(brain: string | undefined): { label: string; tooltip: string; spoken: string } {
+  return brain
+    ? { label: brain, tooltip: chatStrings.chooseBrain, spoken: chatStrings.brainSpoken(brain) }
+    : { label: chatStrings.chooseBrain, tooltip: chatStrings.chooseBrain, spoken: chatStrings.chooseBrain };
+}
 
 export const isAuto = (brain: { vendor: string; id: string }) => brain.vendor === "copilot" && brain.id === "auto";
 

@@ -6,12 +6,15 @@
 // Anything Mochi attaches on its own (selected code, errors, the open file)
 // is only sent after she says yes to a question naming the AI it goes to.
 
+import { chatStrings } from "../strings";
 import { SECRET_WARNING, isSensitiveFile, looksSecret, refusalFor } from "./secrets";
 
 // Something Mochi wants to send along. `label` is the file name, never the
 // full path.
 export type Attachment =
-  | { kind: "selection"; label: string; text: string }
+  // `from` and `to` are the selected lines, when known. Line numbers start
+  // at 1.
+  | { kind: "selection"; label: string; text: string; from?: number; to?: number }
   | { kind: "file"; label: string; text: string }
   // An error plus a few lines around it. Line numbers start at 1.
   | { kind: "errorContext"; label: string; text: string; from: number; to: number; errorLine: number };
@@ -47,12 +50,23 @@ export type GateResult =
 export function describe(attachment: Attachment): string {
   switch (attachment.kind) {
     case "selection":
-      return `the selected code from ${attachment.label}`;
+      if (attachment.from === undefined || attachment.to === undefined) {
+        return `the selected code from ${attachment.label}`;
+      }
+      return attachment.from === attachment.to
+        ? `line ${attachment.from} of ${attachment.label}`
+        : `lines ${attachment.from} to ${attachment.to} of ${attachment.label}`;
     case "file":
       return `the open file ${attachment.label}`;
     case "errorContext":
       return `lines ${attachment.from} to ${attachment.to} of ${attachment.label} (the error on line ${attachment.errorLine})`;
   }
+}
+
+// The chip above the box for selected code: "homework.py, lines 9 to 15"
+// (MOCHI-21).
+export function chipLabel(attachment: Attachment & { kind: "selection" }): string {
+  return chatStrings.attachment(attachment.label, attachment.from, attachment.to);
 }
 
 // "Share lines 9 to 15 of homework.py (the error on line 12) with Copilot?"

@@ -45,10 +45,24 @@ export const chatStrings = {
   explainSelection: (file: string) => `Explain the selected code from ${file}`,
   // When the chat is empty.
   empty: "Our chat stays on this computer. It can include code from our conversation; Clear chat removes it.",
+  // The chip above the box for the code she has selected, and its x for
+  // screen readers.
+  attachment: (file: string, from?: number, to?: number) =>
+    from === undefined || to === undefined ? file : from === to ? `${file}, line ${from}` : `${file}, lines ${from} to ${to}`,
+  leaveOut: (chip: string) => `Leave out ${chip}`,
+  // The brain at the top of the chat opens this, with the command's name.
+  chooseBrain: "Choose a brain",
+  // What screen readers hear for it: "Copilot · Auto. Choose a brain".
+  brainSpoken: (brain: string) => `${brain}. Choose a brain`,
   // Who said it, for screen readers. Mochi's side uses the pack's name.
   you: "You",
+  // Under her message, when something was shared with it. Kept with the
+  // chat, without the code.
+  shared: (what: string) => `shared ${what}`,
   copy: "Copy",
   copied: "Copied",
+  // Once per session, if the chat can't be saved, like on a full disk.
+  couldntSave: "I couldn't save our chat on this computer, so it lasts until VS Code closes.",
 };
 
 // The share gate. Older lines still live in ai/askToShare.ts and
@@ -127,6 +141,14 @@ export const problemStrings = {
   addClaudeKey: "Add a Claude key",
   openConsole: "Open the Claude Console",
   keepGoing: "Keep going",
+};
+
+// "Clear chat", in the ... menu of Mochi's tab (MOCHI-21).
+export const clearStrings = {
+  question: "Clear this chat?",
+  detail: "This can't be undone.",
+  yes: "Clear",
+  keep: "Keep it",
 };
 
 // "Mochi: Forget everything" (MOCHI-65).

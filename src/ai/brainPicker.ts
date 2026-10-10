@@ -216,6 +216,27 @@ export class BrainPicker {
     return choice.kind === "ask" ? { kind: "ask" } : { kind: "none", copilotSetup: await hasCopilotSetup() };
   }
 
+  // The brain Mochi would think with now, for the top of the chat, or
+  // undefined when it would ask her. Asks no brain anything.
+  async current(): Promise<string | undefined> {
+    const choice = chooseBrain(readBrainSetting(), await this.brains());
+    return choice.kind === "use" ? brainLabel(choice.brain) : undefined;
+  }
+
+  // Calls back when the brain Mochi would think with may have changed:
+  // brains coming or going, her pick, or her Claude key.
+  onDidChange(callback: () => void): vscode.Disposable {
+    return vscode.Disposable.from(
+      vscode.lm.onDidChangeChatModels(callback),
+      vscode.workspace.onDidChangeConfiguration((event) => {
+        if (event.affectsConfiguration("mochi.brain")) {
+          callback();
+        }
+      }),
+      this.claude.key.onDidChange(callback)
+    );
+  }
+
   register(): vscode.Disposable {
     return vscode.commands.registerCommand("mochi.chooseBrain", () => this.choose());
   }

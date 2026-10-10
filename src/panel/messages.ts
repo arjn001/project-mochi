@@ -22,6 +22,9 @@ export interface ChatEntry {
   chips?: ChatChips;
   // A kind line about a problem, not an answer.
   problem?: boolean;
+  // Her side only: what was shared with her message, like "lines 9 to 15
+  // of homework.py". Never the code itself.
+  shared?: string;
 }
 
 // Everything the panel shows. Sent whenever something changes, and when the
@@ -33,6 +36,12 @@ export interface PanelState {
   // The welcome's button ("Set up Copilot" or "Choose a brain"), if any.
   welcomeButton?: string;
   buttons: { explain: string; focus: string; dark: string };
+  // The brain at the top of the chat, like "Copilot · Auto", or "Choose a
+  // brain". One click opens Choose a brain.
+  brain: { label: string; tooltip: string; spoken: string };
+  // The chip above the box for the code she has selected, like
+  // "homework.py, lines 9 to 15", and its x's words for screen readers.
+  attachment?: { label: string; leaveOut: string };
   ask: { label: string; send: string };
   chat: { empty: string; you: string; mochi: string; copy: string; copied: string };
 }
@@ -51,13 +60,15 @@ export type ToPanel =
   // "Forget everything": clear the unsent draft.
   | { type: "forget" };
 
-export type PanelButton = "explain" | "focus" | "dark" | "welcome";
+export type PanelButton = "explain" | "focus" | "dark" | "welcome" | "brain";
 
 export type FromPanel =
   | { type: "ready" }
   | { type: "ask"; text: string }
   | { type: "button"; button: PanelButton }
   | { type: "chip"; entry: number; chip: string }
+  // The x on the attachment chip: send without the selected code.
+  | { type: "leaveOut" }
   // Copy only copies: Mochi puts the text on her clipboard, nothing else.
   | { type: "copy"; text: string }
   // Opened through VS Code, and only if it's an https link (format.ts).
@@ -68,7 +79,7 @@ export const MAX_ASK_LENGTH = 20_000;
 // The longest code block Copy will put on her clipboard.
 export const MAX_COPY_LENGTH = 200_000;
 
-const BUTTONS: readonly PanelButton[] = ["explain", "focus", "dark", "welcome"];
+const BUTTONS: readonly PanelButton[] = ["explain", "focus", "dark", "welcome", "brain"];
 
 // A message from the panel, or undefined if it isn't one Mochi knows.
 export function toFromPanel(value: unknown): FromPanel | undefined {
@@ -89,6 +100,8 @@ export function toFromPanel(value: unknown): FromPanel | undefined {
       return Number.isInteger(message.entry) && typeof message.chip === "string" && message.chip.length <= 10
         ? { type: "chip", entry: message.entry as number, chip: message.chip }
         : undefined;
+    case "leaveOut":
+      return { type: "leaveOut" };
     case "copy":
       return typeof message.text === "string" && message.text.length <= MAX_COPY_LENGTH ? { type: "copy", text: message.text } : undefined;
     case "openLink":

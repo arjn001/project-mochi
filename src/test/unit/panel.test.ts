@@ -62,6 +62,8 @@ describe("Mochi's panel", () => {
       assert.deepStrictEqual(toFromPanel({ type: "ready" }), { type: "ready" });
       assert.deepStrictEqual(toFromPanel({ type: "ask", text: "what's a list?" }), { type: "ask", text: "what's a list?" });
       assert.deepStrictEqual(toFromPanel({ type: "button", button: "focus" }), { type: "button", button: "focus" });
+      assert.deepStrictEqual(toFromPanel({ type: "button", button: "brain" }), { type: "button", button: "brain" });
+      assert.deepStrictEqual(toFromPanel({ type: "leaveOut", extra: "ignored" }), { type: "leaveOut" });
     });
 
     it("ignores anything else", () => {

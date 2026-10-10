@@ -57,6 +57,14 @@ describe("package.json", () => {
     assert.strictEqual(setting.scope, "application", "A project's settings must not be able to turn Learning mode off.");
   });
 
+  it("puts Clear chat in the ... menu of Mochi's tab, not as a bare icon", () => {
+    const pkg = readJson("package.json");
+    const item = pkg.contributes.menus["view/title"].find((m: { command: string }) => m.command === "mochi.clearChat");
+    assert.strictEqual(item.when, "view == mochi.home");
+    assert.ok(!item.group.startsWith("navigation"), "The navigation group would show it as an icon in the title bar.");
+    assert.ok(pkg.contributes.commands.some((c: { command: string; title: string }) => c.command === "mochi.clearChat" && c.title === "Clear chat"));
+  });
+
   it("keeps her brain choice in her own settings only", () => {
     const setting = readJson("package.json").contributes.configuration.properties["mochi.brain"];
     assert.strictEqual(setting.default, "");
