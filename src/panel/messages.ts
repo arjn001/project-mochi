@@ -25,6 +25,10 @@ export interface ChatEntry {
   // Her side only: what was shared with her message, like "lines 9 to 15
   // of homework.py". Never the code itself.
   shared?: string;
+  // Mochi's answer that's being written right now (MOCHI-25).
+  answering?: boolean;
+  // An answer she stopped, or one cut off when VS Code closed.
+  stopped?: boolean;
 }
 
 // Everything the panel shows. Sent whenever something changes, and when the
@@ -69,6 +73,8 @@ export type FromPanel =
   | { type: "chip"; entry: number; chip: string }
   // The x on the attachment chip: send without the selected code.
   | { type: "leaveOut" }
+  // The stop square, or Escape in the box, while Mochi answers (MOCHI-25).
+  | { type: "stop" }
   // Copy only copies: Mochi puts the text on her clipboard, nothing else.
   | { type: "copy"; text: string }
   // Opened through VS Code, and only if it's an https link (format.ts).
@@ -102,6 +108,8 @@ export function toFromPanel(value: unknown): FromPanel | undefined {
         : undefined;
     case "leaveOut":
       return { type: "leaveOut" };
+    case "stop":
+      return { type: "stop" };
     case "copy":
       return typeof message.text === "string" && message.text.length <= MAX_COPY_LENGTH ? { type: "copy", text: message.text } : undefined;
     case "openLink":

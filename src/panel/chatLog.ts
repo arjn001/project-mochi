@@ -34,27 +34,47 @@ export class ChatLog implements AnswerSurface {
     if (shared) {
       her.shared = shared;
     }
-    this.reply = this.add("mochi", "");
+    this.answer(this.add("mochi", ""));
     this.update();
   }
 
   append(text: string): void {
     if (!this.reply) {
-      this.reply = this.add("mochi", "");
+      this.answer(this.add("mochi", ""));
       this.update();
     }
-    this.reply.text += text;
-    this.changed({ type: "append", id: this.reply.id, text });
+    this.reply!.text += text;
+    this.changed({ type: "append", id: this.reply!.id, text });
   }
 
   finish(): void {
-    this.reply = undefined;
+    if (this.reply) {
+      this.reply.answering = undefined;
+      this.reply = undefined;
+      this.update(false);
+    }
+  }
+
+  stopped(): void {
+    if (this.reply) {
+      this.reply.stopped = true;
+    }
+    this.finish();
   }
 
   resume(): void {
     this.dropChips();
-    this.reply = [...this.list].reverse().find((entry) => entry.from === "mochi" && !entry.problem);
+    const last = [...this.list].reverse().find((entry) => entry.from === "mochi" && !entry.problem);
+    if (last) {
+      last.stopped = undefined;
+      this.answer(last);
+    }
     this.update();
+  }
+
+  // Whether Mochi is answering right now, so the box shows Stop.
+  answering(): boolean {
+    return this.reply !== undefined;
   }
 
   offerNext(prompt: string, choices: string[]): Promise<string | undefined> {
@@ -110,10 +130,19 @@ export class ChatLog implements AnswerSurface {
   }
 
   // What's kept on disk: every message with something in it, without chips.
+  // An answer still being written is saved as stopped, so if VS Code closes
+  // now, it comes back marked "Stopped"; the next save once it finishes
+  // clears that.
   saved(): SavedEntry[] {
     return this.list
-      .filter((entry) => entry.text !== "")
-      .map(({ from, text, problem, shared }) => ({ from, text, ...(problem ? { problem } : {}), ...(shared ? { shared } : {}) }));
+      .filter((entry) => entry.text !== "" || entry.stopped)
+      .map(({ from, text, problem, shared, stopped, answering }) => ({
+        from,
+        text,
+        ...(problem ? { problem } : {}),
+        ...(shared ? { shared } : {}),
+        ...(stopped || answering ? { stopped: true } : {}),
+      }));
   }
 
   private offer(entry: ChatEntry, choices: string[], prompt?: string): Promise<string | undefined> {
@@ -134,6 +163,11 @@ export class ChatLog implements AnswerSurface {
       waiting.entry.chips = undefined;
       waiting.resolve(undefined);
     }
+  }
+
+  private answer(entry: ChatEntry): void {
+    entry.answering = true;
+    this.reply = entry;
   }
 
   private add(from: ChatEntry["from"], text: string): ChatEntry {

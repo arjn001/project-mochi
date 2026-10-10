@@ -22,6 +22,8 @@ type Again = (soFar: string, signal: AbortSignal) => AsyncIterable<string>;
 export class Conversation {
   // The brain that answered last, so a follow-up stays with it.
   private provider: Provider | undefined;
+  // The answer being written, so she can stop it. One at a time.
+  private running: { controller: AbortController; done: Promise<void> } | undefined;
 
   constructor(
     private readonly brains: Pick<BrainPicker, "forQuestion">,
@@ -35,9 +37,22 @@ export class Conversation {
     return recentTurns(this.chat(), historyBudget(provider?.maxInputTokens));
   }
 
+  // Stops the answer being written, if there is one, keeping what's there
+  // (MOCHI-25). Resolves once it has stopped.
+  async stop(): Promise<void> {
+    const running = this.running;
+    if (running) {
+      running.controller.abort();
+      await running.done;
+    }
+  }
+
   // Asks through the share gate. Returns what was sent, so a follow-up can
   // reuse it without asking her again, or undefined if nothing was sent.
+  // An answer still being written stops first, like when she clicks
+  // "Explain with Mochi" while Mochi is answering.
   async ask(request: Request, heading: string): Promise<GatedRequest | undefined> {
+    await this.stop();
     const brain = await this.brains.forQuestion();
     if (brain.kind === "waiting") {
       this.surface.say(brainStrings.waiting);
@@ -82,6 +97,7 @@ export class Conversation {
     if (!this.provider) {
       return;
     }
+    await this.stop();
     const provider = this.provider;
     const asked = followUp(approved, message);
     const controller = new AbortController();
@@ -123,34 +139,46 @@ export class Conversation {
     await this.stream(text, controller, again, "");
   }
 
-  // Shows the answer as it streams. `before` is what this answer already
-  // said, so "Keep going" can be offered again if it reaches the limit
-  // twice.
+  // Shows the answer as it streams, in the chat only: the panel shows Stop
+  // and paw prints while it's written (MOCHI-25). `before` is what this
+  // answer already said, so "Keep going" can be offered again if it reaches
+  // the limit twice.
   private async stream(text: AsyncIterable<string>, controller: AbortController, again: Again, before: string): Promise<void> {
+    const done = this.write(text, controller, again, before);
+    this.running = { controller, done };
+    await done;
+    if (this.running?.done === done) {
+      this.running = undefined;
+    }
+  }
+
+  private async write(text: AsyncIterable<string>, controller: AbortController, again: Again, before: string): Promise<void> {
     let written = before;
-    await vscode.window.withProgress(
-      { location: vscode.ProgressLocation.Notification, title: "Mochi is thinking...", cancellable: true },
-      async (_progress, token) => {
-        token.onCancellationRequested(() => controller.abort());
-        try {
-          for await (const piece of text) {
-            written += piece;
-            this.surface.append(piece);
-          }
-        } catch (error) {
-          const problem = error instanceof BrainError ? error : new BrainError("other", String(error));
-          const soFar = written;
-          // Not awaited, so "Mochi is thinking..." closes right away.
-          void this.showProblem(problem, () => this.keepGoing(again, soFar));
-        }
-        this.surface.finish();
+    try {
+      for await (const piece of text) {
+        written += piece;
+        this.surface.append(piece);
       }
-    );
+    } catch (error) {
+      // Stopping can end a brain's answer with an error of its own.
+      if (!controller.signal.aborted) {
+        const problem = error instanceof BrainError ? error : new BrainError("other", String(error));
+        const soFar = written;
+        // Not awaited: her click on its chip comes later, if ever.
+        void this.showProblem(problem, () => this.keepGoing(again, soFar));
+      }
+    }
+    if (controller.signal.aborted) {
+      this.surface.stopped();
+    } else {
+      this.surface.finish();
+    }
   }
 
   // "Keep going": the same brain and the same approved request, picking up
   // from the answer so far. Nothing new is shared, so no share gate.
   private async keepGoing(again: Again, soFar: string): Promise<void> {
+    await this.stop();
     const controller = new AbortController();
     this.surface.resume();
     await this.stream(again(soFar, controller.signal), controller, again, soFar);

@@ -112,6 +112,7 @@ export function panelActions(needs: Needs): PanelActions {
     button,
     chip: (entry, chip) => needs.chat.choose(entry, chip),
     leaveOut: () => needs.attachment.leaveOut(),
+    stop: () => conversation.stop(),
     // Copy only copies.
     copy: async (text) => {
       await vscode.env.clipboard.writeText(text);
