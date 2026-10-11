@@ -442,5 +442,7 @@ runs, and "Forget everything" clears them the next time Mochi opens there.
 - Small, natural commits, one logical change each, starting with the Jira key.
 - One branch per task, merged with a pull request.
 - After a merge, the Jira issue moves to Done with the merge commit in a
-  comment, and the branch is deleted locally and on GitHub (since
-  2026-10-09; branches used to be kept).
+  comment. Merged branches are kept, locally and on GitHub, so Arjun can
+  follow the history in GitKraken (since 2026-10-10). From 2026-10-09 to
+  2026-10-10 they were deleted after merging; those nine were restored at
+  their pull requests' last commits.
