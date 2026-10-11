@@ -21,7 +21,7 @@ update isn't listed.*
 - **Waiting on:** Arjun to merge the preview look.
 
 **42 of 58 Jira tasks and subtasks done**. 2 of the 8
-categories are complete. 427 tests (389 unit, 38 integration) run on every
+categories are complete. 432 tests (394 unit, 38 integration) run on every
 pull request.
 
 ## Done
