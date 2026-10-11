@@ -2,19 +2,43 @@
   "name": "mochi-companion",
   "displayName": "Mochi Companion",
   "description": "A cozy AI companion that lives in VS Code.",
-  "version": "0.0.1",
+  "version": "0.1.0",
+  "preview": true,
   "publisher": "arjungyawali",
   "license": "MIT",
+  "icon": "media/icon.png",
+  "galleryBanner": {
+    "color": "#6B3FA0",
+    "theme": "dark"
+  },
   "private": true,
   "repository": {
     "type": "git",
     "url": "https://github.com/arjn001/project-mochi.git"
   },
+  "homepage": "https://github.com/arjn001/project-mochi#readme",
+  "bugs": {
+    "url": "https://github.com/arjn001/project-mochi/issues"
+  },
   "engines": {
     "vscode": "^1.125.0"
   },
   "categories": [
-    "Other"
+    "AI",
+    "Chat",
+    "Education"
+  ],
+  "keywords": [
+    "companion",
+    "cat",
+    "cozy",
+    "learning",
+    "beginner",
+    "students",
+    "explain error",
+    "copilot",
+    "claude",
+    "focus timer"
   ],
   "activationEvents": [
     "onStartupFinished"
