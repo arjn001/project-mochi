@@ -295,6 +295,8 @@ function append(id: number, text: string): void {
 
 function show(state: PanelState): void {
   avatar.dataset.glyph = state.mood.glyph;
+  // The small cat beside each answer follows the same mood.
+  chat.dataset.glyph = state.mood.glyph;
   mood.textContent = state.mood.words;
   greeting.textContent = state.greeting;
   welcome.hidden = !state.welcomeButton;

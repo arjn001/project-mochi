@@ -1,16 +1,21 @@
 /*
  * Mochi's panel (MOCHI-16). The only stylesheet, and the one place the look
- * lives. Every color comes from VS Code's theme, so the panel follows light,
- * dark, and high contrast themes on its own.
+ * lives. Colors come from VS Code's theme, with Mochi's own warm colors on
+ * top in light and dark themes only (MOCHI-50), so high contrast themes
+ * keep exactly the theme's colors.
  *
- * Rules (a unit test checks them):
- * - No raw colors: no hex, rgb(), or hsl(). Only VS Code's --vscode-*
- *   variables, through the --mochi-* tokens below.
- * - The --mochi-* tokens are defined only in this first block. The panel's
- *   look (MOCHI-50) changes these tokens and adds art, without touching the
- *   page or its script.
+ * Rules (unit tests check them):
+ * - The --mochi-* tokens are defined only in this first block, and raw
+ *   colors (hex, rgb(), hsl()) appear only here, in its vscode-light and
+ *   vscode-dark parts. Everything below uses the tokens.
+ * - VS Code gives the panel's body one theme class: vscode-light,
+ *   vscode-dark, or vscode-high-contrast (high contrast light adds
+ *   vscode-high-contrast-light), so these parts never apply in high
+ *   contrast (checked in VS Code's webview source, 2026-10-10).
+ * - Text always uses the theme's foreground. Every text and background
+ *   pair meets WCAG AA (4.5:1) in Light Modern and Dark Modern.
  */
-:root {
+body {
   --mochi-text: var(--vscode-foreground);
   --mochi-quiet-text: var(--vscode-descriptionForeground);
   --mochi-background: var(--vscode-sideBar-background);
@@ -31,24 +36,46 @@
   --mochi-contrast-border: var(--vscode-contrastBorder, transparent);
   --mochi-font: var(--vscode-font-family);
   --mochi-font-size: var(--vscode-font-size);
-  --mochi-avatar-size: 48px;
+  /* The greeting's vintage touch: fonts already on her computer, never
+     downloaded. Iowan Old Style comes with macOS. */
+  --mochi-greeting-font: "Iowan Old Style", Georgia, serif;
+  --mochi-avatar-size: 56px;
   --mochi-gap: 8px;
   --mochi-corner: 2px;
   --mochi-frame-corner: 8px;
   --mochi-send-size: 26px;
   /* The chat (MOCHI-21). */
   --mochi-her-bubble: var(--vscode-button-secondaryBackground);
-  --mochi-her-text: var(--vscode-button-secondaryForeground);
   --mochi-reply-bubble: var(--vscode-editorWidget-background, var(--vscode-input-background));
+  --mochi-bubble-border: var(--mochi-contrast-border);
   --mochi-problem-border: var(--vscode-inputValidation-warningBorder, var(--vscode-editorWarning-foreground));
   --mochi-code-background: var(--vscode-textCodeBlock-background);
   --mochi-code-font: var(--vscode-editor-font-family);
   --mochi-code-font-size: var(--vscode-editor-font-size);
-  --mochi-link: var(--vscode-textLink-foreground);
-  --mochi-link-hover: var(--vscode-textLink-activeForeground);
+  /* Chips, links, the box's frame while she types, and the paw prints. */
+  --mochi-accent: var(--vscode-textLink-foreground);
   --mochi-chip-border: var(--vscode-button-border, var(--vscode-widget-border, transparent));
   --mochi-bubble-corner: 12px;
   --mochi-message-cat-size: 20px;
+
+  /* The preview look (MOCHI-50): warm cream and lavender bubbles with a
+     plum accent in light themes. */
+  &.vscode-light {
+    --mochi-reply-bubble: #f6efe6;
+    --mochi-her-bubble: #ede4f7;
+    --mochi-accent: #6b3fa0;
+    --mochi-chip-border: #6b3fa0;
+    --mochi-bubble-border: #e2d6c8;
+  }
+
+  /* Deep plum bubbles with a lilac accent in dark themes. */
+  &.vscode-dark {
+    --mochi-reply-bubble: #2e2533;
+    --mochi-her-bubble: #3b2d4a;
+    --mochi-accent: #c3a6e8;
+    --mochi-chip-border: #c3a6e8;
+    --mochi-bubble-border: #4a3c57;
+  }
 }
 
 /* The mood icons from Mochi's icon font, the same ones as the status bar.
@@ -102,6 +129,8 @@ body {
 
 .mochi-greeting {
   margin: 0;
+  font-family: var(--mochi-greeting-font);
+  font-size: 1.08em;
 }
 
 /* The middle holds the buttons and the chat. Only the chat scrolls. */
@@ -174,24 +203,34 @@ body {
   line-height: 1;
   color: var(--mochi-quiet-text);
 }
-.mochi-message-cat::before {
+/* The same cat as the top of the panel, following the mood. */
+.mochi-message-cat::before,
+.mochi-chat[data-glyph="here"] .mochi-message-cat::before {
   content: "\E001";
 }
+.mochi-chat[data-glyph="purring"] .mochi-message-cat::before {
+  content: "\E002";
+}
+.mochi-chat[data-glyph="napping"] .mochi-message-cat::before {
+  content: "\E003";
+}
 
+/* Rounded bubbles with a soft border, and a small tail toward who said it.
+   Text is always the theme's own color. */
 .mochi-bubble {
-  padding: 6px 10px;
-  border: 1px solid var(--mochi-contrast-border);
+  padding: 8px 12px;
+  border: 1px solid var(--mochi-bubble-border);
+  color: var(--mochi-text);
   overflow-wrap: anywhere;
 }
 .mochi-from-her .mochi-bubble {
   white-space: pre-wrap;
-  color: var(--mochi-her-text);
   background: var(--mochi-her-bubble);
-  border-radius: var(--mochi-bubble-corner) var(--mochi-bubble-corner) 2px var(--mochi-bubble-corner);
+  border-radius: var(--mochi-bubble-corner) var(--mochi-bubble-corner) 4px var(--mochi-bubble-corner);
 }
 .mochi-from-mochi .mochi-bubble {
   background: var(--mochi-reply-bubble);
-  border-radius: var(--mochi-bubble-corner) var(--mochi-bubble-corner) var(--mochi-bubble-corner) 2px;
+  border-radius: var(--mochi-bubble-corner) var(--mochi-bubble-corner) var(--mochi-bubble-corner) 4px;
 }
 .mochi-problem .mochi-bubble {
   border-color: var(--mochi-problem-border);
@@ -247,9 +286,9 @@ body {
   padding: 4px 4px 0;
 }
 .mochi-copy {
-  padding: 1px 6px;
+  padding: 1px 8px;
   border: 1px solid var(--mochi-chip-border);
-  border-radius: var(--mochi-corner);
+  border-radius: 999px;
   color: var(--mochi-button-text);
   background: var(--mochi-button-background);
   font: inherit;
@@ -261,10 +300,10 @@ body {
 }
 
 .mochi-link {
-  color: var(--mochi-link);
+  color: var(--mochi-accent);
 }
 .mochi-link:hover {
-  color: var(--mochi-link-hover);
+  text-decoration-thickness: 2px;
 }
 .mochi-link-domain {
   color: var(--mochi-quiet-text);
@@ -288,10 +327,10 @@ body {
   color: var(--mochi-quiet-text);
 }
 .mochi-chip {
-  padding: 2px 10px;
+  padding: 3px 12px;
   border: 1px solid var(--mochi-chip-border);
   border-radius: 999px;
-  color: var(--mochi-text);
+  color: var(--mochi-accent);
   background: transparent;
   font: inherit;
   cursor: pointer;
@@ -346,7 +385,7 @@ body {
   background: var(--mochi-box-background);
 }
 .mochi-frame:focus-within {
-  border-color: var(--mochi-focus);
+  border-color: var(--mochi-accent);
 }
 
 /* The chip for the code she has selected, above what she types. */
@@ -461,7 +500,7 @@ body {
 .mochi-paw {
   width: 13px;
   height: 13px;
-  fill: var(--mochi-quiet-text);
+  fill: var(--mochi-accent);
   opacity: 0.35;
   animation: mochi-step 1.2s ease-in-out infinite;
 }

@@ -34,10 +34,31 @@ describe("Mochi's panel", () => {
   describe("the stylesheet", () => {
     const css = fs.readFileSync(path.join(repo, "media", "panel", "panel.css"), "utf8");
     const withoutComments = css.replace(/\/\*[\s\S]*?\*\//g, "");
+    // The first block, with the parts nested inside it.
+    const open = withoutComments.indexOf("{");
+    let depth = 0;
+    let close = open;
+    for (; close < withoutComments.length; close++) {
+      depth += withoutComments[close] === "{" ? 1 : withoutComments[close] === "}" ? -1 : 0;
+      if (depth === 0) {
+        break;
+      }
+    }
+    const tokens = withoutComments.slice(0, close + 1);
+    const rest = withoutComments.slice(close + 1);
+    const part = (theme: string) => new RegExp(`&\\.${theme}\\s*\\{([^}]*)\\}`).exec(tokens)?.[1] ?? "";
+    const RAW = /#[0-9a-f]{3,8}\b|\b(rgba?|hsla?)\(/i;
 
-    it("has no raw colors, only VS Code's theme", () => {
-      assert.doesNotMatch(withoutComments, /#[0-9a-f]{3,8}\b/i);
-      assert.doesNotMatch(withoutComments, /\b(rgba?|hsla?)\(/i);
+    it("keeps raw colors in the token block's light and dark parts only", () => {
+      assert.doesNotMatch(rest, RAW, "A raw color outside the token block.");
+      const outsideParts = tokens.replace(/&\.vscode-(light|dark)\s*\{[^}]*\}/g, "");
+      assert.doesNotMatch(outsideParts, RAW, "A raw color in the token block, but outside its light and dark parts.");
+      assert.match(part("vscode-light"), RAW);
+      assert.match(part("vscode-dark"), RAW);
+    });
+
+    it("never gives high contrast themes colors of its own", () => {
+      assert.doesNotMatch(withoutComments, /vscode-high-contrast/);
     });
 
     it("only uses VS Code's variables and Mochi's tokens", () => {
@@ -46,18 +67,62 @@ describe("Mochi's panel", () => {
       }
     });
 
+    it("defines Mochi's tokens in one place, the first block", () => {
+      assert.match(tokens, /^\s*body\s*\{/);
+      assert.doesNotMatch(rest, /--mochi-[\w-]+\s*:/, "A --mochi- token is defined outside the first block.");
+      for (const [, token] of rest.matchAll(/var\((--mochi-[\w-]+)/g)) {
+        assert.match(tokens, new RegExp(`${token}\\s*:`), `${token} is used but never defined.`);
+      }
+    });
+
     it("keeps the paw prints still with Reduce Motion, VS Code's or the system's", () => {
       assert.match(withoutComments, /body\.vscode-reduce-motion \.mochi-paw\s*\{[^}]*animation:\s*none/);
       assert.match(withoutComments, /@media \(prefers-reduced-motion: reduce\)\s*\{\s*\.mochi-paw\s*\{[^}]*animation:\s*none/);
     });
 
-    it("defines Mochi's tokens in one place, the first block", () => {
-      const firstBlock = withoutComments.slice(0, withoutComments.indexOf("}"));
-      assert.match(firstBlock, /^\s*:root\s*\{/);
-      const rest = withoutComments.slice(firstBlock.length);
-      assert.doesNotMatch(rest, /--mochi-[\w-]+\s*:/, "A --mochi- token is defined outside the first block.");
-      for (const [, token] of rest.matchAll(/var\((--mochi-[\w-]+)/g)) {
-        assert.match(firstBlock, new RegExp(`${token}\\s*:`), `${token} is used but never defined.`);
+    describe("contrast (WCAG AA)", () => {
+      // The theme's own colors, from VS Code's Light Modern and Dark Modern
+      // (extensions/theme-defaults/themes, checked 2026-10-10).
+      const themes = {
+        "vscode-light": { foreground: "#3b3b3b", quiet: "#3b3b3b", sideBar: "#f8f8f8" },
+        "vscode-dark": { foreground: "#cccccc", quiet: "#9d9d9d", sideBar: "#181818" },
+      };
+      const luminance = (hex: string) => {
+        const [r, g, b] = [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16) / 255);
+        const linear = (c: number) => (c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4);
+        return 0.2126 * linear(r) + 0.7152 * linear(g) + 0.0722 * linear(b);
+      };
+      const contrast = (a: string, b: string) => {
+        const [high, low] = [luminance(a), luminance(b)].sort((x, y) => y - x);
+        return (high + 0.05) / (low + 0.05);
+      };
+      const token = (theme: string, name: string) => {
+        const value = new RegExp(`--mochi-${name}:\\s*(#[0-9a-f]{6})`, "i").exec(part(theme))?.[1];
+        assert.ok(value, `--mochi-${name} isn't set for ${theme}.`);
+        return value;
+      };
+
+      for (const [theme, colors] of Object.entries(themes)) {
+        it(`meets 4.5:1 for every text in ${theme === "vscode-light" ? "Light" : "Dark"} Modern`, () => {
+          const pairs: [string, string, string][] = [
+            ["text on Mochi's bubble", colors.foreground, token(theme, "reply-bubble")],
+            ["text on her bubble", colors.foreground, token(theme, "her-bubble")],
+            ["quiet text (Stopped) on Mochi's bubble", colors.quiet, token(theme, "reply-bubble")],
+            ["links on Mochi's bubble", token(theme, "accent"), token(theme, "reply-bubble")],
+            ["chips on the panel", token(theme, "accent"), colors.sideBar],
+            ["chips on Mochi's bubble", token(theme, "accent"), token(theme, "reply-bubble")],
+          ];
+          for (const [what, text, background] of pairs) {
+            const ratio = contrast(text, background);
+            assert.ok(ratio >= 4.5, `${what}: ${ratio.toFixed(2)}:1`);
+          }
+        });
+
+        it(`shows the paw prints at 3:1 or more in ${theme === "vscode-light" ? "Light" : "Dark"} Modern`, () => {
+          // Graphics need 3:1. The paws pulse up from 35%, and are at full
+          // strength at the top of each step and with Reduce Motion (70%).
+          assert.ok(contrast(token(theme, "accent"), token(theme, "reply-bubble")) >= 3);
+        });
       }
     });
   });
