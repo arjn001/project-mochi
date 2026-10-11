@@ -12,16 +12,12 @@ update isn't listed.*
 
 - **Open pull requests:** none besides this one.
 - **In progress:**
-  - MOCHI-25 Stream replies as they're written: built and in review. Done
-    once it merges.
   - MOCHI-50 Design the visual identity, by Arjun.
 - **Next:** MOCHI-17 Art and moods, and the panel's look, once MOCHI-50 is
   done. Then MOCHI-68, the early preview build.
-- **Waiting on:**
-  - Arjun to try and merge MOCHI-25.
-  - MOCHI-17 and the panel's look wait on MOCHI-50.
+- **Waiting on:** MOCHI-50, for MOCHI-17 and the panel's look.
 
-**41 of 58 Jira tasks and subtasks done**. 2 of the 8
+**42 of 58 Jira tasks and subtasks done**. 2 of the 8
 categories are complete. 427 tests (389 unit, 38 integration) run on every
 pull request.
 
@@ -171,7 +167,7 @@ MOMENTS.md, PRESENCE.md, ARCHITECTURE.md, and BUILD_PLAN.md.
 The order to the early preview (agreed 2026-10-09, also in BUILD_PLAN.md):
 1. **MOCHI-16 Build the side panel**, with VS Code theme styling only. Done.
 2. **MOCHI-21 Build the chat interface.** Done.
-3. **MOCHI-25 Stream replies as they're written**, in the panel. In review.
+3. **MOCHI-25 Stream replies as they're written**, in the panel. Done.
 4. **MOCHI-17 Art and moods, and the panel's look**, once MOCHI-50 is done.
 5. **MOCHI-68 Early preview build for her**, default pack only.
 
@@ -243,8 +239,10 @@ Not before the preview:
 - **How we work:** explain first, small steps Arjun can run and understand, and
   being told what just happened and why.
 - **Jira and branches handled automatically:** In Progress with the branch,
-  the PR link as a comment, then Done with the merge commit, and the branch
-  deleted (see CLAUDE.md).
+  the PR link as a comment, then Done with the merge commit (see
+  CLAUDE.md).
+- **Keeping merged branches**, locally and on GitHub, to follow the history
+  in GitKraken (since 2026-10-10).
 - **Moving faster now:** several tasks in a row is fine, asking questions
   along the way. Once he approves a task's plan, all its commits get done
   without stopping, except for new decisions, his manual tests, and the
