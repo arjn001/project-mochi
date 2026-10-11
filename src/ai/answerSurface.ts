@@ -9,6 +9,8 @@ export interface AnswerSurface {
   // Adds text as the answer streams in.
   append(text: string): void;
   finish(): void;
+  // She stopped the answer: what's there stays, marked "Stopped" (MOCHI-25).
+  stopped(): void;
   // Picks the last answer up again, for "Keep going" (MOCHI-67): what's
   // appended next continues it.
   resume(): void;

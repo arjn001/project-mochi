@@ -436,6 +436,68 @@ body {
   opacity: 0.4;
   cursor: default;
 }
+/* While Mochi answers, the arrow becomes a stop square (MOCHI-25). */
+.mochi-stop-square,
+.mochi-stopping .mochi-send-arrow {
+  display: none;
+}
+.mochi-stopping .mochi-stop-square {
+  display: block;
+  width: 14px;
+  height: 14px;
+  fill: currentColor;
+}
+
+/* Paw prints while Mochi thinks, before the first words (MOCHI-25). They
+   pulse in turn, like little steps, and stay still with Reduce Motion:
+   VS Code's own setting (the vscode-reduce-motion class it gives the
+   panel) or the system's. */
+.mochi-thinking {
+  display: flex;
+  align-items: flex-end;
+  gap: 3px;
+  padding: 2px 0;
+}
+.mochi-paw {
+  width: 13px;
+  height: 13px;
+  fill: var(--mochi-quiet-text);
+  opacity: 0.35;
+  animation: mochi-step 1.2s ease-in-out infinite;
+}
+.mochi-paw:nth-child(2) {
+  margin-bottom: 4px;
+  animation-delay: 0.3s;
+}
+.mochi-paw:nth-child(3) {
+  animation-delay: 0.6s;
+}
+@keyframes mochi-step {
+  0%,
+  100% {
+    opacity: 0.35;
+  }
+  40% {
+    opacity: 1;
+  }
+}
+body.vscode-reduce-motion .mochi-paw {
+  animation: none;
+  opacity: 0.7;
+}
+@media (prefers-reduced-motion: reduce) {
+  .mochi-paw {
+    animation: none;
+    opacity: 0.7;
+  }
+}
+
+/* Under an answer she stopped. */
+.mochi-stopped {
+  color: var(--mochi-quiet-text);
+  font-style: italic;
+}
+
 .mochi-send-arrow {
   width: 14px;
   height: 14px;
@@ -452,6 +514,7 @@ body {
 .mochi-chip:focus-visible,
 .mochi-brain:focus-visible,
 .mochi-leave-out:focus-visible,
+.mochi-bubble:focus-visible,
 .mochi-copy:focus-visible,
 .mochi-link:focus-visible {
   outline: 1px solid var(--mochi-focus);

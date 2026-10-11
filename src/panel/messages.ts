@@ -25,6 +25,10 @@ export interface ChatEntry {
   // Her side only: what was shared with her message, like "lines 9 to 15
   // of homework.py". Never the code itself.
   shared?: string;
+  // Mochi's answer that's being written right now (MOCHI-25).
+  answering?: boolean;
+  // An answer she stopped, or one cut off when VS Code closed.
+  stopped?: boolean;
 }
 
 // Everything the panel shows. Sent whenever something changes, and when the
@@ -42,8 +46,9 @@ export interface PanelState {
   // The chip above the box for the code she has selected, like
   // "homework.py, lines 9 to 15", and its x's words for screen readers.
   attachment?: { label: string; leaveOut: string };
-  ask: { label: string; send: string };
-  chat: { empty: string; you: string; mochi: string; copy: string; copied: string };
+  // `stop` is the send arrow's label while Mochi answers (MOCHI-25).
+  ask: { label: string; send: string; stop: string };
+  chat: { empty: string; you: string; mochi: string; copy: string; copied: string; stopped: string };
 }
 
 export type ToPanel =
@@ -58,7 +63,10 @@ export type ToPanel =
   // Whether what she asked was sent. If not, the panel puts it back.
   | { type: "asked"; sent: boolean }
   // "Forget everything": clear the unsent draft.
-  | { type: "forget" };
+  | { type: "forget" }
+  // Read once by screen readers, politely: a message from Mochi that's done
+  // (MOCHI-25).
+  | { type: "announce"; text: string };
 
 export type PanelButton = "explain" | "focus" | "dark" | "welcome" | "brain";
 
@@ -69,6 +77,8 @@ export type FromPanel =
   | { type: "chip"; entry: number; chip: string }
   // The x on the attachment chip: send without the selected code.
   | { type: "leaveOut" }
+  // The stop square, or Escape in the box, while Mochi answers (MOCHI-25).
+  | { type: "stop" }
   // Copy only copies: Mochi puts the text on her clipboard, nothing else.
   | { type: "copy"; text: string }
   // Opened through VS Code, and only if it's an https link (format.ts).
@@ -102,6 +112,8 @@ export function toFromPanel(value: unknown): FromPanel | undefined {
         : undefined;
     case "leaveOut":
       return { type: "leaveOut" };
+    case "stop":
+      return { type: "stop" };
     case "copy":
       return typeof message.text === "string" && message.text.length <= MAX_COPY_LENGTH ? { type: "copy", text: message.text } : undefined;
     case "openLink":
@@ -116,3 +128,16 @@ export function toFromPanel(value: unknown): FromPanel | undefined {
 // a character with an input method (Japanese, Chinese, Korean, and others).
 export const sendsOnKey = (key: string, shift: boolean, composing: boolean): boolean =>
   key === "Enter" && !shift && !composing;
+
+// What a key does while Mochi answers (MOCHI-25): Escape stops the answer,
+// and Enter does nothing, so what she's typing stays in the box. Otherwise
+// keys do what they always do.
+export function keyWhileAnswering(key: string, shift: boolean, composing: boolean): "stop" | "hold" | undefined {
+  if (key === "Escape" && !composing) {
+    return "stop";
+  }
+  return sendsOnKey(key, shift, composing) ? "hold" : undefined;
+}
+
+// Whether Mochi is writing an answer, so the box shows Stop.
+export const isAnswering = (chat: readonly ChatEntry[]): boolean => chat.some((entry) => entry.answering);

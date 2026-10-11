@@ -50,10 +50,10 @@ export function panelActions(needs: Needs): PanelActions {
         focus: timer.isRunning() ? panelStrings.stopFocus : panelStrings.startFocus,
         dark: panelStrings.dark,
       },
-      ask: { label: panelStrings.ask(pack().name), send: panelStrings.send },
+      ask: { label: panelStrings.ask(pack().name), send: panelStrings.send, stop: panelStrings.stop },
       brain: brainButton(needs.brain()),
       ...(attachment ? { attachment } : {}),
-      chat: { empty: chatStrings.empty(chatPlace()), you: chatStrings.you, mochi: pack().name, copy: chatStrings.copy, copied: chatStrings.copied },
+      chat: { empty: chatStrings.empty(chatPlace()), you: chatStrings.you, mochi: pack().name, copy: chatStrings.copy, copied: chatStrings.copied, stopped: chatStrings.stopped },
     };
   };
 
@@ -112,6 +112,7 @@ export function panelActions(needs: Needs): PanelActions {
     button,
     chip: (entry, chip) => needs.chat.choose(entry, chip),
     leaveOut: () => needs.attachment.leaveOut(),
+    stop: () => conversation.stop(),
     // Copy only copies.
     copy: async (text) => {
       await vscode.env.clipboard.writeText(text);

@@ -29,6 +29,8 @@ export interface SavedEntry {
   // What was shared with her message, like "lines 9 to 15 of homework.py".
   // Never the code itself.
   shared?: string;
+  // An answer she stopped, or one cut off when VS Code closed (MOCHI-25).
+  stopped?: boolean;
 }
 
 // The generation, kept in globalState, where every window on her computer
@@ -69,7 +71,7 @@ function toSavedEntry(value: unknown): SavedEntry | undefined {
   if ((entry.from !== "her" && entry.from !== "mochi") || typeof entry.text !== "string" || entry.text.length > MAX_TEXT) {
     return undefined;
   }
-  if (entry.problem !== undefined && typeof entry.problem !== "boolean") {
+  if ((entry.problem !== undefined && typeof entry.problem !== "boolean") || (entry.stopped !== undefined && typeof entry.stopped !== "boolean")) {
     return undefined;
   }
   if (entry.shared !== undefined && (typeof entry.shared !== "string" || entry.shared.length > MAX_SHARED)) {
@@ -79,6 +81,7 @@ function toSavedEntry(value: unknown): SavedEntry | undefined {
     from: entry.from,
     text: entry.text,
     ...(entry.problem ? { problem: true } : {}),
+    ...(entry.stopped ? { stopped: true } : {}),
     ...(typeof entry.shared === "string" ? { shared: entry.shared } : {}),
   };
 }

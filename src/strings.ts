@@ -36,6 +36,8 @@ export const panelStrings = {
   // the pack's name for the cat.
   ask: (companion: string) => `Ask ${companion} anything`,
   send: "Send",
+  // The send arrow becomes a stop square while Mochi answers (MOCHI-25).
+  stop: "Stop",
 };
 
 // The chat in Mochi's panel (MOCHI-21).
@@ -66,6 +68,11 @@ export const chatStrings = {
   shared: (what: string) => `shared ${what}`,
   copy: "Copy",
   copied: "Copied",
+  // Under an answer she stopped (MOCHI-25).
+  stopped: "Stopped",
+  // What screen readers hear for a code block in a finished answer, instead
+  // of the code (MOCHI-25).
+  codeBlock: (lines: number) => (lines === 1 ? "Code block, 1 line" : `Code block, ${lines} lines`),
   // Once per session, if the chat can't be saved, like on a full disk.
   couldntSave: (place: string) => `I couldn't save our chat ${place}, so it lasts until VS Code closes.`,
 };

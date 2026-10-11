@@ -31,6 +31,7 @@ import { AttachmentChip } from "./panel/attachmentChip";
 import { ChatLog } from "./panel/chatLog";
 import { CHATS_GENERATION, ChatMemory, registerClearChat } from "./panel/chatMemory";
 import { ChatStore } from "./panel/chatStore";
+import { spokenMessage } from "./panel/spoken";
 import { createMoodLine, showMood } from "./presence/statusBar";
 import { onSpeakUpChange, readLearningMode, readSpeakUp } from "./settings";
 
@@ -91,6 +92,11 @@ export function activate(context: vscode.ExtensionContext): MochiApi {
   // show in the chat in Mochi's panel (MOCHI-21), created below.
   const chat = new ChatLog(
     (change) => {
+      if (change.type === "done") {
+        // Screen readers hear a finished message once (MOCHI-25).
+        panel.announce(spokenMessage(pack().name, change.entry));
+        return;
+      }
       panel.chatChanged(change);
       memory.changed();
     },

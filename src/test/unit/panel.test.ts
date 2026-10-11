@@ -3,7 +3,7 @@ import * as fs from "node:fs";
 import * as path from "node:path";
 import { toTodaysGreeting } from "../../moments/greeting";
 import { contentSecurityPolicy, panelHtml } from "../../panel/html";
-import { MAX_ASK_LENGTH, sendsOnKey, toFromPanel } from "../../panel/messages";
+import { MAX_ASK_LENGTH, isAnswering, keyWhileAnswering, sendsOnKey, toFromPanel } from "../../panel/messages";
 import { moodLine, moodParts } from "../../presence/mood";
 
 // From out/test/unit/ back to the repo.
@@ -46,6 +46,11 @@ describe("Mochi's panel", () => {
       }
     });
 
+    it("keeps the paw prints still with Reduce Motion, VS Code's or the system's", () => {
+      assert.match(withoutComments, /body\.vscode-reduce-motion \.mochi-paw\s*\{[^}]*animation:\s*none/);
+      assert.match(withoutComments, /@media \(prefers-reduced-motion: reduce\)\s*\{\s*\.mochi-paw\s*\{[^}]*animation:\s*none/);
+    });
+
     it("defines Mochi's tokens in one place, the first block", () => {
       const firstBlock = withoutComments.slice(0, withoutComments.indexOf("}"));
       assert.match(firstBlock, /^\s*:root\s*\{/);
@@ -64,6 +69,7 @@ describe("Mochi's panel", () => {
       assert.deepStrictEqual(toFromPanel({ type: "button", button: "focus" }), { type: "button", button: "focus" });
       assert.deepStrictEqual(toFromPanel({ type: "button", button: "brain" }), { type: "button", button: "brain" });
       assert.deepStrictEqual(toFromPanel({ type: "leaveOut", extra: "ignored" }), { type: "leaveOut" });
+      assert.deepStrictEqual(toFromPanel({ type: "stop" }), { type: "stop" });
     });
 
     it("ignores anything else", () => {
@@ -91,6 +97,20 @@ describe("Mochi's panel", () => {
 
     it("never sends while she's composing a character with an input method", () => {
       assert.strictEqual(sendsOnKey("Enter", false, true), false);
+    });
+
+    it("while Mochi answers: Escape stops, Enter does nothing, and typing works", () => {
+      assert.strictEqual(keyWhileAnswering("Escape", false, false), "stop");
+      assert.strictEqual(keyWhileAnswering("Enter", false, false), "hold");
+      assert.strictEqual(keyWhileAnswering("Enter", true, false), undefined, "Shift+Enter still adds a line.");
+      assert.strictEqual(keyWhileAnswering("a", false, false), undefined);
+      assert.strictEqual(keyWhileAnswering("Escape", false, true), undefined, "Escape cancels her input method first.");
+    });
+
+    it("shows Stop only while an answer is being written", () => {
+      assert.strictEqual(isAnswering([{ id: 1, from: "mochi", text: "Hi", answering: true }]), true);
+      assert.strictEqual(isAnswering([{ id: 1, from: "mochi", text: "Hi", stopped: true }]), false);
+      assert.strictEqual(isAnswering([]), false);
     });
   });
 

@@ -362,6 +362,14 @@ runs, and "Forget everything" clears them the next time Mochi opens there.
   first ("Send anyway?"). It lives in the share gate.
 
 ## The chat
+- One answer at a time (MOCHI-25): while Mochi answers, the send arrow is a
+  stop square and Enter does nothing; starting something else stops the
+  current answer first, so two answers never write into one bubble. The
+  "Mochi is thinking..." notification is gone: the paw prints and Stop in
+  the panel replace it.
+- Screen readers hear each finished message once, built by Mochi from the
+  same safe formatting, with code blocks named rather than read
+  (`src/panel/spoken.ts`). Agreed 2026-10-10.
 - Answers show in the chat in Mochi's panel (MOCHI-21), which replaced the
   "Mochi" output panel and the temporary "Mochi: Ask (preview)" command.
   Explain answers there too, and opening the chat from the editor doesn't

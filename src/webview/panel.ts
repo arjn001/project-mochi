@@ -5,7 +5,7 @@
 // The chat (MOCHI-21) is built only with createElement and text nodes,
 // never from HTML, so nothing in an answer can become live HTML.
 import { Block, Inline, formatAnswer } from "../panel/format";
-import { ChatEntry, FromPanel, PanelButton, PanelState, ToPanel, sendsOnKey } from "../panel/messages";
+import { ChatEntry, FromPanel, PanelButton, PanelState, ToPanel, isAnswering, keyWhileAnswering, sendsOnKey } from "../panel/messages";
 
 interface VsCodeApi {
   postMessage(message: FromPanel): void;
@@ -27,6 +27,7 @@ const askLabel = byId<HTMLLabelElement>("ask-label");
 const box = byId<HTMLTextAreaElement>("ask");
 const send = byId<HTMLButtonElement>("send");
 const chat = byId<HTMLDivElement>("chat");
+const announcer = byId<HTMLDivElement>("announce");
 const attachment = byId<HTMLDivElement>("attachment");
 const attachmentLabel = byId<HTMLSpanElement>("attachment-label");
 const leaveOut = byId<HTMLButtonElement>("leave-out");
@@ -46,9 +47,12 @@ if (typeof saved?.draft === "string") {
 
 // What she last sent, put back if it couldn't be sent.
 let pending = "";
+// Whether Mochi is writing an answer: the send arrow is a stop square.
+let answering = false;
+let askLabels: PanelState["ask"] = { label: "", send: "", stop: "" };
 
 // The chat's own words, from Mochi.
-let labels: PanelState["chat"] = { empty: "", you: "", mochi: "", copy: "", copied: "" };
+let labels: PanelState["chat"] = { empty: "", you: "", mochi: "", copy: "", copied: "", stopped: "" };
 // Each message's bubble, so streamed text redraws only that one.
 let messages = new Map<number, { entry: ChatEntry; bubble: HTMLElement }>();
 let redraw = new Set<number>();
@@ -151,13 +155,52 @@ function blocks(answer: Block[], into: HTMLElement): void {
   }
 }
 
+const SVG = "http://www.w3.org/2000/svg";
+
+// One small paw print, drawn in the theme's quiet text color.
+function paw(): SVGSVGElement {
+  const svg = document.createElementNS(SVG, "svg");
+  svg.setAttribute("class", "mochi-paw");
+  svg.setAttribute("viewBox", "0 0 16 16");
+  const shapes: [string, Record<string, string>][] = [
+    ["ellipse", { cx: "8", cy: "10.8", rx: "3.3", ry: "2.7" }],
+    ["circle", { cx: "3.6", cy: "6.8", r: "1.45" }],
+    ["circle", { cx: "6.3", cy: "4.4", r: "1.55" }],
+    ["circle", { cx: "9.7", cy: "4.4", r: "1.55" }],
+    ["circle", { cx: "12.4", cy: "6.8", r: "1.45" }],
+  ];
+  for (const [tag, attributes] of shapes) {
+    const shape = document.createElementNS(SVG, tag);
+    for (const [name, value] of Object.entries(attributes)) {
+      shape.setAttribute(name, value);
+    }
+    svg.append(shape);
+  }
+  return svg;
+}
+
+// Three paw prints while Mochi thinks, before the first words arrive
+// (MOCHI-25). They pulse in turn, or stay still with Reduce Motion.
+function thinking(): HTMLElement {
+  const paws = element("span", "mochi-thinking");
+  paws.setAttribute("aria-hidden", "true");
+  paws.append(paw(), paw(), paw());
+  return paws;
+}
+
 // Her messages are shown exactly as she typed them; Mochi's are formatted.
 function fillBubble(bubble: HTMLElement, entry: ChatEntry): void {
   bubble.replaceChildren();
   if (entry.from === "her") {
     bubble.textContent = entry.text;
+  } else if (entry.answering && entry.text === "") {
+    bubble.append(thinking());
   } else {
     blocks(formatAnswer(entry.text), bubble);
+    // What was written stays, marked as stopped (MOCHI-25).
+    if (entry.stopped) {
+      bubble.append(element("p", "mochi-stopped", labels.stopped));
+    }
   }
 }
 
@@ -165,6 +208,11 @@ function message(entry: ChatEntry): HTMLElement {
   const row = element("div", `mochi-message mochi-from-${entry.from}${entry.problem ? " mochi-problem" : ""}`);
   row.setAttribute("role", "group");
   row.setAttribute("aria-label", entry.from === "her" ? labels.you : labels.mochi);
+  // Screen readers know it's still being written, and hear it once it's
+  // done (see announce).
+  if (entry.answering) {
+    row.setAttribute("aria-busy", "true");
+  }
   if (entry.from === "mochi") {
     const cat = element("span", "mochi-message-cat");
     cat.setAttribute("aria-hidden", "true");
@@ -172,6 +220,11 @@ function message(entry: ChatEntry): HTMLElement {
   }
   const column = element("div", "mochi-message-body");
   const bubble = element("div", "mochi-bubble");
+  // Mochi's answers can take focus, so she can move into one and read its
+  // code, which the announcement only names (MOCHI-25).
+  if (entry.from === "mochi") {
+    bubble.tabIndex = 0;
+  }
   fillBubble(bubble, entry);
   column.append(bubble);
   // What was shared with her message, like "shared lines 9 to 15 of
@@ -207,6 +260,8 @@ function keepingScroll(change: () => void): void {
 }
 
 function showChat(entries: readonly ChatEntry[]): void {
+  answering = isAnswering(entries);
+  fitBox();
   keepingScroll(() => {
     messages = new Map();
     redraw.clear();
@@ -258,22 +313,32 @@ function show(state: PanelState): void {
   attachmentLabel.textContent = state.attachment?.label ?? "";
   leaveOut.title = state.attachment?.leaveOut ?? "";
   leaveOut.setAttribute("aria-label", state.attachment?.leaveOut ?? "");
-  // An arrow on screen; "Send" as its tooltip and for screen readers.
-  send.title = state.ask.send;
-  send.setAttribute("aria-label", state.ask.send);
+  askLabels = state.ask;
+  fitBox();
 }
 
 // The box grows with what she types, up to a limit (then it scrolls), and
-// Send only lights up when there's something to send.
+// Send only lights up when there's something to send. While Mochi answers,
+// it's a stop square instead, always ready.
 function fitBox(): void {
   box.style.height = "auto";
   box.style.height = `${Math.min(box.scrollHeight, 200)}px`;
-  send.disabled = box.value.trim() === "";
+  send.disabled = !answering && box.value.trim() === "";
+  send.classList.toggle("mochi-stopping", answering);
+  // An icon on screen; "Send" or "Stop" as its tooltip and for screen
+  // readers.
+  const label = answering ? askLabels.stop : askLabels.send;
+  send.title = label;
+  send.setAttribute("aria-label", label);
+}
+
+function stopAnswer(): void {
+  vscode.postMessage({ type: "stop" });
 }
 
 function sendAsk(): void {
   const text = box.value;
-  if (text.trim() === "") {
+  if (answering || text.trim() === "") {
     return;
   }
   pending = text;
@@ -298,6 +363,11 @@ window.addEventListener("message", (event: MessageEvent<ToPanel>) => {
       break;
     case "hint":
       hint.textContent = message.text;
+      break;
+    case "announce":
+      // Emptied first, so the same words twice are still read twice.
+      announcer.textContent = "";
+      requestAnimationFrame(() => (announcer.textContent = message.text));
       break;
     case "asked":
       // Never lost: if it wasn't sent, it goes back in the box, unless
@@ -337,14 +407,33 @@ box.addEventListener("input", () => {
 });
 fitBox();
 box.addEventListener("keydown", (event) => {
+  if (answering) {
+    // Escape is handled for the whole panel, below.
+    if (keyWhileAnswering(event.key, event.shiftKey, event.isComposing) === "hold") {
+      event.preventDefault();
+    }
+    return;
+  }
   if (sendsOnKey(event.key, event.shiftKey, event.isComposing)) {
     event.preventDefault();
     sendAsk();
   }
 });
+// Escape stops an answer from anywhere in the panel. Otherwise it's left
+// to VS Code.
+document.addEventListener("keydown", (event) => {
+  if (answering && keyWhileAnswering(event.key, event.shiftKey, event.isComposing) === "stop") {
+    event.preventDefault();
+    stopAnswer();
+  }
+});
 askForm.addEventListener("submit", (event) => {
   event.preventDefault();
-  sendAsk();
+  if (answering) {
+    stopAnswer();
+  } else {
+    sendAsk();
+  }
 });
 
 vscode.postMessage({ type: "ready" });

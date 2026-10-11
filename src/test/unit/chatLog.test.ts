@@ -27,7 +27,7 @@ describe("the chat", () => {
       ["mochi", "A list is a row of boxes.", null],
     ]);
     // Streamed pieces only redraw that one message.
-    assert.deepStrictEqual(changes.slice(-2), [
+    assert.deepStrictEqual(changes.filter((c) => c.type === "append"), [
       { type: "append", id: 2, text: "A list is " },
       { type: "append", id: 2, text: "a row of boxes." },
     ]);
@@ -165,5 +165,68 @@ describe("the chat", () => {
       chatStrings.couldntSave(place("ssh-remote")),
       "I couldn't save our chat on this SSH machine, so it lasts until VS Code closes."
     );
+  });
+
+  describe("while Mochi answers (MOCHI-25)", () => {
+    it("marks the answer being written, until it finishes", () => {
+      const { log } = chat();
+      log.start("what's a list?");
+      assert.strictEqual(log.answering(), true);
+      assert.strictEqual(log.entries()[1].answering, true);
+      log.append("A row of boxes.");
+      log.finish();
+      assert.strictEqual(log.answering(), false);
+      assert.strictEqual(log.entries()[1].answering, undefined);
+    });
+
+    it("keeps what was written when she stops, marked Stopped", () => {
+      const { log } = chat();
+      log.start("explain everything");
+      log.append("A long first");
+      log.stopped();
+      assert.strictEqual(log.answering(), false);
+      assert.deepStrictEqual(log.saved().at(-1), { from: "mochi", text: "A long first", stopped: true });
+    });
+
+    it("keeps an answer stopped before it said anything", () => {
+      const { log } = chat();
+      log.start("hi");
+      log.stopped();
+      assert.deepStrictEqual(log.saved(), [
+        { from: "her", text: "hi" },
+        { from: "mochi", text: "", stopped: true },
+      ]);
+    });
+
+    it("saves an answer still being written as stopped, in case VS Code closes now", () => {
+      const { log } = chat();
+      log.start("hi");
+      log.append("Hello");
+      assert.strictEqual(log.saved().at(-1)?.stopped, true);
+      log.finish();
+      assert.strictEqual(log.saved().at(-1)?.stopped, undefined);
+    });
+
+    it("drops the Stopped mark when she keeps going", () => {
+      const { log } = chat();
+      log.start("explain everything");
+      log.append("A long first part");
+      log.stopped();
+      log.resume();
+      assert.strictEqual(log.entries()[1].stopped, undefined);
+      assert.strictEqual(log.answering(), true);
+    });
+  });
+
+  it("says when each of Mochi's messages is done, so screen readers hear it once", async () => {
+    const { log, changes } = chat();
+    log.start("hi");
+    log.append("Hello!");
+    assert.ok(!changes.some((c) => c.type === "done"), "Not while it's still being written.");
+    log.finish();
+    log.say("A line.");
+    void log.problem("I'd need a brain to answer that.", "Set one up");
+    const done = changes.filter((c) => c.type === "done").map((c) => (c.type === "done" ? c.entry.text : ""));
+    assert.deepStrictEqual(done, ["Hello!", "A line.", "I'd need a brain to answer that."]);
   });
 });

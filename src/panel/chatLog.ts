@@ -6,8 +6,9 @@ import { SavedEntry } from "./chatStore";
 import { ChatEntry } from "./messages";
 
 // What changed, so the panel can redraw everything, or only add streamed
-// text to one message.
-export type ChatChange = { type: "all" } | { type: "append"; id: number; text: string };
+// text to one message. "done" says one of Mochi's messages is finished, so
+// screen readers can hear it (MOCHI-25).
+export type ChatChange = { type: "all" } | { type: "append"; id: number; text: string } | { type: "done"; entry: ChatEntry };
 
 export class ChatLog implements AnswerSurface {
   private list: ChatEntry[] = [];
@@ -34,27 +35,49 @@ export class ChatLog implements AnswerSurface {
     if (shared) {
       her.shared = shared;
     }
-    this.reply = this.add("mochi", "");
+    this.answer(this.add("mochi", ""));
     this.update();
   }
 
   append(text: string): void {
     if (!this.reply) {
-      this.reply = this.add("mochi", "");
+      this.answer(this.add("mochi", ""));
       this.update();
     }
-    this.reply.text += text;
-    this.changed({ type: "append", id: this.reply.id, text });
+    this.reply!.text += text;
+    this.changed({ type: "append", id: this.reply!.id, text });
   }
 
   finish(): void {
-    this.reply = undefined;
+    const reply = this.reply;
+    if (reply) {
+      reply.answering = undefined;
+      this.reply = undefined;
+      this.update(false);
+      this.changed({ type: "done", entry: reply });
+    }
+  }
+
+  stopped(): void {
+    if (this.reply) {
+      this.reply.stopped = true;
+    }
+    this.finish();
   }
 
   resume(): void {
     this.dropChips();
-    this.reply = [...this.list].reverse().find((entry) => entry.from === "mochi" && !entry.problem);
+    const last = [...this.list].reverse().find((entry) => entry.from === "mochi" && !entry.problem);
+    if (last) {
+      last.stopped = undefined;
+      this.answer(last);
+    }
     this.update();
+  }
+
+  // Whether Mochi is answering right now, so the box shows Stop.
+  answering(): boolean {
+    return this.reply !== undefined;
   }
 
   offerNext(prompt: string, choices: string[]): Promise<string | undefined> {
@@ -67,8 +90,9 @@ export class ChatLog implements AnswerSurface {
 
   say(line: string): void {
     this.dropChips();
-    this.add("mochi", line);
+    const entry = this.add("mochi", line);
     this.update();
+    this.changed({ type: "done", entry });
   }
 
   async problem(line: string, action?: string): Promise<boolean> {
@@ -77,9 +101,12 @@ export class ChatLog implements AnswerSurface {
     entry.problem = true;
     if (!action) {
       this.update();
+      this.changed({ type: "done", entry });
       return false;
     }
-    return (await this.offer(entry, [action])) === action;
+    const picked = this.offer(entry, [action]);
+    this.changed({ type: "done", entry });
+    return (await picked) === action;
   }
 
   // Her click on a chip. Old chips, or anything unknown, do nothing.
@@ -110,10 +137,19 @@ export class ChatLog implements AnswerSurface {
   }
 
   // What's kept on disk: every message with something in it, without chips.
+  // An answer still being written is saved as stopped, so if VS Code closes
+  // now, it comes back marked "Stopped"; the next save once it finishes
+  // clears that.
   saved(): SavedEntry[] {
     return this.list
-      .filter((entry) => entry.text !== "")
-      .map(({ from, text, problem, shared }) => ({ from, text, ...(problem ? { problem } : {}), ...(shared ? { shared } : {}) }));
+      .filter((entry) => entry.text !== "" || entry.stopped)
+      .map(({ from, text, problem, shared, stopped, answering }) => ({
+        from,
+        text,
+        ...(problem ? { problem } : {}),
+        ...(shared ? { shared } : {}),
+        ...(stopped || answering ? { stopped: true } : {}),
+      }));
   }
 
   private offer(entry: ChatEntry, choices: string[], prompt?: string): Promise<string | undefined> {
@@ -134,6 +170,11 @@ export class ChatLog implements AnswerSurface {
       waiting.entry.chips = undefined;
       waiting.resolve(undefined);
     }
+  }
+
+  private answer(entry: ChatEntry): void {
+    entry.answering = true;
+    this.reply = entry;
   }
 
   private add(from: ChatEntry["from"], text: string): ChatEntry {

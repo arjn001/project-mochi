@@ -14,6 +14,8 @@ export interface PanelActions {
   chip(entry: number, chip: string): void;
   // The x on the attachment chip.
   leaveOut(): void;
+  // Stops the answer being written.
+  stop(): Promise<void>;
   copy(text: string): Promise<void>;
   openLink(url: string): Promise<void>;
 }
@@ -89,11 +91,18 @@ export class MochiPanel implements vscode.WebviewViewProvider {
   }
 
   // The chat changed. A closed panel catches up when it opens.
-  chatChanged(change: ChatChange): void {
+  chatChanged(change: Exclude<ChatChange, { type: "done" }>): void {
     if (!this.visible) {
       return;
     }
     this.post(change.type === "all" ? { type: "chat", chat: this.actions.chat() } : change);
+  }
+
+  // Read once by screen readers, if she can see the panel.
+  announce(text: string): void {
+    if (this.visible) {
+      this.post({ type: "announce", text });
+    }
   }
 
   // Shows the panel without taking her focus, like when she clicks "Explain
@@ -156,6 +165,9 @@ export class MochiPanel implements vscode.WebviewViewProvider {
         break;
       case "leaveOut":
         this.actions.leaveOut();
+        break;
+      case "stop":
+        await this.actions.stop();
         break;
       case "copy":
         await this.actions.copy(message.text);
