@@ -4,6 +4,7 @@
   "description": "A cozy AI companion that lives in VS Code.",
   "version": "0.0.1",
   "publisher": "arjungyawali",
+  "license": "MIT",
   "private": true,
   "repository": {
     "type": "git",
@@ -255,7 +256,7 @@
     "build:icons": "fantasticon",
     "notices": "node esbuild.mjs --notices",
     "vscode:prepublish": "npm run compile",
-    "package": "vsce package --skip-license --no-dependencies",
+    "package": "vsce package --no-dependencies",
     "test:unit": "npm run compile && mocha \"out/test/unit/**/*.test.js\"",
     "test:integration": "npm run compile && vscode-test",
     "test": "npm run test:unit && npm run test:integration"

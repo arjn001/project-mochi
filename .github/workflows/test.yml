@@ -65,3 +65,7 @@ jobs:
             echo "::error::The .vsix must include THIRD_PARTY_NOTICES.md, the licenses of bundled code."
             exit 1
           fi
+          if ! unzip -Z1 *.vsix | grep -qx "extension/LICENSE.txt"; then
+            echo "::error::The .vsix must include the LICENSE."
+            exit 1
+          fi
