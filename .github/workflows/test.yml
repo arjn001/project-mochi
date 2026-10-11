@@ -65,3 +65,12 @@ jobs:
             echo "::error::The .vsix must include THIRD_PARTY_NOTICES.md, the licenses of bundled code."
             exit 1
           fi
+          if ! unzip -Z1 *.vsix | grep -qx "extension/LICENSE.txt"; then
+            echo "::error::The .vsix must include the LICENSE."
+            exit 1
+          fi
+          # Only the default pack ships: never a personal layer or a gift.
+          if unzip -Z1 *.vsix | grep -E "^extension/packs/" | grep -vE "^extension/packs/default/"; then
+            echo "::error::The .vsix may only contain the default pack."
+            exit 1
+          fi

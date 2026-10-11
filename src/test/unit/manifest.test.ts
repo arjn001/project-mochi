@@ -65,6 +65,31 @@ describe("package.json", () => {
     assert.ok(pkg.contributes.commands.some((c: { command: string; title: string }) => c.command === "mochi.clearChat" && c.title === "Clear chat"));
   });
 
+  it("is listed on the Marketplace as a preview, under the MIT License", () => {
+    const pkg = readJson("package.json");
+    assert.strictEqual(pkg.preview, true);
+    assert.strictEqual(pkg.license, "MIT");
+    assert.match(fs.readFileSync(path.join(root, "LICENSE"), "utf8"), /^MIT License/);
+    assert.ok(!pkg.scripts.package.includes("--skip-license"));
+    assert.deepStrictEqual(pkg.galleryBanner, { color: "#6B3FA0", theme: "dark" });
+    for (const field of ["publisher", "repository", "categories", "keywords", "icon"]) {
+      assert.ok(pkg[field], `${field} is missing`);
+    }
+  });
+
+  it("has a 128x128 PNG store icon", () => {
+    const png = fs.readFileSync(path.join(root, readJson("package.json").icon));
+    assert.strictEqual(png.subarray(1, 4).toString(), "PNG");
+    assert.deepStrictEqual([png.readUInt32BE(16), png.readUInt32BE(20)], [128, 128]);
+  });
+
+  it("says in the README that the name, icons, and art aren't covered by the MIT License", () => {
+    const readme = fs.readFileSync(path.join(root, "README.md"), "utf8");
+    assert.match(readme, /early preview/);
+    assert.match(readme, /## Notice[\s\S]*all rights reserved/);
+    assert.doesNotMatch(readme, /\u2014/, "No em dashes.");
+  });
+
   it("keeps her brain choice in her own settings only", () => {
     const setting = readJson("package.json").contributes.configuration.properties["mochi.brain"];
     assert.strictEqual(setting.default, "");
