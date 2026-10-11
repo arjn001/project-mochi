@@ -12,13 +12,16 @@ update isn't listed.*
 
 - **Open pull requests:** none besides this one.
 - **In progress:**
-  - MOCHI-50 Design the visual identity, by Arjun.
-- **Next:** MOCHI-17 Art and moods, and the panel's look, once MOCHI-50 is
-  done. Then MOCHI-68, the early preview build.
-- **Waiting on:** MOCHI-50, for MOCHI-17 and the panel's look.
+  - MOCHI-50 The preview look: built and in review. Done once it merges.
+  - MOCHI-17 Art and moods: the preview uses the icon font's cats;
+    illustrated art comes after the preview.
+- **Next:** MOCHI-68, the early preview, published to the VS Code
+  Marketplace as a Preview tonight (2026-10-10), with the MIT license
+  (MOCHI-59) and a short README (MOCHI-46).
+- **Waiting on:** Arjun to merge the preview look.
 
 **42 of 58 Jira tasks and subtasks done**. 2 of the 8
-categories are complete. 427 tests (389 unit, 38 integration) run on every
+categories are complete. 432 tests (394 unit, 38 integration) run on every
 pull request.
 
 ## Done
@@ -45,6 +48,10 @@ MOMENTS.md, PRESENCE.md, ARCHITECTURE.md, and BUILD_PLAN.md.
   test), and no new dependency. Typed text that looks like a password or
   API key is asked about first. "Dim things"
   is now "Switch to a dark theme" (MOCHI-16).
+- The preview look: cream, lavender, and plum in light themes, deep plum
+  and lilac in dark ones, nothing of its own in high contrast, every text
+  pair at WCAG AA or better; the icon font's cat at 56px following the
+  mood, and a vintage serif for the greeting (MOCHI-50).
 
 **Moments (MOCHI-32), partly done.**
 - Quiet mode, live, with napping in the status bar (MOCHI-37).
@@ -158,17 +165,16 @@ MOMENTS.md, PRESENCE.md, ARCHITECTURE.md, and BUILD_PLAN.md.
   (MOCHI-64).
 
 ## In progress
-- **MOCHI-50 Design the visual identity**, by Arjun, separately. The icons are
-  done; the panel's look, colors, type, and avatar art are not (see DESIGN.md,
-  "Not designed yet"). This blocks MOCHI-17 (art) and the panel's look, but
-  not the panel: MOCHI-16 is built first with VS Code's theme only.
+- **MOCHI-17 Create the companion's art and moods:** the preview uses the
+  icon font's cats; illustrated art comes after the preview.
 
 ## Next
 The order to the early preview (agreed 2026-10-09, also in BUILD_PLAN.md):
 1. **MOCHI-16 Build the side panel**, with VS Code theme styling only. Done.
 2. **MOCHI-21 Build the chat interface.** Done.
 3. **MOCHI-25 Stream replies as they're written**, in the panel. Done.
-4. **MOCHI-17 Art and moods, and the panel's look**, once MOCHI-50 is done.
+4. **MOCHI-50 The preview look**, in review. **MOCHI-17 Art and moods**
+   comes after the preview.
 5. **MOCHI-68 Early preview build for her**, default pack only.
 
 Not before the preview:

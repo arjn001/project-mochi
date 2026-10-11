@@ -343,14 +343,17 @@ runs, and "Forget everything" clears them the next time Mochi opens there.
 
 ## The panel
 - Mochi's tab is a webview view, built first with VS Code's theme only
-  (MOCHI-16); its look is added later (MOCHI-50, MOCHI-17).
+  (MOCHI-16), with the preview look on top (MOCHI-50, see DESIGN.md).
+  Illustrated art comes after the preview (MOCHI-17).
 - A strict content security policy: nothing is allowed unless listed, and
   the list is the stylesheet and icon font from Mochi's files and one
   script carrying a fresh nonce. No inline styles or scripts.
   `localResourceRoots` is only `media/` and `dist/webview/`.
-- All styles live in one stylesheet, `media/panel/panel.css`, using only VS
+- All styles live in one stylesheet, `media/panel/panel.css`, using VS
   Code's `--vscode-*` variables through `--mochi-*` tokens defined in its
-  first block. A unit test fails on any raw color.
+  first block. Raw colors are allowed only in that block's `vscode-light`
+  and `vscode-dark` parts, never for high contrast, and a unit test fails
+  on any other raw color or on a text pair below WCAG AA (2026-10-10).
 - No framework and no new dependency. The Webview UI Toolkit was deprecated
   on 2025-01-01, and codicons would be a CC-BY dependency.
 - Mochi holds everything the panel shows and sends it whenever the panel

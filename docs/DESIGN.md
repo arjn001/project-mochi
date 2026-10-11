@@ -7,8 +7,9 @@ panel's look, colors, type, and avatar art (see "Not designed yet").
 
 ## Principles
 - **Any theme:** every part of Mochi must look right in any VS Code theme,
-  light, dark, and high contrast. Mochi follows VS Code's theme and never
-  brings its own.
+  light, dark, and high contrast. Mochi follows VS Code's theme, adds only
+  a few warm colors in light and dark themes (MOCHI-50), and never touches
+  high contrast. Text is always the theme's own color.
 - **Cozy and never in the way:** warm and encouraging, never scary or noisy.
 - **Original art and voice only.**
 - **Words with every icon:** an icon never stands alone, and screen readers
@@ -102,11 +103,11 @@ The default lines are in `packs/default/pack.json` (format in PACKS.md).
   last coded in.
 
 ## Mochi's panel (MOCHI-16)
-The "Mochi" tab, built first with VS Code's theme only. Its look (colors,
-type, art) comes later with MOCHI-50 and MOCHI-17, by changing the tokens
-in its one stylesheet, not the panel.
-- **At the top:** the cat (for now the status bar's mood icon, large, in the
-  theme's text color), the mood in words ("Mochi is purring", "Mochi is
+The "Mochi" tab, with VS Code's theme and the preview look below
+(MOCHI-50). Illustrated art comes after the preview (MOCHI-17).
+- **At the top:** the cat (the status bar's mood icon from Mochi's icon
+  font, 56px, in the theme's text color, switching with the mood: here,
+  purring, napping), the mood in words ("Mochi is purring", "Mochi is
   napping", "Focusing · 18 min left"), and today's greeting, the same line
   all day. On her first day, the welcome, with its button.
 - **Quick buttons**, each with the same name as the command it runs, so she
@@ -338,14 +339,44 @@ conversation, including a hostile `<script>` shown as plain text.*
 - **Where sentences live:** every sentence above is in `src/strings.ts` (or
   the pack), never inline in code.
 
-## Not designed yet (MOCHI-50)
-- **The panel's look:** avatar, greeting, chat, quick buttons ("Explain this",
-  "Focus 25 min", "Dark mode"), and the "Ask Mochi anything" box, as in the
-  first sketch. The panel itself is built first with VS Code's theme only
-  (MOCHI-16), with its styles in one place and theme variables only, so
-  this look can be added later without rewriting it.
-- **Colors and type.**
-- **Avatar art and moods** for the panel (MOCHI-17).
+## The preview look (MOCHI-50, decided 2026-10-10)
+Warm and cozy, on top of VS Code's theme. **Illustrated art comes after the
+preview** (MOCHI-17): until then the avatar is the icon font's cat.
+
+- **Avatar and moods:** the Pillow Loaf cat from Mochi's icon font, 56px at
+  the top of the panel, switching with the mood (here, purring, napping).
+  The same cat, small, beside each of Mochi's messages.
+- **Colors:** all in the one token block at the top of
+  `media/panel/panel.css`, scoped by the theme class VS Code gives the
+  panel. Raw colors appear nowhere else (a unit test checks).
+
+  | Token | Light themes (`vscode-light`) | Dark themes (`vscode-dark`) |
+  |---|---|---|
+  | `--mochi-reply-bubble` (Mochi's bubble) | `#F6EFE6` warm cream | `#2E2533` deep plum |
+  | `--mochi-her-bubble` (her bubble) | `#EDE4F7` lavender | `#3B2D4A` |
+  | `--mochi-accent` (chips, links, the box's frame while she types, paw prints) | `#6B3FA0` plum | `#C3A6E8` lilac |
+  | `--mochi-bubble-border` (soft 1px border) | `#E2D6C8` | `#4A3C57` |
+
+  High contrast themes, dark and light, get no colors of their own: every
+  token stays a theme variable. Text is always the theme's foreground.
+- **Contrast:** every text and background pair meets WCAG AA (4.5:1) in
+  Light Modern and Dark Modern, checked by a unit test. Lowest: quiet text
+  on Mochi's bubble in Dark Modern, 5.42:1. Paw prints meet 3:1.
+- **Type:** the greeting line alone has a vintage touch, in "Iowan Old
+  Style" (on every Mac), then Georgia, then serif. No downloaded fonts.
+- **Cozy details, CSS only:** rounded 12px bubbles with a small tail, more
+  padding (8px 12px), a soft 1px border, and chips, the brain, the
+  attachment chip, and Copy as pills.
+
+![The preview look in Light Modern, Dark Modern, and Dark High Contrast](design/screenshots/preview-look.png)
+![Paw prints and a stopped answer, in Light Modern and Dark Modern](design/screenshots/preview-look-answering.png)
+
+*Previews rendered in Chrome with the themes' colors filled in for VS
+Code's theme variables, not screenshots of VS Code itself. The earlier
+previews above show the panel before this look.*
+
+## Not designed yet
+- **Illustrated avatar art and moods** (MOCHI-17), after the preview.
 - **A fuller "Pick a brain"** inside Mochi's tab, after the small welcome
   (MOCHI-42): explain first, hand off to VS Code's Copilot setup only when
   she picks it.
