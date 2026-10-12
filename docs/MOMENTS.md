@@ -65,16 +65,38 @@ her click.
   or guilt-trip.
 
 ## Finishing something
-- **Trigger:** she tells Mochi she finished something ("I did the database
-  migration"), says she thinks she's done, or asks for the next step.
+Built in MOCHI-36 (agreed 2026-10-12).
+- **Trigger:** she tells Mochi in the chat that she finished something: "I
+  finished the for loop!", "done with question 3", "question 3 is done",
+  "It finally works!". Mochi notices on her computer, with no AI, so it's
+  free and works with no brain (`src/moments/finished.ts`).
+- **Careful on purpose:** a missed "yay" is better than a wrong one, and
+  "I'm done" often means giving up. Mochi never celebrates:
+  - a question, or a message with "but", "why", "how", "error", "help",
+    "not", "almost", or "yet";
+  - frustration or distress: give up, quit, hate, tired, can't, cannot, ugh,
+    stuck, still, wrong, broke, broken, fail, failed, doesn't, won't,
+    worst, crying, never, and any "n't";
+  - a vague thing: "this", "it", "everything", "coding", "this class", and
+    the like;
+  - a bare "I'm done" or "done!", unless there's a real cheer ("yay, done",
+    "finally finished :)").
+  Those go to the brain as usual, or get the no-brain line.
 - **What Mochi does:**
-  1. Offers to check the work, with one click to share it.
-  2. Celebrates the specific thing she did, not a generic "good job".
-  3. Offers a small reward: a break, or switching to a theme she enjoys.
-- **Example:** "Yay, you finished the database migration! Awesome job. Want to
-  take a break, or switch to a cozier theme for a bit?"
-- **Never:** over-the-top praise for tiny things, or claim it's done without
-  checking when she asked for a check.
+  1. Celebrates the specific thing in her words, from the pack's
+     `celebrate` lines: "Yay, you finished your homework! That earns a slow
+     blink from me." ("my" is said back as "your"). With nothing to name,
+     the `celebrateDone` line: "Yay, you did it! That earns a slow blink
+     from me." Only plain words are repeated back, never anything that
+     could become formatting or a link.
+  2. Offers next steps as chips: **Check my work** (her selected code only,
+     through the share gate; with Learning mode on, what's good plus hints,
+     never fixes), **Take a break** (5 minutes in the mood line), and on a
+     light theme, **Switch to a dark theme**.
+- **Even in quiet mode or a focus session,** since she's the one who said
+  it. Any answer being written stops first.
+- **Never:** over-the-top praise for tiny things, celebrating frustration,
+  or claiming it's done without checking when she asked for a check.
 
 ## Speak-up levels
 Every moment respects her setting:
