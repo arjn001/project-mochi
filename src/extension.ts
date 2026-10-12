@@ -158,7 +158,7 @@ export function activate(context: vscode.ExtensionContext): MochiApi {
   // The chip above the box while she has code selected.
   const attachment = new AttachmentChip(() => refreshPanel());
   // Celebrating when she says she finished something (MOCHI-36).
-  const party = celebrations({ chat, pack });
+  const party = celebrations({ chat, pack, conversation, attachment });
   const actions = panelActions({
     timer,
     greeter,

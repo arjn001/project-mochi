@@ -102,6 +102,16 @@ const PATTERNS: { pattern: RegExp; bare?: boolean }[] = [
   { pattern: /^(?:it|my code|the code|my program|the program)\s+(?:finally\s+)?works(?:\s+now)?$/i, bare: true },
 ];
 
+// What "Check my work" asks the brain, with her selected code attached
+// through the share gate. With Learning mode on, it asks for hints, never
+// fixes.
+export function checkMessage(learning: boolean, thing?: string): string {
+  const what = thing ? `I just finished ${thing.replace(/\byour\b/gi, "my")}.` : "I just finished this.";
+  return learning
+    ? `${what} Please check my work: tell me what's good about it, and point out anything that might be wrong as hints, not fixes.`
+    : `${what} Please check my work: tell me what's good about it, and show the fix for anything that's wrong.`;
+}
+
 // What she finished, if her message says she finished something, or
 // undefined if it doesn't (or Mochi isn't sure).
 export function finishedSomething(message: string): Finished | undefined {

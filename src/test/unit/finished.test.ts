@@ -1,5 +1,5 @@
 import * as assert from "node:assert";
-import { celebrationLine, finishedSomething } from "../../moments/finished";
+import { celebrationLine, checkMessage, finishedSomething } from "../../moments/finished";
 import { loadDefaultPack } from "../../packs/defaultPack";
 import * as path from "node:path";
 
@@ -108,6 +108,14 @@ describe("noticing when she finished something", () => {
       const lines = [0, 0.4, 0.9].map((r) => celebrationLine(pack, { thing: "your homework" }, () => r));
       assert.ok(lines.every((line) => /your homework/i.test(line)), lines.join(" | "));
       assert.ok(lines.some((line) => line.startsWith("Meow! Your homework is done.")), "A sentence starts with a capital.");
+    });
+
+    it("asks the brain to check her work: hints in Learning mode, fixes without it", () => {
+      assert.strictEqual(
+        checkMessage(true, "your homework"),
+        "I just finished my homework. Please check my work: tell me what's good about it, and point out anything that might be wrong as hints, not fixes."
+      );
+      assert.match(checkMessage(false), /^I just finished this\. .*show the fix/);
     });
 
     it("says \"Yay, you did it!\" when there's nothing to name", () => {
