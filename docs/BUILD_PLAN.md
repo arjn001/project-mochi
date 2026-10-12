@@ -22,12 +22,29 @@ theme variables only, so the look can be added later without rewriting it.
 3. **MOCHI-16 Build the side panel**, with VS Code theme styling only.
 4. **MOCHI-21 Build the chat interface.**
 5. **MOCHI-25 Stream replies as they're written**, in the panel.
-6. **MOCHI-17 Create the companion's art and moods**, and the panel's look,
-   once MOCHI-50 is done.
+6. **MOCHI-50 The preview look**, with the icon font's cats as the avatar.
+   MOCHI-17's illustrated art comes later.
 7. **MOCHI-68 Early preview build for her.**
 
-MOCHI-60 (Windows and macOS in CI) comes before the public release, not
-before the preview.
+All done. The preview went further than planned: Mochi Companion 0.1.0 was
+published to the VS Code Marketplace as a Preview on 2026-10-11, for
+everyone, so she gets updates automatically.
+
+## Order after the preview (from 2026-10-11)
+Only the tasks already planned below, in this order. New feature ideas come
+after.
+1. **MOCHI-60 Windows and macOS in CI.** Overdue, since the preview is
+   public.
+2. **MOCHI-36 Celebrating when I finish something**, the last of Milestone 4.
+3. **Milestone 5:** MOCHI-43, MOCHI-55, MOCHI-56, then MOCHI-45. Since she
+   installs from the Marketplace, MOCHI-45 likely becomes her gift on her
+   public install rather than a separate build; checked when it's planned.
+4. **Toward 1.0:** MOCHI-46 screenshots, MOCHI-61 "Mochi: Report a
+   problem", MOCHI-62 decide on web support, then MOCHI-48, 1.0 without the
+   Preview flag.
+
+Alongside: MOCHI-17 illustrated art when Arjun has it. Later: MOCHI-54
+(stretch), MOCHI-69 (a discussion first), and MOCHI-63.
 
 ## Milestone 1: Mochi exists
 1. **MOCHI-52 Check the name and ID are free on the Marketplace.** You'll see:
@@ -81,8 +98,9 @@ before the preview.
 19. **MOCHI-24 Give the AI its personality from the pack.** You'll see: replies
     in Mochi's voice.
 
-**Early preview:** after Milestone 3, she gets a `.vsix` with the default pack
+**Early preview:** after Milestone 3, she gets Mochi with the default pack
 only. The personal layer and the gift stay a surprise for Milestone 5.
+(Done 2026-10-11, as a public Preview on the Marketplace.)
 
 ## Milestone 4: Mochi notices and helps
 20. **MOCHI-31 Always confirm before acting.** You'll see: every action asking
