@@ -70,7 +70,7 @@ export function activate(context: vscode.ExtensionContext): MochiApi {
   const mood = createMoodLine();
   let refreshPanel = () => {};
   const refreshMood = () => {
-    showMood(mood, readSpeakUp(), undefined, timer.minutesLeft());
+    showMood(mood, readSpeakUp(), undefined, timer.minutesLeft(), timer.breakMinutesLeft());
     refreshPanel();
   };
   refreshMood();
@@ -158,7 +158,7 @@ export function activate(context: vscode.ExtensionContext): MochiApi {
   // The chip above the box while she has code selected.
   const attachment = new AttachmentChip(() => refreshPanel());
   // Celebrating when she says she finished something (MOCHI-36).
-  const party = celebrations({ chat, pack, conversation, attachment });
+  const party = celebrations({ chat, pack, conversation, attachment, timer });
   const actions = panelActions({
     timer,
     greeter,

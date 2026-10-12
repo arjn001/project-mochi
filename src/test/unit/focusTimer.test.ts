@@ -130,4 +130,71 @@ describe("mood line during a focus session", () => {
     assert.strictEqual(moodLine("quiet", "purring", 18).text, "$(mochi-here) Focusing · 18 min left");
     assert.strictEqual(moodLine("quiet", "purring").text, "$(mochi-napping) Mochi is napping");
   });
+
+  describe("a break after she finishes something (MOCHI-36)", () => {
+    it("counts down 5 minutes in the mood line, even in quiet mode", async () => {
+      const time = fakeTime();
+      const timer = new FocusTimer(fakeStore(), time.now, time.schedule);
+      await timer.startBreak();
+      assert.strictEqual(timer.breakMinutesLeft(), 5);
+      time.advanceMinutes(1);
+      assert.strictEqual(timer.breakMinutesLeft(), 4);
+      assert.strictEqual(moodLine("quiet", undefined, timer.minutesLeft(), timer.breakMinutesLeft()).text, "$(mochi-purring) Break · 4 min left");
+    });
+
+    it("isn't a focus session, so it never holds back the greeting or an offer", async () => {
+      const time = fakeTime();
+      const timer = new FocusTimer(fakeStore(), time.now, time.schedule);
+      await timer.startBreak();
+      assert.strictEqual(timer.isRunning(), false);
+      assert.strictEqual(timer.minutesLeft(), undefined);
+      assert.strictEqual(timer.isTicking(), true);
+    });
+
+    it("says it was a break when it ends", async () => {
+      const time = fakeTime();
+      const timer = new FocusTimer(fakeStore(), time.now, time.schedule);
+      const ended: string[] = [];
+      timer.onEnd((kind) => ended.push(kind));
+      await timer.startBreak();
+      time.advanceMinutes(5);
+      await settle();
+      assert.deepStrictEqual(ended, ["break"]);
+      assert.strictEqual(timer.isTicking(), false);
+    });
+
+    it("ends a focus session, and a focus session ends it", async () => {
+      const time = fakeTime();
+      const timer = new FocusTimer(fakeStore(), time.now, time.schedule);
+      await timer.start(25);
+      await timer.startBreak();
+      assert.deepStrictEqual([timer.isRunning(), timer.breakMinutesLeft()], [false, 5]);
+      await timer.start(25);
+      assert.deepStrictEqual([timer.isRunning(), timer.breakMinutesLeft()], [true, undefined]);
+    });
+
+    it("comes back after a reload, and older saved focus sessions still do too", async () => {
+      const time = fakeTime();
+      const store = fakeStore();
+      await new FocusTimer(store, time.now, time.schedule).startBreak();
+      const reloaded = new FocusTimer(store, time.now, time.schedule);
+      await reloaded.restore();
+      assert.strictEqual(reloaded.breakMinutesLeft(), 5);
+
+      store.data.set(STORE_KEY, 10 * 60_000);
+      const older = new FocusTimer(store, time.now, time.schedule);
+      await older.restore();
+      assert.deepStrictEqual([older.isRunning(), older.minutesLeft()], [true, 10]);
+    });
+
+    it("ignores anything odd that was saved", async () => {
+      const time = fakeTime();
+      const store = fakeStore();
+      store.data.set(STORE_KEY, { endsAt: "soon", kind: "nap" });
+      const timer = new FocusTimer(store, time.now, time.schedule);
+      await timer.restore();
+      assert.strictEqual(timer.isTicking(), false);
+      assert.strictEqual(store.data.has(STORE_KEY), false);
+    });
+  });
 });

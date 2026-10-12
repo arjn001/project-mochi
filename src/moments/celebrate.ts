@@ -1,5 +1,6 @@
 import * as vscode from "vscode";
 import { Conversation } from "../ai/conversation";
+import { FocusTimer } from "../focus/timer";
 import { AttachmentChip } from "../panel/attachmentChip";
 import { ChatLog } from "../panel/chatLog";
 import { Pack } from "../packs/format";
@@ -13,6 +14,8 @@ interface Needs {
   conversation: Conversation;
   // The code she has selected, if she didn't leave it out.
   attachment: AttachmentChip;
+  // The break runs on the focus timer's clock.
+  timer: FocusTimer;
 }
 
 // Celebrating when she says she finished something (MOCHI-36): the
@@ -22,7 +25,7 @@ interface Needs {
 export function celebrations(needs: Needs) {
   // The next steps, as fits right now.
   const choices = (): string[] => {
-    const chips: string[] = [celebrateStrings.checkMyWork];
+    const chips: string[] = [celebrateStrings.checkMyWork, celebrateStrings.takeABreak];
     // Only on a light theme; high contrast is never changed.
     if (vscode.window.activeColorTheme.kind === vscode.ColorThemeKind.Light) {
       chips.push(panelStrings.dark);
@@ -36,6 +39,9 @@ export function celebrations(needs: Needs) {
       await vscode.commands.executeCommand("mochi.dim");
     } else if (pick === celebrateStrings.checkMyWork) {
       await checkMyWork(finished);
+    } else if (pick === celebrateStrings.takeABreak) {
+      // "Break · 5 min left" in the mood line. It ends a focus session.
+      await needs.timer.startBreak();
     }
   };
 

@@ -23,9 +23,10 @@ export function showMood(
   item: vscode.StatusBarItem,
   speakUp: unknown,
   mood?: Mood,
-  focusMinutesLeft?: number
+  focusMinutesLeft?: number,
+  breakMinutesLeft?: number
 ): void {
-  const line = moodLine(speakUp, mood, focusMinutesLeft);
+  const line = moodLine(speakUp, mood, focusMinutesLeft, breakMinutesLeft);
   item.text = line.text;
   item.tooltip = line.tooltip;
   item.accessibilityInformation = { label: line.label, role: "button" };

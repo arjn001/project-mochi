@@ -45,7 +45,7 @@ export function panelActions(needs: Needs): PanelActions {
     const welcomeButton = today.button === "setUpCopilot" ? welcomeStrings.setUpCopilot : today.button === "chooseBrain" ? welcomeStrings.chooseBrain : undefined;
     return {
       // The same mood as the status bar, from the same rules.
-      mood: moodParts(moodLine(readSpeakUp(), undefined, timer.minutesLeft())),
+      mood: moodParts(moodLine(readSpeakUp(), undefined, timer.minutesLeft(), timer.breakMinutesLeft())),
       greeting: today.text,
       ...(welcomeButton ? { welcomeButton } : {}),
       buttons: {

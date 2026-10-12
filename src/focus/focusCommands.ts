@@ -1,5 +1,6 @@
 import * as vscode from "vscode";
 import { readFocusMinutes } from "../settings";
+import { celebrateStrings } from "../strings";
 import { FocusTimer } from "./timer";
 
 // She starts these herself, so nothing here asks for confirmation (see
@@ -14,10 +15,16 @@ export function registerFocus(timer: FocusTimer, refreshMood: () => void): vscod
     refreshMood();
     clearInterval(tick);
     // Minutes only, so checking a few times a minute is plenty.
-    tick = timer.isRunning() ? setInterval(refreshMood, 15_000) : undefined;
+    tick = timer.isTicking() ? setInterval(refreshMood, 15_000) : undefined;
   });
 
-  timer.onEnd(async () => {
+  timer.onEnd(async (kind) => {
+    // A break she took after finishing something (MOCHI-36). She started
+    // it, so it tells her even in quiet mode.
+    if (kind === "break") {
+      void vscode.window.showInformationMessage(celebrateStrings.breakOver);
+      return;
+    }
     const again = "Another round";
     const choice = await vscode.window.showInformationMessage(
       "Time's up! That was some focused work. Stretch break?",
