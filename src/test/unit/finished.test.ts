@@ -1,5 +1,7 @@
 import * as assert from "node:assert";
-import { finishedSomething } from "../../moments/finished";
+import { celebrationLine, finishedSomething } from "../../moments/finished";
+import { loadDefaultPack } from "../../packs/defaultPack";
+import * as path from "node:path";
 
 const thing = (message: string) => finishedSomething(message)?.thing;
 
@@ -97,5 +99,19 @@ describe("noticing when she finished something", () => {
   it("doesn't repeat a very long thing", () => {
     assert.deepStrictEqual(finishedSomething(`I finished ${"the very long assignment ".repeat(3)}`), {});
     assert.strictEqual(finishedSomething(`I finished ${"x".repeat(130)}`), undefined, "Too long to be a quick celebration.");
+  });
+
+  describe("what Mochi says", () => {
+    const pack = loadDefaultPack(path.join(__dirname, "..", "..", "..", "packs", "default", "pack.json"));
+
+    it("celebrates the specific thing, from the pack", () => {
+      const lines = [0, 0.4, 0.9].map((r) => celebrationLine(pack, { thing: "your homework" }, () => r));
+      assert.ok(lines.every((line) => /your homework/i.test(line)), lines.join(" | "));
+      assert.ok(lines.some((line) => line.startsWith("Meow! Your homework is done.")), "A sentence starts with a capital.");
+    });
+
+    it("says \"Yay, you did it!\" when there's nothing to name", () => {
+      assert.strictEqual(celebrationLine(pack, {}), "Yay, you did it! That earns a slow blink from me.");
+    });
   });
 });

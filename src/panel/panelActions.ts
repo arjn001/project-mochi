@@ -1,6 +1,7 @@
 import * as vscode from "vscode";
 import { brainButton } from "../ai/brains";
 import { Conversation } from "../ai/conversation";
+import { Finished, finishedSomething } from "../moments/finished";
 import { errorInEditor } from "../ai/explainCommands";
 import { FocusTimer } from "../focus/timer";
 import { Greeter } from "../moments/greetingWatcher";
@@ -22,6 +23,8 @@ interface Needs {
   conversation: Conversation;
   chat: ChatLog;
   attachment: AttachmentChip;
+  // Mochi's own reply when she says she finished something (MOCHI-36).
+  celebrate: (asked: string, finished: Finished) => void;
   setUpCopilot: () => Promise<void>;
   // The brain Mochi would think with now, or undefined when it would ask.
   brain: () => string | undefined;
@@ -60,8 +63,17 @@ export function panelActions(needs: Needs): PanelActions {
   // What she typed, plus the code she has selected unless she left it out,
   // through the share gate (which also warns about text that looks like a
   // secret).
-  const ask = async (text: string): Promise<boolean> =>
-    (await conversation.ask({ message: text, attachments: needs.attachment.attached() }, text)) !== undefined;
+  // When she says she finished something, Mochi celebrates on its own,
+  // with no AI (MOCHI-36).
+  const ask = async (text: string): Promise<boolean> => {
+    const finished = finishedSomething(text);
+    if (finished) {
+      await conversation.stop();
+      needs.celebrate(text, finished);
+      return true;
+    }
+    return (await conversation.ask({ message: text, attachments: needs.attachment.attached() }, text)) !== undefined;
+  };
 
   const button = async (pressed: PanelButton): Promise<void> => {
     switch (pressed) {

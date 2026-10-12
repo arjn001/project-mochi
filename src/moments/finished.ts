@@ -6,8 +6,17 @@
 // "I'm done" often means giving up, so anything that sounds like a
 // question, a problem, or frustration goes to the brain as usual.
 
+import { Pack } from "../packs/format";
+import { pickPhrase } from "../packs/phrases";
+
 // What she finished, as plain words she wrote, or nothing to name ("done!").
 export type Finished = { thing?: string };
+
+// What Mochi says: the specific thing, from the pack's celebrate lines, or
+// "Yay, you did it!" when there's nothing to name.
+export function celebrationLine(pack: Pack, finished: Finished, random?: () => number): string {
+  return finished.thing ? pickPhrase(pack, "celebrate", { thing: finished.thing }, random) : pickPhrase(pack, "celebrateDone", {}, random);
+}
 
 // The longest message that can be a celebration, and the longest thing
 // Mochi repeats back.

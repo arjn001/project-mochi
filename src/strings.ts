@@ -155,6 +155,15 @@ export const problemStrings = {
   keepGoing: "Keep going",
 };
 
+// Celebrating when she finishes something (MOCHI-36). The celebration
+// itself comes from the pack.
+export const celebrateStrings = {
+  checkMyWork: "Check my work",
+  takeABreak: "Take a break",
+  selectFirst: "Select the code you'd like me to check, then tap Check my work again.",
+  breakOver: "Break's over! Ready when you are.",
+};
+
 // "Clear chat", in the ... menu of Mochi's tab (MOCHI-21).
 export const clearStrings = {
   question: "Clear this chat?",

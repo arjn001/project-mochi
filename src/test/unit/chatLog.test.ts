@@ -229,4 +229,15 @@ describe("the chat", () => {
     const done = changes.filter((c) => c.type === "done").map((c) => (c.type === "done" ? c.entry.text : ""));
     assert.deepStrictEqual(done, ["Hello!", "A line.", "I'd need a brain to answer that."]);
   });
+
+  it("adds her message and Mochi's own reply, with no answer to wait for", () => {
+    const { log, changes } = chat();
+    log.respond("I finished my homework", "Yay, you finished your homework!");
+    assert.deepStrictEqual(shape(log), [
+      ["her", "I finished my homework", null],
+      ["mochi", "Yay, you finished your homework!", null],
+    ]);
+    assert.strictEqual(log.answering(), false);
+    assert.ok(changes.some((c) => c.type === "done"), "Screen readers hear it.");
+  });
 });

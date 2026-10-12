@@ -22,6 +22,7 @@ import { Greeter, rememberCoding } from "./moments/greetingWatcher";
 import { Welcomer } from "./moments/welcomeWatcher";
 import { LAST_NUDGED, watchLateNight } from "./moments/lateNightWatcher";
 import { watchStuck } from "./moments/stuckWatcher";
+import { celebrations } from "./moments/celebrate";
 import { FocusTimer } from "./focus/timer";
 import { GreetingSurface, notificationGreeting } from "./presence/greetingSurface";
 import { nightOf } from "./moments/lateNight";
@@ -156,6 +157,8 @@ export function activate(context: vscode.ExtensionContext): MochiApi {
   // theme.
   // The chip above the box while she has code selected.
   const attachment = new AttachmentChip(() => refreshPanel());
+  // Celebrating when she says she finished something (MOCHI-36).
+  const party = celebrations({ chat, pack });
   const actions = panelActions({
     timer,
     greeter,
@@ -163,6 +166,7 @@ export function activate(context: vscode.ExtensionContext): MochiApi {
     conversation,
     chat,
     attachment,
+    celebrate: (asked, finished) => party.celebrate(asked, finished),
     setUpCopilot: signInToCopilot,
     brain: () => brainNow,
     hint: (text) => panel.hint(text),

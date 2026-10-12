@@ -255,6 +255,23 @@ describe("Mochi in VS Code", () => {
       assert.ok(!api.chat!.entries().some((e) => e.from === "her" && e.text === "hi"), "Her text goes back in the box, not into the chat.");
     });
 
+    it("celebrates \"I finished my homework\" on its own, even with no brain", async () => {
+      const api = (await vscode.extensions.getExtension<MochiApi>("arjungyawali.mochi-companion")!.activate()) as MochiApi;
+      assert.strictEqual(await api.ask!("I finished my homework"), true, "Sent, so the box empties.");
+      const [her, mochi] = api.chat!.entries().slice(-2);
+      assert.deepStrictEqual([her.from, her.text], ["her", "I finished my homework"]);
+      assert.strictEqual(mochi.from, "mochi");
+      assert.match(mochi.text, /your homework/i);
+      assert.ok(!mochi.problem, "Not the no-brain line.");
+    });
+
+    it("sends \"done, I give up\" to the brain instead of celebrating", async () => {
+      const api = (await vscode.extensions.getExtension<MochiApi>("arjungyawali.mochi-companion")!.activate()) as MochiApi;
+      await api.ask!("done, I give up");
+      const last = api.chat!.entries().at(-1)!;
+      assert.strictEqual(last.text, "I'd need a brain to answer that. Want to set one up?");
+    });
+
     it("shows a chip for the selected lines, and leaves them out after the x", async () => {
       const api = (await vscode.extensions.getExtension<MochiApi>("arjungyawali.mochi-companion")!.activate()) as MochiApi;
       const doc = await vscode.workspace.openTextDocument({ language: "python", content: "x = 1\ny = 2\nprint(x + y)\n" });

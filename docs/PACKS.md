@@ -45,7 +45,9 @@ that checks packs is `src/packs/format.ts`.
 | `user.name` | Her name, on one line. Optional, and only for the personal layer; the default pack never sets it | 30 characters |
 
 The moments are `greeting`, `greetingLate`, `welcomeBack`, `backToProject`,
-`stuck`, `lateNight`, `lateNightCompany`, and `celebrate` (see MOMENTS.md).
+`stuck`, `lateNight`, `lateNightCompany`, `celebrate`, and `celebrateDone`
+(see MOMENTS.md). `celebrateDone` is for when she finished something but
+there's nothing to name, like "It finally works!".
 `greetingLate` replaces `greeting` after the late-night hour, because "Good
 night" sounds like goodbye. `welcomeBack` follows the greeting after 2 or more
 days away, and never counts them; `backToProject` follows it when she opens
