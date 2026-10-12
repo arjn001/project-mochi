@@ -14,11 +14,14 @@ update isn't listed.*
   Marketplace since 2026-10-11 01:58 UTC:
   https://marketplace.visualstudio.com/items?itemName=arjungyawali.mochi-companion
 - **Open pull requests:** none besides this one.
-- **In progress:** MOCHI-17 Art and moods: the preview uses the icon font's
-  cats; illustrated art comes when Arjun has it.
-- **Next:** MOCHI-60 Windows and macOS in CI, then MOCHI-36 Celebrating,
-  then Milestone 5 (see Next below).
-- **Waiting on:** Arjun to approve the MOCHI-60 plan.
+- **In progress:**
+  - MOCHI-60 Windows and macOS in CI: built and in review. Done once it
+    merges; then Tests (macOS) and Tests (Windows) become required checks
+    in the "Protect main" ruleset.
+  - MOCHI-17 Art and moods: the preview uses the icon font's cats;
+    illustrated art comes when Arjun has it.
+- **Next:** MOCHI-36 Celebrating, then Milestone 5 (see Next below).
+- **Waiting on:** Arjun to merge MOCHI-60.
 
 **46 of 59 Jira tasks and subtasks done**. 3 of the 8
 categories are complete. 435 tests (397 unit, 38 integration) run on every
@@ -99,6 +102,10 @@ MOMENTS.md, PRESENCE.md, ARCHITECTURE.md, and BUILD_PLAN.md.
   containers) and asks which folder in multi-root workspaces (MOCHI-28).
 
 **Release (MOCHI-44), partly done.**
+- CI runs the unit and integration tests on Linux, macOS, and Windows on
+  every pull request, with every system finishing even when one fails;
+  packaging and its checks run on Linux. Free, since the repo is public
+  (MOCHI-60).
 - The code is MIT; the name "Mochi Companion", the icons, and the art are
   all rights reserved (MOCHI-59). A short README for the listing (MOCHI-46,
   screenshots still to come).
@@ -181,8 +188,7 @@ MOMENTS.md, PRESENCE.md, ARCHITECTURE.md, and BUILD_PLAN.md.
 ## Next
 The order after the preview (agreed 2026-10-11, also in BUILD_PLAN.md).
 Only tasks already planned; new feature ideas come after.
-1. **MOCHI-60 Windows and macOS in CI.** Overdue: the plan said before any
-   release, and the preview is public.
+1. **MOCHI-60 Windows and macOS in CI.** In review.
 2. **MOCHI-36 Celebrating when she finishes something**, the last of
    Milestone 4.
 3. **Milestone 5:** MOCHI-43 "Make it yours" page, MOCHI-55 Make a gift
@@ -250,8 +256,6 @@ Alongside or later:
   which `vsce publish` needs, stop working on 2026-12-01; set up Microsoft
   Entra (`vsce publish --azure-credential`) or GitHub trusted publishing
   before then if updates should publish from the command line or CI.
-- CI is Linux only, and the preview is public. Windows and macOS come next
-  (MOCHI-60).
 - To test the late-night nudge before 23:00, set Late Hour to the current hour
   in the clean profile and type in a file. A normal profile remembers "already
   nudged tonight" until the next night.
