@@ -33,9 +33,9 @@ everyone, so she gets updates automatically.
 ## Order after the preview (from 2026-10-11)
 Only the tasks already planned below, in this order. New feature ideas come
 after.
-1. **MOCHI-60 Windows and macOS in CI.** Overdue, since the preview is
-   public. In review.
+1. **MOCHI-60 Windows and macOS in CI.** Done.
 2. **MOCHI-36 Celebrating when I finish something**, the last of Milestone 4.
+   In review.
 3. **Milestone 5:** MOCHI-43, MOCHI-55, MOCHI-56, then MOCHI-45. Since she
    installs from the Marketplace, MOCHI-45 likely becomes her gift on her
    public install rather than a separate build; checked when it's planned.

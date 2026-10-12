@@ -41,6 +41,9 @@
       "Yay, you finished {thing}! That earns a slow blink from me.",
       "Meow! {thing} is done. Stretch break before the next one?",
       "You did it: {thing}! I knew you would."
+    ],
+    "celebrateDone": [
+      "Yay, you did it! That earns a slow blink from me."
     ]
   }
 }

@@ -56,6 +56,10 @@ the mood line both open Mochi's tab.
   offers "Stop the focus session" or "Open Mochi". When time's up: "Time's
   up! That was some focused work. Stretch break?" with "Another round" and
   "Done", also in quiet mode.
+- **Break** (MOCHI-36): "Break · 4 min left", with the purring cat, after
+  she taps "Take a break" under a celebration. Tooltip "Break time. Click
+  to open Mochi." Shows in quiet mode too, and ends with "Break's over!
+  Ready when you are."
 
 ## Speak-up levels
 Shown in Settings under "Mochi", and settable per project:
@@ -76,7 +80,16 @@ The default lines are in `packs/default/pack.json` (format in PACKS.md).
   thing for you, but I can do it with you. What's the first part asking?"
   This rule is fixed in code, so no pack can remove it.
 - **Celebrate the specific thing:** "Yay, you finished {thing}! That earns a
-  slow blink from me."
+  slow blink from me." With nothing to name: "Yay, you did it! That earns a
+  slow blink from me." Chips under it: "Check my work", "Take a break", and
+  on a light theme "Switch to a dark theme". With nothing selected, Check
+  my work says "Select the code you'd like me to check, then tap Check my
+  work again." Never for frustration ("done, I give up"), see MOMENTS.md.
+
+  ![A celebration with its chips, and a break in the mood line, in Light Modern](design/screenshots/celebrate-preview-light.png)
+
+  *A preview rendered in Chrome with Light Modern's colors, not a screenshot
+  of VS Code.*
 - **Never corporate, guilty, or lecturing.** A unit test checks the default
   lines for this.
 - **Late-night nudge:** once per night, while she's typing, after the late

@@ -23,6 +23,7 @@ export const MOMENTS = [
   "lateNight",
   "lateNightCompany",
   "celebrate",
+  "celebrateDone",
 ] as const;
 export type Moment = (typeof MOMENTS)[number];
 
@@ -38,6 +39,8 @@ const PLACEHOLDERS: Record<Moment, readonly string[]> = {
   lateNight: ["companion"],
   lateNightCompany: ["companion"],
   celebrate: ["companion", "thing"],
+  // When she finished something but there's nothing to name (MOCHI-36).
+  celebrateDone: ["companion"],
 };
 
 export const LIMITS = {
@@ -239,5 +242,14 @@ export function layerOver(base: Pack, layer: PackLayer): Pack {
 // Fills placeholders like {timeOfDay}. Unknown or missing values are left as they
 // are, so a phrase never shows "undefined".
 export function fill(phrase: string, values: Record<string, string>): string {
-  return phrase.replace(/\{([^{}]*)\}/g, (match, key: string) => values[key] ?? match);
+  return phrase.replace(/\{([^{}]*)\}/g, (match, key: string, at: number) => {
+    const value = values[key];
+    if (value === undefined) {
+      return match;
+    }
+    // What she finished starts with a capital when it starts a sentence:
+    // "Meow! Your homework is done." Her name always stays as she typed it.
+    const startsSentence = at === 0 || /[.!?]\s+$/.test(phrase.slice(0, at));
+    return key === "thing" && startsSentence ? value.charAt(0).toUpperCase() + value.slice(1) : value;
+  });
 }

@@ -14,6 +14,7 @@ const complete: Pack = {
     lateNight: ["It's late. Some water?"],
     lateNightCompany: ["Still here with you."],
     celebrate: ["Yay, you finished {thing}!"],
+    celebrateDone: ["Yay, you did it!"],
   },
 };
 
@@ -170,6 +171,12 @@ describe("pack format", () => {
   });
 
   describe("filling placeholders", () => {
+    it("starts a sentence with a capital for what she finished, never changing her name", () => {
+      assert.strictEqual(fill("Meow! {thing} is done.", { thing: "your homework" }), "Meow! Your homework is done.");
+      assert.strictEqual(fill("Yay, you finished {thing}!", { thing: "your homework" }), "Yay, you finished your homework!");
+      assert.strictEqual(fill("{name}, hi!", { name: "lee" }), "lee, hi!");
+    });
+
     it("fills known values and leaves the rest untouched", () => {
       assert.strictEqual(fill("Good {timeOfDay}, I'm {companion}!", { timeOfDay: "evening", companion: "Mochi" }),
         "Good evening, I'm Mochi!");

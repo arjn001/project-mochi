@@ -33,8 +33,9 @@
 ## AI
 - Mochi works without AI. Greetings, late-night company, quiet mode, the mood
   line, and actions like the theme and focus timer all work with no brain.
-  AI is for chat, explaining code and errors, checking her work, and
-  understanding when she says she finished something.
+  AI is for chat, explaining code and errors, and checking her work.
+  Noticing when she says she finished something is local matching, with
+  no AI (MOCHI-36, changed 2026-10-12).
 - The first-run welcome starts small (MOCHI-42, see "The first-run
   welcome" below). A fuller "Pick a brain" step may come later, in this
   order:
@@ -209,6 +210,21 @@ runs, and "Forget everything" clears them the next time Mochi opens there.
   projects, so Forget everything reaches all of them from any window
   (chats on a remote machine, the next time Mochi opens them). If one part
   can't be cleared, the rest still are, and Mochi offers to try again.
+
+## Celebrating
+- When she says she finished something, Mochi celebrates on its own with
+  local matching, never the AI: free, private, and working with no brain
+  (MOCHI-36, agreed 2026-10-12). Only "Check my work" asks the brain.
+- The matcher leans toward not celebrating: questions, problems,
+  frustration and distress words, vague things ("this class"), and a bare
+  "I'm done" all go to the brain as usual (MOMENTS.md has the lists).
+- Her words are repeated back only when they're plain words and ordinary
+  punctuation, since the chat's formatter has no escapes: nothing she types
+  can become formatting or a link in Mochi's message.
+- "Check my work" shares her selection only. The open file isn't shared;
+  that question belongs to MOCHI-69.
+- The break runs on the focus timer's clock, but isn't a focus session, so
+  it never holds back the greeting or an offer.
 
 ## Which problems count as errors
 - Errors always count, for "Explain with Mochi" and "Need a paw?".

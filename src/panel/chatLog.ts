@@ -88,6 +88,16 @@ export class ChatLog implements AnswerSurface {
     return this.offer(last, choices, prompt);
   }
 
+  // Her message and Mochi's own reply, with no AI, like a celebration
+  // (MOCHI-36).
+  respond(asked: string, line: string): void {
+    this.dropChips();
+    this.add("her", asked);
+    const entry = this.add("mochi", line);
+    this.update();
+    this.changed({ type: "done", entry });
+  }
+
   say(line: string): void {
     this.dropChips();
     const entry = this.add("mochi", line);

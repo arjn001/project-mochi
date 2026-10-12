@@ -76,7 +76,8 @@ describe("phrases", () => {
 
   it("fills {thing} when celebrating", () => {
     for (const line of everyPick((random) => pickPhrase(pack, "celebrate", { thing: "the database migration" }, random))) {
-      assert.match(line, /the database migration/);
+      // "Meow! The database migration is done." starts with a capital.
+      assert.match(line, /the database migration/i);
     }
   });
 });

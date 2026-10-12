@@ -44,6 +44,15 @@ function focusLine(minutesLeft: number): MoodLine {
   };
 }
 
+function breakLine(minutesLeft: number): MoodLine {
+  const left = `${minutesLeft} min left`;
+  return {
+    text: `$(mochi-purring) Break · ${left}`,
+    tooltip: "Break time. Click to open Mochi.",
+    label: `Break, ${left}. Open Mochi.`,
+  };
+}
+
 // The same line for the panel (MOCHI-16): which icon, and the words without
 // the "$(mochi-...)" icon code.
 export function moodParts(line: MoodLine): { glyph: Mood; words: string } {
@@ -52,11 +61,15 @@ export function moodParts(line: MoodLine): { glyph: Mood; words: string } {
 }
 
 // What the mood line shows (see PRESENCE.md):
-// - A focus session she started always shows, even in quiet mode.
+// - A focus session or a break she started always shows, even in quiet
+//   mode.
 // - Otherwise, in quiet mode, napping wins over anything Mochi starts.
-export function moodLine(speakUp: unknown, mood: Mood = "purring", focusMinutesLeft?: number): MoodLine {
+export function moodLine(speakUp: unknown, mood: Mood = "purring", focusMinutesLeft?: number, breakMinutesLeft?: number): MoodLine {
   if (focusMinutesLeft !== undefined) {
     return focusLine(focusMinutesLeft);
+  }
+  if (breakMinutesLeft !== undefined) {
+    return breakLine(breakMinutesLeft);
   }
   return toSpeakUp(speakUp) === "quiet" ? quietLine : lines[mood];
 }

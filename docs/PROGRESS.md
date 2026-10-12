@@ -15,17 +15,16 @@ update isn't listed.*
   https://marketplace.visualstudio.com/items?itemName=arjungyawali.mochi-companion
 - **Open pull requests:** none besides this one.
 - **In progress:**
-  - MOCHI-60 Windows and macOS in CI: built and in review. Done once it
-    merges; then Tests (macOS) and Tests (Windows) become required checks
-    in the "Protect main" ruleset.
+  - MOCHI-36 Celebrating when she finishes something: built and in review.
+    Done once it merges, which completes Moments (MOCHI-32).
   - MOCHI-17 Art and moods: the preview uses the icon font's cats;
     illustrated art comes when Arjun has it.
-- **Next:** MOCHI-36 Celebrating, then Milestone 5 (see Next below).
-- **Waiting on:** Arjun to merge MOCHI-60.
+- **Next:** Milestone 5: MOCHI-43 "Make it yours" page first.
+- **Waiting on:** Arjun to try and merge MOCHI-36.
 
-**46 of 59 Jira tasks and subtasks done**. 3 of the 8
-categories are complete. 435 tests (397 unit, 38 integration) run on every
-pull request.
+**47 of 59 Jira tasks and subtasks done**. 3 of the 8
+categories are complete. 459 tests (418 unit, 41 integration) run on every
+pull request, on Linux, macOS, and Windows.
 
 ## Done
 **Vision and design (MOCHI-2), complete.** VISION.md, DECISIONS.md,
@@ -57,6 +56,12 @@ MOMENTS.md, PRESENCE.md, ARCHITECTURE.md, and BUILD_PLAN.md.
   mood, and a vintage serif for the greeting (MOCHI-50).
 
 **Moments (MOCHI-32), partly done.**
+- Celebrating when she says she finished something, with no AI: the
+  specific thing in her words ("Yay, you finished your homework!"), never
+  for questions, frustration ("done, I give up"), or vague things. Chips
+  for Check my work (her selection, through the share gate, hints in
+  Learning mode), a 5-minute break in the mood line, and a darker theme
+  on light themes (MOCHI-36).
 - Quiet mode, live, with napping in the status bar (MOCHI-37).
 - The greeting when VS Code opens, once a day across her windows: the time
   of day, her name if set, a warm welcome back after 2+ days away (never
@@ -104,8 +109,9 @@ MOMENTS.md, PRESENCE.md, ARCHITECTURE.md, and BUILD_PLAN.md.
 **Release (MOCHI-44), partly done.**
 - CI runs the unit and integration tests on Linux, macOS, and Windows on
   every pull request, with every system finishing even when one fails;
-  packaging and its checks run on Linux. Free, since the repo is public
-  (MOCHI-60).
+  packaging and its checks run on Linux. Free, since the repo is public.
+  Tests (Linux), Tests (macOS), and Tests (Windows) are all required in
+  main's "Protect main" ruleset (MOCHI-60).
 - The code is MIT; the name "Mochi Companion", the icons, and the art are
   all rights reserved (MOCHI-59). A short README for the listing (MOCHI-46,
   screenshots still to come).
@@ -188,9 +194,10 @@ MOMENTS.md, PRESENCE.md, ARCHITECTURE.md, and BUILD_PLAN.md.
 ## Next
 The order after the preview (agreed 2026-10-11, also in BUILD_PLAN.md).
 Only tasks already planned; new feature ideas come after.
-1. **MOCHI-60 Windows and macOS in CI.** In review.
+1. **MOCHI-60 Windows and macOS in CI.** Done; all three are required
+   checks on main.
 2. **MOCHI-36 Celebrating when she finishes something**, the last of
-   Milestone 4.
+   Milestone 4. In review.
 3. **Milestone 5:** MOCHI-43 "Make it yours" page, MOCHI-55 Make a gift
    file, MOCHI-56 Unwrap a gift file, then MOCHI-45, her gift on her
    install.
