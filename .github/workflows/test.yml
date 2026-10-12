@@ -15,8 +15,22 @@ concurrency:
 
 jobs:
   test:
-    name: Tests (Linux)
-    runs-on: ubuntu-latest
+    # "Tests (Linux)", "Tests (macOS)", and "Tests (Windows)": the names the
+    # "Protect main" ruleset requires (MOCHI-60).
+    name: Tests (${{ matrix.name }})
+    strategy:
+      # One system failing doesn't cancel the others, so every failure shows
+      # at once.
+      fail-fast: false
+      matrix:
+        include:
+          - name: Linux
+            os: ubuntu-latest
+          - name: macOS
+            os: macos-latest
+          - name: Windows
+            os: windows-latest
+    runs-on: ${{ matrix.os }}
     steps:
       - name: Get the code
         uses: actions/checkout@v7
@@ -40,15 +54,23 @@ jobs:
           key: vscode-test-${{ runner.os }}-${{ hashFiles('package.json') }}
 
       # Linux runners have no screen, so VS Code runs on a virtual one.
-      - name: Integration tests
+      - name: Integration tests (Linux)
+        if: runner.os == 'Linux'
         run: xvfb-run -a npm run test:integration
 
+      - name: Integration tests
+        if: runner.os != 'Linux'
+        run: npm run test:integration
+
+      # One package for every system, so it's built and checked once.
       - name: Package the .vsix
+        if: runner.os == 'Linux'
         run: npm run package
 
       # The bundle is the only code that ships: no source, no compiled tests,
       # no developer-only tools, no other JavaScript.
       - name: Check the package contents
+        if: runner.os == 'Linux'
         run: |
           unzip -l *.vsix
           if unzip -l *.vsix | grep -E " extension/(src|out)/"; then
