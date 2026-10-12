@@ -34,7 +34,7 @@ everyone, so she gets updates automatically.
 Only the tasks already planned below, in this order. New feature ideas come
 after.
 1. **MOCHI-60 Windows and macOS in CI.** Overdue, since the preview is
-   public.
+   public. In review.
 2. **MOCHI-36 Celebrating when I finish something**, the last of Milestone 4.
 3. **Milestone 5:** MOCHI-43, MOCHI-55, MOCHI-56, then MOCHI-45. Since she
    installs from the Marketplace, MOCHI-45 likely becomes her gift on her
@@ -125,7 +125,7 @@ only. The personal layer and the gift stay a surprise for Milestone 5.
 ## Milestone 5: Mochi is hers, then everyone's
 **Before any release** (including MOCHI-45, the private build for her): add a
 macOS job to the CI workflow from MOCHI-51, since Mochi's first users are on
-Macs.
+Macs. (Done in MOCHI-60, with Windows too.)
 
 29. **MOCHI-41 Build the private personal layer.** You'll see: a personal
     layer laid over the default pack, kept in private storage.
