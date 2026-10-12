@@ -1,6 +1,6 @@
 # Progress
 
-Where Mochi stands, as of 2026-10-10. Jira (space MOCHI) is the source of
+Where Mochi stands, as of 2026-10-11. Jira (space MOCHI) is the source of
 truth for task status; this doc is the readable summary, plus Arjun's likes
 and dislikes. "Current state" is updated at the end of every task, as part
 of that task's last commit. The rest is updated at the end of each working
@@ -10,18 +10,18 @@ session.
 *As of the last commit of the latest task, so the pull request carrying this
 update isn't listed.*
 
+- **Released:** Mochi Companion 0.1.0, a Preview, on the VS Code
+  Marketplace since 2026-10-11 01:58 UTC:
+  https://marketplace.visualstudio.com/items?itemName=arjungyawali.mochi-companion
 - **Open pull requests:** none besides this one.
-- **In progress:**
-  - MOCHI-50 The preview look: built and in review. Done once it merges.
-  - MOCHI-17 Art and moods: the preview uses the icon font's cats;
-    illustrated art comes after the preview.
-- **Next:** MOCHI-68, the early preview, published to the VS Code
-  Marketplace as a Preview tonight (2026-10-10), with the MIT license
-  (MOCHI-59) and a short README (MOCHI-46).
-- **Waiting on:** Arjun to merge the preview look.
+- **In progress:** MOCHI-17 Art and moods: the preview uses the icon font's
+  cats; illustrated art comes when Arjun has it.
+- **Next:** MOCHI-60 Windows and macOS in CI, then MOCHI-36 Celebrating,
+  then Milestone 5 (see Next below).
+- **Waiting on:** Arjun to approve the MOCHI-60 plan.
 
-**42 of 58 Jira tasks and subtasks done**. 2 of the 8
-categories are complete. 432 tests (394 unit, 38 integration) run on every
+**46 of 59 Jira tasks and subtasks done**. 3 of the 8
+categories are complete. 435 tests (397 unit, 38 integration) run on every
 pull request.
 
 ## Done
@@ -75,7 +75,7 @@ MOMENTS.md, PRESENCE.md, ARCHITECTURE.md, and BUILD_PLAN.md.
   Once ever, never with that day's greeting, and "Got a brain! Ask me
   anything." once Copilot is ready (MOCHI-42).
 
-**Actions (MOCHI-26), partly done.**
+**Actions (MOCHI-26), complete.**
 - Mochi confirms before doing anything she didn't directly ask for, with Undo
   afterwards (MOCHI-31).
 - "Switch to a dark theme" (was "Dim things"): switches all of VS Code to
@@ -97,6 +97,16 @@ MOMENTS.md, PRESENCE.md, ARCHITECTURE.md, and BUILD_PLAN.md.
   in Restricted Mode or during focus, and projects using conda, Pipenv,
   Poetry, or uv are left alone. Works in remote setups (SSH, WSL,
   containers) and asks which folder in multi-root workspaces (MOCHI-28).
+
+**Release (MOCHI-44), partly done.**
+- The code is MIT; the name "Mochi Companion", the icons, and the art are
+  all rights reserved (MOCHI-59). A short README for the listing (MOCHI-46,
+  screenshots still to come).
+- Mochi Companion 0.1.0, published to the VS Code Marketplace as a Preview
+  on 2026-10-11, with a plum-on-cream store icon and banner, the default
+  pack only, and nothing personal. Tested as the installed .vsix in clean
+  profiles on VS Code 1.125 and 1.141. Published by uploading it on the
+  Marketplace's manage page, which needs no token (MOCHI-68).
 
 **Packs and personalization (MOCHI-38), partly done.**
 - Pack format with strict checking for untrusted gifts, night-owl greetings,
@@ -169,20 +179,26 @@ MOMENTS.md, PRESENCE.md, ARCHITECTURE.md, and BUILD_PLAN.md.
   icon font's cats; illustrated art comes after the preview.
 
 ## Next
-The order to the early preview (agreed 2026-10-09, also in BUILD_PLAN.md):
-1. **MOCHI-16 Build the side panel**, with VS Code theme styling only. Done.
-2. **MOCHI-21 Build the chat interface.** Done.
-3. **MOCHI-25 Stream replies as they're written**, in the panel. Done.
-4. **MOCHI-50 The preview look**, in review. **MOCHI-17 Art and moods**
-   comes after the preview.
-5. **MOCHI-68 Early preview build for her**, default pack only.
+The order after the preview (agreed 2026-10-11, also in BUILD_PLAN.md).
+Only tasks already planned; new feature ideas come after.
+1. **MOCHI-60 Windows and macOS in CI.** Overdue: the plan said before any
+   release, and the preview is public.
+2. **MOCHI-36 Celebrating when she finishes something**, the last of
+   Milestone 4.
+3. **Milestone 5:** MOCHI-43 "Make it yours" page, MOCHI-55 Make a gift
+   file, MOCHI-56 Unwrap a gift file, then MOCHI-45, her gift on her
+   install.
+4. **Toward 1.0:** MOCHI-46 screenshots, MOCHI-61 "Mochi: Report a
+   problem", MOCHI-62 decide on web support, then MOCHI-48, 1.0 without
+   the Preview flag.
 
-Not before the preview:
+Alongside or later:
+- **MOCHI-17 Illustrated art**, whenever Arjun has it.
 - **MOCHI-54 OpenAI-compatible services and local model servers** (Ollama,
-  LM Studio).
-- **Before publishing (Release):** MOCHI-60 Windows and macOS in CI,
-  MOCHI-61 "Mochi: Report a problem", MOCHI-62 decide on web support, and
-  MOCHI-63 localization.
+  LM Studio), a stretch goal.
+- **MOCHI-69 Files she names**, a discussion first, and the feature ideas
+  from 2026-10-11.
+- **MOCHI-63 Localization**, later.
 
 ## Loose ends to remember
 - Not checked by hand yet: whether a change to her personal layer in one
@@ -229,10 +245,13 @@ Not before the preview:
 - Mochi is bundled with esbuild into `dist/extension.js`, the only code in
   the .vsix (MOCHI-14). Files read at runtime are found from Mochi's install
   folder, never relative to the code.
-- No license yet (MOCHI-59). Leaning: MIT for code, Mochi's name, icons, and
-  art all rights reserved. Packaging uses `--skip-license` until then.
-- CI is Linux only. Add a macOS job before any release, including the private
-  build for her.
+- Publishing: upload the tested .vsix on the Marketplace's manage page,
+  which needs no token. Azure DevOps "All accessible organizations" tokens,
+  which `vsce publish` needs, stop working on 2026-12-01; set up Microsoft
+  Entra (`vsce publish --azure-credential`) or GitHub trusted publishing
+  before then if updates should publish from the command line or CI.
+- CI is Linux only, and the preview is public. Windows and macOS come next
+  (MOCHI-60).
 - To test the late-night nudge before 23:00, set Late Hour to the current hour
   in the clean profile and type in a file. A normal profile remembers "already
   nudged tonight" until the next night.
@@ -286,7 +305,8 @@ Not before the preview:
 - **Blurry icon cut-outs at 1x.** Fixed by snapping faces to the pixel grid.
 - **Dead ends:** "Set one up" leading nowhere, with no confirmation.
 - **Reordering the build plan** without need.
-- **Paying for macOS CI minutes** while the repo is private.
+- **Paying for macOS CI minutes** while the repo was private. It's public
+  now.
 - **Personal names and paths** in the public repo or screenshots.
 - **Em dashes** in any text.
 
