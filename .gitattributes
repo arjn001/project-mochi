@@ -1,0 +1,9 @@
+# Text files keep Unix line endings (LF) in every checkout, including on
+# Windows, so tests that read files (the stylesheet, .vscodeignore, the
+# pack) see the same text on every system (MOCHI-60).
+* text=auto eol=lf
+
+# Binary files are never touched.
+*.png binary
+*.woff binary
+*.vsix binary
