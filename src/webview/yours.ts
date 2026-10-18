@@ -43,6 +43,34 @@ function status(field: FieldId): HTMLElement {
 function draw(field: Field): HTMLElement {
   const row = element("div", "mochi-yours-field");
   switch (field.kind) {
+    case "longText":
+    case "lines": {
+      const label = element("label", "mochi-yours-label", field.label);
+      label.htmlFor = field.id;
+      const box = element("textarea", "mochi-yours-input mochi-yours-area");
+      box.id = field.id;
+      if (field.kind === "longText") {
+        box.value = field.value;
+        box.maxLength = field.maxLength;
+        box.rows = 3;
+      } else {
+        box.value = field.value.join("\n");
+        // Mochi's own lines, as an example of what goes here.
+        box.placeholder = field.example;
+        box.rows = Math.max(3, Math.min(8, field.example.split("\n").length + 1));
+      }
+      // Enter adds a line here, so it's saved when she leaves the field,
+      // and only when it changed.
+      let kept = box.value;
+      box.addEventListener("change", () => {
+        if (box.value !== kept) {
+          kept = box.value;
+          edit(field.id, box.value);
+        }
+      });
+      row.append(label, element("p", "mochi-yours-description", field.description), box);
+      break;
+    }
     case "text": {
       const label = element("label", "mochi-yours-label", field.label);
       label.htmlFor = field.id;

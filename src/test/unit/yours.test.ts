@@ -2,8 +2,9 @@ import * as assert from "node:assert";
 import * as fs from "node:fs";
 import * as path from "node:path";
 import { yoursHtml } from "../../yours/html";
-import { checkEdit } from "../../yours/edits";
-import { toFromYours } from "../../yours/messages";
+import { MOMENTS } from "../../packs/format";
+import { checkEdit, checkLines, checkStyle } from "../../yours/edits";
+import { MOMENT_IDS, toFromYours } from "../../yours/messages";
 
 // The "Make it yours" page (MOCHI-43).
 const repo = path.join(__dirname, "..", "..", "..");
@@ -98,6 +99,40 @@ describe("the Make it yours page", () => {
       for (const odd of [24, -1, 22.5, "eleven"]) {
         assert.strictEqual(checkEdit("lateHour", odd).ok, false, String(odd));
       }
+    });
+  });
+
+  describe("her own lines and style notes", () => {
+    it("lists the same moments as the pack format", () => {
+      assert.deepStrictEqual([...MOMENT_IDS], [...MOMENTS]);
+    });
+
+    it("takes one line per row, trimmed, skipping empty rows", () => {
+      assert.deepStrictEqual(checkLines("stuck", " Want a paw? \n\n\r\nNeed a hand?\n"), { ok: true, lines: ["Want a paw?", "Need a hand?"] });
+      assert.deepStrictEqual(checkLines("stuck", "   "), { ok: true, lines: [] }, "Empty means Mochi's own lines.");
+    });
+
+    it("allows only the placeholders a moment can use", () => {
+      assert.ok(checkLines("celebrate", "Yay, {thing}!").ok);
+      assert.strictEqual(checkLines("stuck", "Yay, {thing}!").ok, false);
+      assert.strictEqual(checkLines("celebrate", "Hi {name}!").ok, false, "celebrate can't use {name}.");
+    });
+
+    it("needs one greeting without {name}, for when no name is set", () => {
+      assert.strictEqual(checkLines("greeting", "Hi {name}!").ok, false);
+      assert.ok(checkLines("greeting", "Hi {name}!\nHi there!").ok);
+    });
+
+    it("keeps lines to the pack's limits", () => {
+      assert.strictEqual(checkLines("stuck", "x".repeat(201)).ok, false);
+      assert.strictEqual(checkLines("stuck", Array.from({ length: 21 }, (_, i) => `line ${i}`).join("\n")).ok, false);
+      assert.strictEqual(checkLines("stuck", "flip \u202E this").ok, false, "Characters that flip the text are refused.");
+    });
+
+    it("takes short style notes only", () => {
+      assert.deepStrictEqual(checkStyle("  short and calm "), { ok: true, style: "short and calm" });
+      assert.strictEqual(checkStyle("x".repeat(401)).ok, false);
+      assert.strictEqual(checkStyle(42).ok, false);
     });
   });
 });

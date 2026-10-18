@@ -1,5 +1,7 @@
 import * as assert from "node:assert";
 import * as vscode from "vscode";
+import { loadDefaultPack } from "../../packs/defaultPack";
+import { PersonalLayer } from "../../packs/personalLayer";
 import { yoursActions } from "../../yours/actions";
 
 // What the "Make it yours" page saves (MOCHI-43), in real VS Code.
@@ -7,15 +9,22 @@ import { yoursActions } from "../../yours/actions";
 const mochi = () => vscode.workspace.getConfiguration("mochi");
 
 // Mochi's answers about the brain, her key, and her name, faked.
+// Her personal layer is real, kept in a fake store, over the default pack.
 function actionsWith(brain?: string, hasKey = false, name?: string) {
   const saved: string[] = [];
+  const data = new Map<string, unknown>();
+  const pack = loadDefaultPack();
+  const personal = new PersonalLayer({ get: (key) => data.get(key), update: async (key, value) => void data.set(key, value) }, pack, () => {});
   const actions = yoursActions({
     brain: async () => brain,
     hasClaudeKey: async () => hasKey,
     name: () => name,
     setName: async (value) => (saved.push(value), { ok: true }),
+    layer: () => personal.layer(),
+    saveLayer: (layer) => personal.save(layer),
+    mochiLines: (moment) => pack.phrases[moment],
   });
-  return Object.assign(actions, { savedNames: saved });
+  return Object.assign(actions, { savedNames: saved, personal });
 }
 
 describe("Make it yours: saving", () => {
@@ -98,6 +107,46 @@ describe("Make it yours: saving", () => {
         (await actionsWith(undefined, false, name).state()).sections[0].fields.flatMap((f) => (f.kind === "actions" ? f.buttons.map((b) => b.id) : []));
       assert.deepStrictEqual(await buttons(undefined), []);
       assert.deepStrictEqual(await buttons("Sam"), ["forgetName"]);
+    });
+  });
+
+  describe("Mochi's touches", () => {
+    it("saves her own lines for a moment, and Mochi says them right away", async () => {
+      const actions = actionsWith();
+      assert.deepStrictEqual(await actions.edit("lines.celebrate", "Woohoo, {thing} is done!\n\n  Paws up for {thing}!  "), { ok: true });
+      assert.deepStrictEqual(actions.personal.pack().phrases.celebrate, ["Woohoo, {thing} is done!", "Paws up for {thing}!"]);
+    });
+
+    it("goes back to Mochi's own lines when she empties the box", async () => {
+      const actions = actionsWith();
+      await actions.edit("lines.stuck", "Want a paw?");
+      await actions.edit("lines.stuck", "  ");
+      assert.deepStrictEqual(actions.personal.pack().phrases.stuck, loadDefaultPack().phrases.stuck);
+    });
+
+    it("keeps a line this moment can't use out, kindly", async () => {
+      const actions = actionsWith();
+      const result = await actions.edit("lines.stuck", "Stuck on {thing}?");
+      assert.strictEqual(result.ok, false);
+      assert.strictEqual(actions.personal.layer(), undefined, "Nothing saved.");
+    });
+
+    it("saves her style notes as style only, and keeps her other touches", async () => {
+      const actions = actionsWith();
+      await actions.edit("lines.stuck", "Want a paw?");
+      assert.deepStrictEqual(await actions.edit("style", "  short and calm "), { ok: true });
+      assert.strictEqual(actions.personal.layer()?.voice?.style, "short and calm");
+      assert.deepStrictEqual(actions.personal.layer()?.phrases?.stuck, ["Want a paw?"]);
+    });
+
+    it("shows Mochi's own lines as the example, and hers as the value", async () => {
+      const actions = actionsWith();
+      await actions.edit("lines.stuck", "Want a paw?");
+      const fields = (await actions.state()).sections.flatMap((section) => section.fields);
+      const stuck = fields.find((field) => field.kind === "lines" && field.id === "lines.stuck");
+      assert.ok(stuck?.kind === "lines");
+      assert.deepStrictEqual(stuck.value, ["Want a paw?"]);
+      assert.strictEqual(stuck.example, loadDefaultPack().phrases.stuck.join("\n"));
     });
   });
 });

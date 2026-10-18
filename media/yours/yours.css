@@ -141,3 +141,11 @@ body.mochi-yours {
   width: 100%;
   max-width: 320px;
 }
+.mochi-yours-area {
+  display: block;
+  width: 100%;
+  resize: vertical;
+}
+.mochi-yours-area::placeholder {
+  color: var(--mochi-placeholder);
+}

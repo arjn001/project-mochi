@@ -3,10 +3,10 @@ import { toFocusMinutes } from "../focus/timer";
 import { toSpeakUp } from "../moments/gatekeeper";
 import { toLateHour } from "../moments/lateNight";
 import { readLearningMode } from "../settings";
-import { LIMITS } from "../packs/format";
+import { LIMITS, Moment, PackLayer, placeholdersFor } from "../packs/format";
 import { brainStrings, chatStrings, personalStrings, problemStrings, yoursStrings } from "../strings";
-import { checkEdit } from "./edits";
-import { ButtonId, Field, FieldId, YoursState } from "./messages";
+import { checkEdit, checkLines, checkStyle } from "./edits";
+import { ButtonId, Field, FieldId, MOMENT_IDS, YoursState } from "./messages";
 import { YoursActions } from "./page";
 
 // What the page needs to know from the rest of Mochi.
@@ -17,6 +17,11 @@ export interface YoursNeeds {
   // Her name, from her personal layer, and saving it with its checks.
   name(): string | undefined;
   setName(name: string): Promise<{ ok: boolean }>;
+  // Her whole personal layer, saved only if it passes the pack format's
+  // checks, and Mochi's own lines, as examples.
+  layer(): PackLayer | undefined;
+  saveLayer(layer: PackLayer): Promise<{ ok: boolean }>;
+  mochiLines(moment: Moment): string[];
 }
 
 // The command each button runs: the same one she could run herself.
@@ -29,12 +34,13 @@ const COMMANDS: Record<ButtonId, string> = {
 
 // Which VS Code setting each field is. They're always saved in her user
 // settings, never a project's (MOCHI-43).
-const SETTINGS: Record<Exclude<FieldId, "name">, string> = {
+const SETTINGS = {
   speakUp: "speakUp",
   learningMode: "learningMode",
   focusMinutes: "focusMinutes",
   lateHour: "lateHour",
-};
+} as const;
+const isSetting = (field: FieldId): field is keyof typeof SETTINGS => field in SETTINGS;
 
 const mochi = () => vscode.workspace.getConfiguration("mochi");
 
@@ -59,6 +65,27 @@ export function yoursActions(needs: YoursNeeds): YoursActions {
         maxLength: LIMITS.name,
       },
       ...(name ? [{ kind: "actions" as const, now: "", buttons: [{ id: "forgetName" as const, label: yoursStrings.forgetName }] }] : []),
+    ];
+    const layer = needs.layer();
+    const touches: Field[] = [
+      {
+        kind: "longText",
+        id: "style",
+        label: yoursStrings.style,
+        description: yoursStrings.styleDescription,
+        value: layer?.voice?.style ?? "",
+        maxLength: LIMITS.style,
+      },
+      ...MOMENT_IDS.map(
+        (moment): Field => ({
+          kind: "lines",
+          id: `lines.${moment}`,
+          label: yoursStrings.moments[moment],
+          description: `${yoursStrings.linesDescription} ${yoursStrings.canUse([...placeholdersFor(moment)])}`,
+          value: layer?.phrases?.[moment] ?? [],
+          example: needs.mochiLines(moment).join("\n"),
+        })
+      ),
     ];
     // The key itself never reaches the page: only whether there is one.
     const brains: Field[] = [
@@ -112,7 +139,7 @@ export function yoursActions(needs: YoursNeeds): YoursActions {
         { heading: yoursStrings.talk, fields: talk },
         { heading: yoursStrings.brain, fields: brains },
         { heading: yoursStrings.focus, fields: focus },
-        { heading: yoursStrings.touches, fields: [] },
+        { heading: yoursStrings.touches, fields: touches },
       ],
     };
   };
@@ -120,6 +147,33 @@ export function yoursActions(needs: YoursNeeds): YoursActions {
   return {
     state,
     async edit(field, value) {
+      // Her style notes and her own lines go into her personal layer.
+      if (field === "style" || field.startsWith("lines.")) {
+        const next: PackLayer = { format: 1, ...needs.layer() };
+        if (field === "style") {
+          const style = checkStyle(value);
+          if (!style.ok) {
+            return style;
+          }
+          const { style: _old, ...voice } = next.voice ?? {};
+          next.voice = style.style ? { ...voice, style: style.style } : voice;
+          if (Object.keys(next.voice).length === 0) {
+            delete next.voice;
+          }
+        } else {
+          const moment = field.slice("lines.".length) as Moment;
+          const lines = checkLines(moment, value);
+          if (!lines.ok) {
+            return lines;
+          }
+          const { [moment]: _old, ...phrases } = next.phrases ?? {};
+          next.phrases = lines.lines.length ? { ...phrases, [moment]: lines.lines } : phrases;
+          if (Object.keys(next.phrases).length === 0) {
+            delete next.phrases;
+          }
+        }
+        return (await needs.saveLayer(next)).ok ? { ok: true } : { ok: false, hint: yoursStrings.couldntSave };
+      }
       const checked = checkEdit(field, value);
       if (!checked.ok) {
         return checked;
@@ -127,6 +181,9 @@ export function yoursActions(needs: YoursNeeds): YoursActions {
       // Her name lives in her personal layer, on her own computer.
       if (field === "name") {
         return (await needs.setName(checked.value as string)).ok ? { ok: true } : { ok: false, hint: yoursStrings.couldntSave };
+      }
+      if (!isSetting(field)) {
+        return { ok: false, hint: yoursStrings.pickOne };
       }
       // Her user settings only, never the project's.
       await mochi().update(SETTINGS[field], checked.value, vscode.ConfigurationTarget.Global);

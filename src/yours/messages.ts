@@ -6,6 +6,11 @@
 
 // One thing she can change. The page draws each kind the same way.
 export type Field =
+  // A few sentences, saved when she leaves the field.
+  | { kind: "longText"; id: FieldId; label: string; description: string; value: string; maxLength: number; note?: string }
+  // Her own lines for a moment, one per row, saved when she leaves the
+  // field. `example` shows Mochi's own lines.
+  | { kind: "lines"; id: FieldId; label: string; description: string; value: string[]; example: string; note?: string }
   // A line of text, saved on Enter or when she leaves the field.
   | { kind: "text"; id: FieldId; label: string; value: string; placeholder: string; maxLength: number; note?: string }
   | { kind: "choice"; id: FieldId; label: string; value: string; options: { value: string; label: string; description: string }[]; note?: string }
@@ -28,8 +33,24 @@ export interface YoursState {
 }
 
 // The fields Mochi knows. Anything else from the page is ignored.
-export const FIELDS = ["name", "speakUp", "learningMode", "focusMinutes", "lateHour"] as const;
-export type FieldId = (typeof FIELDS)[number];
+// The moments she can write lines for. The same list as MOMENTS in
+// packs/format.ts (a unit test checks), kept here so the page's script
+// doesn't carry the pack format.
+export const MOMENT_IDS = [
+  "greeting",
+  "greetingLate",
+  "welcomeBack",
+  "backToProject",
+  "stuck",
+  "lateNight",
+  "lateNightCompany",
+  "celebrate",
+  "celebrateDone",
+] as const;
+export type MomentId = (typeof MOMENT_IDS)[number];
+
+export const FIELDS = ["name", "speakUp", "learningMode", "focusMinutes", "lateHour", "style", ...MOMENT_IDS.map((moment) => `lines.${moment}` as const)] as const;
+export type FieldId = "name" | "speakUp" | "learningMode" | "focusMinutes" | "lateHour" | "style" | `lines.${MomentId}`;
 
 export type ToYours =
   | { type: "show"; state: YoursState }
@@ -62,7 +83,7 @@ export function toFromYours(value: unknown): FromYours | undefined {
       const sent = message.value;
       const fine =
         typeof sent === "boolean" || (typeof sent === "number" && Number.isFinite(sent)) || (typeof sent === "string" && sent.length <= MAX_VALUE);
-      return FIELDS.includes(message.field as FieldId) && fine ? { type: "edit", field: message.field as FieldId, value: sent as string | number | boolean } : undefined;
+      return (FIELDS as readonly string[]).includes(message.field as string) && fine ? { type: "edit", field: message.field as FieldId, value: sent as string | number | boolean } : undefined;
     }
     case "button":
       return BUTTONS.includes(message.button as ButtonId) ? { type: "button", button: message.button as ButtonId } : undefined;

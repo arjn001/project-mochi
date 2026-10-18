@@ -43,6 +43,9 @@ const PLACEHOLDERS: Record<Moment, readonly string[]> = {
   celebrateDone: ["companion"],
 };
 
+// The placeholders a moment's phrases may use, like {thing} for celebrate.
+export const placeholdersFor = (moment: Moment): readonly string[] => PLACEHOLDERS[moment];
+
 export const LIMITS = {
   name: 30,
   // Only complete packs that ship with Mochi set the personality.

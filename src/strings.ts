@@ -204,6 +204,29 @@ export const yoursStrings = {
   pickOne: "Pick one of these, please.",
   focusRange: (min: number, max: number) => `A whole number of minutes from ${min} to ${max}, please.`,
   hourRange: "A whole hour from 0 to 23, please.",
+  // Mochi's touches: her style notes, and her own lines for each moment
+  // (moment names approved 2026-10-18).
+  style: "Style notes",
+  styleDescription: "How Mochi should sound, in a few words, like \"extra cat puns\" or \"short and calm\".",
+  styleTooLong: (max: number) => `That's a little long. Up to ${max} characters, please.`,
+  linesDescription: "Your own lines, one per row. Leave it empty for Mochi's own.",
+  canUse: (placeholders: string[]) => `You can use ${placeholders.map((p) => `{${p}}`).join(", ")}.`,
+  moments: {
+    greeting: "When you open VS Code",
+    greetingLate: "Late at night (VS Code open)",
+    welcomeBack: "Welcome back",
+    backToProject: "Back to your project",
+    stuck: "When you're stuck",
+    lateNight: "Late at night (a darker theme)",
+    lateNightCompany: "Late at night (company)",
+    celebrate: "When you finish something",
+    celebrateDone: "When you finish something (nothing to name)",
+  },
+  tooManyLines: (max: number) => `Up to ${max} lines, please.`,
+  lineTooLong: (line: number, max: number) => `Line ${line} is a little long. Up to ${max} characters, please.`,
+  unknownPlaceholder: (line: number, placeholder: string) => `Line ${line} uses {${placeholder}}, which this moment can't use.`,
+  needsNoName: "Add one line without {name}, for when no name is set.",
+  hiddenCharacters: (line: number) => `Line ${line} has hidden characters in it. Could you type it again?`,
   // When even a value that fit couldn't be kept.
   couldntSave: "I couldn't save that just now. Could you try again?",
 };

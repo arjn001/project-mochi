@@ -240,6 +240,8 @@ export function activate(context: vscode.ExtensionContext): MochiApi {
     { forget: () => claudeModels.forget() },
     // The panel's unsent draft.
     { forget: async () => panel.forget() },
+    // An open "Make it yours" page shows everything gone (MOCHI-43).
+    { forget: () => yours.refresh() },
   ]);
 
   // The "Make it yours" page (MOCHI-43): her name, how Mochi talks, the
@@ -251,6 +253,9 @@ export function activate(context: vscode.ExtensionContext): MochiApi {
       hasClaudeKey: async () => (await claudeKey.get()) !== undefined,
       name: () => personal.name(),
       setName: (name) => personal.setName(name),
+      layer: () => personal.layer(),
+      saveLayer: (layer) => personal.save(layer),
+      mochiLines: (moment) => defaultPack.phrases[moment],
     })
   );
   const openYours = vscode.commands.registerCommand("mochi.makeItYours", () => yours.open());
