@@ -455,6 +455,23 @@ runs, and "Forget everything" clears them the next time Mochi opens there.
   and ready for other languages (MOCHI-63). It started with MOCHI-28; older
   sentences move there as part of MOCHI-63.
 
+## Testing
+- Test logic and safety thoroughly; keep wording and UI tests light
+  (agreed 2026-10-18). Wording is checked by its important part, a
+  pattern, or the constants in `strings.ts` and the pack, never by whole
+  sentences, except where it's safety or exactly what's sent: the content
+  security policy, what's composed for the AI, the share gate's questions,
+  secret refusals, hostile formatting, and line endings in `.gitignore`
+  edits.
+- One test per behavior; no near-duplicates. Existing tests are only
+  loosened or removed with Arjun's approval.
+- Logic that needs VS Code is tested in real VS Code (integration tests)
+  with fakes for brains and stores. Nothing in a test ever asks a real
+  brain anything.
+- `npm run coverage` merges unit and integration coverage of Mochi's own
+  code (lines merge exactly; branches are per run). The UI command files
+  aren't chased for coverage (MOCHI-70).
+
 ## Process
 - Jira space MOCHI: each category is a "User Stories" epic with its user
   story in the description, and Tasks under it.
