@@ -1,0 +1,151 @@
+/*
+ * The "Make it yours" page (MOCHI-43). It loads panel.css first for Mochi's
+ * --mochi-* tokens and uses only those: no raw colors and no tokens of its
+ * own (a unit test checks), so it follows light, dark, and high contrast
+ * themes the same way the panel does.
+ */
+body.mochi-yours {
+  display: block;
+  height: auto;
+  padding: 24px 32px 48px;
+  overflow-y: auto;
+}
+
+.mochi-yours-page {
+  max-width: 640px;
+}
+
+.mochi-yours-title {
+  margin: 0 0 8px;
+  font-family: var(--mochi-greeting-font);
+  font-size: 1.8em;
+  font-weight: normal;
+}
+
+.mochi-yours-section {
+  margin-top: 24px;
+  padding: 16px 20px;
+  border: 1px solid var(--mochi-bubble-border);
+  border-radius: var(--mochi-bubble-corner);
+  background: var(--mochi-reply-bubble);
+}
+
+.mochi-yours-heading {
+  margin: 0 0 12px;
+  font-size: 1.1em;
+  font-weight: 600;
+}
+
+.mochi-yours-field {
+  margin: 0 0 16px;
+}
+.mochi-yours-field:last-child {
+  margin-bottom: 0;
+}
+
+.mochi-yours-label {
+  display: block;
+  margin: 0 0 4px;
+  font-weight: 600;
+}
+
+.mochi-yours-description {
+  margin: 0 0 6px;
+  color: var(--mochi-quiet-text);
+}
+
+.mochi-yours-choice {
+  margin: 0;
+  padding: 0;
+  border: none;
+}
+.mochi-yours-choice .mochi-yours-label {
+  padding: 0;
+}
+.mochi-yours-option-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin: 4px 0;
+}
+.mochi-yours-option-row .mochi-yours-label {
+  margin: 0;
+}
+.mochi-yours-option {
+  display: flex;
+  flex-direction: column;
+}
+.mochi-yours-option-name {
+  font-weight: 600;
+}
+.mochi-yours-option .mochi-yours-description {
+  margin: 0;
+}
+
+.mochi-yours-input {
+  box-sizing: border-box;
+  padding: 4px 8px;
+  border: 1px solid var(--mochi-box-border);
+  border-radius: var(--mochi-corner);
+  color: var(--mochi-box-text);
+  background: var(--mochi-box-background);
+  font: inherit;
+}
+.mochi-yours-number {
+  width: 6em;
+}
+
+/* Keyboard focus is always visible, in the theme's focus color. */
+.mochi-yours input:focus-visible,
+.mochi-yours textarea:focus-visible,
+.mochi-yours button:focus-visible {
+  outline: 1px solid var(--mochi-focus);
+  outline-offset: 1px;
+}
+
+.mochi-yours-note {
+  margin: 6px 0 0;
+  color: var(--mochi-quiet-text);
+  font-style: italic;
+}
+
+/* "Saved", quietly, or a kind hint. */
+.mochi-yours-status {
+  display: block;
+  min-height: 1.4em;
+  margin-top: 4px;
+  color: var(--mochi-quiet-text);
+}
+.mochi-yours-hint {
+  color: var(--mochi-text);
+}
+.mochi-yours-hint::before {
+  content: "";
+  display: inline-block;
+  width: 3px;
+  height: 1em;
+  margin-right: 6px;
+  vertical-align: -2px;
+  background: var(--mochi-problem-border);
+}
+
+.mochi-yours-now {
+  margin: 0 0 8px;
+}
+.mochi-yours-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--mochi-gap);
+}
+.mochi-yours-text {
+  width: 100%;
+  max-width: 320px;
+}
+.mochi-yours-area {
+  display: block;
+  width: 100%;
+  resize: vertical;
+}
+.mochi-yours-area::placeholder {
+  color: var(--mochi-placeholder);
+}

@@ -23,6 +23,8 @@ import { Welcomer } from "./moments/welcomeWatcher";
 import { LAST_NUDGED, watchLateNight } from "./moments/lateNightWatcher";
 import { watchStuck } from "./moments/stuckWatcher";
 import { celebrations } from "./moments/celebrate";
+import { MakeItYours } from "./yours/page";
+import { yoursActions } from "./yours/actions";
 import { FocusTimer } from "./focus/timer";
 import { GreetingSurface, notificationGreeting } from "./presence/greetingSurface";
 import { nightOf } from "./moments/lateNight";
@@ -238,10 +240,38 @@ export function activate(context: vscode.ExtensionContext): MochiApi {
     { forget: () => claudeModels.forget() },
     // The panel's unsent draft.
     { forget: async () => panel.forget() },
+    // An open "Make it yours" page shows everything gone (MOCHI-43).
+    { forget: () => yours.refresh() },
   ]);
 
+  // The "Make it yours" page (MOCHI-43): her name, how Mochi talks, the
+  // brain, focus and late night, and her own touches, in one place.
+  const yours = new MakeItYours(
+    context.extensionUri,
+    yoursActions({
+      brain: () => brains.current(),
+      hasClaudeKey: async () => (await claudeKey.get()) !== undefined,
+      name: () => personal.name(),
+      setName: (name) => personal.setName(name),
+      layer: () => personal.layer(),
+      saveLayer: (layer) => personal.save(layer),
+      mochiLines: (moment) => defaultPack.phrases[moment],
+    })
+  );
+  const openYours = vscode.commands.registerCommand("mochi.makeItYours", () => yours.open());
+  // A change in Settings, or in another window, shows up on the page.
+  const followYours = vscode.Disposable.from(
+    vscode.workspace.onDidChangeConfiguration((event) => {
+      if (event.affectsConfiguration("mochi")) {
+        void yours.refresh();
+      }
+    }),
+    // Brains coming or going, and her Claude key.
+    brains.onDidChange(() => void yours.refresh())
+  );
+
   // Anything added here is cleaned up when Mochi shuts down.
-  context.subscriptions.push(names, claudeKey, claudeCommands, chooseBrain, copilotWatch, open, home, mood, followSpeakUp, focus, timer, explain, stuck, dim, lateNight, coding, python, pythonOffer, forget, memory, followBrain, attachment, clearChat);
+  context.subscriptions.push(names, claudeKey, claudeCommands, chooseBrain, copilotWatch, open, home, mood, followSpeakUp, focus, timer, explain, stuck, dim, lateNight, coding, python, pythonOffer, forget, memory, followBrain, attachment, clearChat, yours, openYours, followYours);
 
   return {
     moodText: () => mood.text,

@@ -144,10 +144,13 @@ const panel = {
   logLevel: "silent",
 };
 
+// The "Make it yours" page's script (MOCHI-43), in the same kind of browser.
+const yours = { ...panel, entryPoints: ["src/webview/yours.ts"], outfile: "dist/webview/yours.js" };
+
 if (watch) {
-  await Promise.all([extension, panel].map(async (options) => (await esbuild.context(options)).watch()));
+  await Promise.all([extension, panel, yours].map(async (options) => (await esbuild.context(options)).watch()));
 } else {
-  const results = await Promise.all([esbuild.build(extension), esbuild.build(panel)]);
+  const results = await Promise.all([esbuild.build(extension), esbuild.build(panel), esbuild.build(yours)]);
   const packages = bundledPackages(results.map((result) => result.metafile));
   if (writeNotices) {
     fs.writeFileSync(NOTICES, noticesText(packages));

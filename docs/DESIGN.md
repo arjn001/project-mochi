@@ -388,6 +388,38 @@ preview** (MOCHI-17): until then the avatar is the icon font's cat.
 Code's theme variables, not screenshots of VS Code itself. The earlier
 previews above show the panel before this look.*
 
+## The "Make it yours" page (MOCHI-43, agreed 2026-10-18)
+One page in the editor area, from **Mochi: Make it yours** or **Make it
+yours** in the Mochi tab's **...** menu (before Clear chat). Opening it again
+brings the same tab forward. Mochi's look, from the panel's tokens.
+- **About you:** "What should I call you?", with the command's checks and
+  kind words, and "Forget my name" once there's a name.
+- **How Mochi talks:** Speak up (Quiet, Gentle, Chatty, each with its
+  setting's description) and Learning mode.
+- **Your brain:** "Now: Copilot · Auto", with Choose a brain, and Add a
+  Claude key or Remove my Claude key. The page never sees the key.
+- **Focus and late night:** the focus session length (5 to 120 minutes)
+  and when late night starts (0 to 23).
+- **Mochi's touches:** style notes, and her own lines for each moment, one
+  per row, with Mochi's own lines as the example and the placeholders that
+  moment can use. Moments: "When you open VS Code", "Late at night (VS Code
+  open)", "Welcome back", "Back to your project", "When you're stuck",
+  "Late at night (a darker theme)", "Late at night (company)", "When you
+  finish something", "When you finish something (nothing to name)".
+- **Saving:** a choice or a switch saves right away; text and numbers save
+  on Enter or when she leaves the field (text areas only when she leaves),
+  never every keystroke. A quiet "Saved" appears and fades. Something that
+  doesn't fit gets a kind hint under it and isn't saved.
+- **Settings** are saved in her user settings, never a project's. When a
+  project sets its own value: "This project sets its own speak-up level, so
+  that one wins here." (and the same for focus length and late hour).
+- **Import and export** come with the gift file format (MOCHI-55, MOCHI-56).
+
+![The Make it yours page in Light Modern and Dark Modern](design/screenshots/make-it-yours-preview.png)
+
+*A preview rendered in Chrome with the themes' colors, not a screenshot of
+VS Code.*
+
 ## Not designed yet
 - **Illustrated avatar art and moods** (MOCHI-17), after the preview.
 - **A fuller "Pick a brain"** inside Mochi's tab, after the small welcome

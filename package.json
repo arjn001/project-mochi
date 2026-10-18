@@ -147,6 +147,11 @@
         "command": "mochi.clearChat",
         "title": "Clear chat",
         "category": "Mochi"
+      },
+      {
+        "command": "mochi.makeItYours",
+        "title": "Make it yours",
+        "category": "Mochi"
       }
     ],
     "menus": {
@@ -169,6 +174,11 @@
         }
       ],
       "view/title": [
+        {
+          "command": "mochi.makeItYours",
+          "when": "view == mochi.home",
+          "group": "mochi@0"
+        },
         {
           "command": "mochi.clearChat",
           "when": "view == mochi.home",

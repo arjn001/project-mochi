@@ -168,6 +168,69 @@ export const celebrateStrings = {
   breakOver: "Break's over! Ready when you are.",
 };
 
+// The "Make it yours" page (MOCHI-43). Section names and the project note
+// approved 2026-10-18.
+export const yoursStrings = {
+  title: "Make it yours",
+  about: "About you",
+  talk: "How Mochi talks",
+  brain: "Your brain",
+  focus: "Focus and late night",
+  touches: "Mochi's touches",
+  saved: "Saved",
+  // Settings, with their own descriptions from package.json.
+  speakUp: "Speak up",
+  speakUpDescription: "How often Mochi speaks up on its own. Mochi always answers when you open it.",
+  speakUpOptions: [
+    { value: "quiet", label: "Quiet", description: "Mochi stays in the status bar and only talks when you open it." },
+    { value: "gentle", label: "Gentle", description: "Mochi offers help and kind words now and then." },
+    { value: "chatty", label: "Chatty", description: "Mochi says hello more often, with fun facts and small talk." },
+  ],
+  learningMode: "Learning mode",
+  learningModeDescription:
+    "Help me learn instead of handing me answers. For homework, your code, and errors, Mochi explains first, gives a hint if you ask, and shows the fix only when you ask for it. Turn off for direct answers, fixes included.",
+  focusMinutes: "Focus session",
+  focusMinutesDescription: "How long a focus session lasts, in minutes.",
+  lateHour: "Late night starts",
+  lateHourDescription: "The hour when late night starts, from 0 to 23. Late night lasts until 5:00.",
+  // Each button runs the command with the same name.
+  removeClaudeKey: "Remove my Claude key",
+  forgetName: "Forget my name",
+  // When a project's own settings win over hers (approved for speak-up).
+  projectSpeakUp: "This project sets its own speak-up level, so that one wins here.",
+  projectFocus: "This project sets its own focus session length, so that one wins here.",
+  projectLateHour: "This project sets its own late-night hour, so that one wins here.",
+  // Kind hints when something doesn't fit. Nothing is saved.
+  pickOne: "Pick one of these, please.",
+  focusRange: (min: number, max: number) => `A whole number of minutes from ${min} to ${max}, please.`,
+  hourRange: "A whole hour from 0 to 23, please.",
+  // Mochi's touches: her style notes, and her own lines for each moment
+  // (moment names approved 2026-10-18).
+  style: "Style notes",
+  styleDescription: "How Mochi should sound, in a few words, like \"extra cat puns\" or \"short and calm\".",
+  styleTooLong: (max: number) => `That's a little long. Up to ${max} characters, please.`,
+  linesDescription: "Your own lines, one per row. Leave it empty for Mochi's own.",
+  canUse: (placeholders: string[]) => `You can use ${placeholders.map((p) => `{${p}}`).join(", ")}.`,
+  moments: {
+    greeting: "When you open VS Code",
+    greetingLate: "Late at night (VS Code open)",
+    welcomeBack: "Welcome back",
+    backToProject: "Back to your project",
+    stuck: "When you're stuck",
+    lateNight: "Late at night (a darker theme)",
+    lateNightCompany: "Late at night (company)",
+    celebrate: "When you finish something",
+    celebrateDone: "When you finish something (nothing to name)",
+  },
+  tooManyLines: (max: number) => `Up to ${max} lines, please.`,
+  lineTooLong: (line: number, max: number) => `Line ${line} is a little long. Up to ${max} characters, please.`,
+  unknownPlaceholder: (line: number, placeholder: string) => `Line ${line} uses {${placeholder}}, which this moment can't use.`,
+  needsNoName: "Add one line without {name}, for when no name is set.",
+  hiddenCharacters: (line: number) => `Line ${line} has hidden characters in it. Could you type it again?`,
+  // When even a value that fit couldn't be kept.
+  couldntSave: "I couldn't save that just now. Could you try again?",
+};
+
 // "Clear chat", in the ... menu of Mochi's tab (MOCHI-21).
 export const clearStrings = {
   question: "Clear this chat?",

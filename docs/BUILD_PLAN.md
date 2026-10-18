@@ -36,7 +36,7 @@ after.
 1. **MOCHI-60 Windows and macOS in CI.** Done.
 2. **MOCHI-36 Celebrating when I finish something**, the last of Milestone 4.
    Done. (Then MOCHI-70, a test audit, before Milestone 5.)
-3. **Milestone 5:** MOCHI-43, MOCHI-55, MOCHI-56, then MOCHI-45. Since she
+3. **Milestone 5:** MOCHI-43 (in review), MOCHI-55, MOCHI-56, then MOCHI-45. Since she
    installs from the Marketplace, MOCHI-45 likely becomes her gift on her
    public install rather than a separate build; checked when it's planned.
 4. **Toward 1.0:** MOCHI-46 screenshots, MOCHI-61 "Mochi: Report a
@@ -132,8 +132,8 @@ Macs. (Done in MOCHI-60, with Windows too.)
 30. **MOCHI-42 First-run welcome.** (A small version moved ahead of the
     early preview.) You'll see: a hello, the AI choice, and the
     "Got a gift file?" link.
-31. **MOCHI-43 "Make it yours" page.** You'll see: every setting editable, plus
-    import and export.
+31. **MOCHI-43 "Make it yours" page.** You'll see: every setting editable.
+    Import and export come with the gift file format (MOCHI-55, MOCHI-56).
 32. **MOCHI-55 Make a gift file.** You'll see: a `.mochigift` saved, with your
     own install unchanged.
 33. **MOCHI-56 Unwrap a gift file.** Includes the safety checks from
