@@ -6,6 +6,8 @@ import * as vscode from "vscode";
 import { offer } from "../../actions/confirm";
 import { findPython, readProject } from "../../actions/pythonSetup";
 import { readLearningMode } from "../../settings";
+import { NO_BRAIN } from "../../ai/askMochi";
+import { celebrateStrings } from "../../strings";
 import { dimAction } from "../../actions/theme";
 import type { MochiApi } from "../../extension";
 
@@ -250,7 +252,7 @@ describe("Mochi in VS Code", () => {
       const last = api.chat!.entries().at(-1)!;
       assert.strictEqual(last.from, "mochi");
       assert.strictEqual(last.problem, true);
-      assert.strictEqual(last.text, "I'd need a brain to answer that. Want to set one up?");
+      assert.strictEqual(last.text, NO_BRAIN);
       assert.deepStrictEqual(last.chips?.choices.map((c) => c.label), ["Set one up"]);
       assert.ok(!api.chat!.entries().some((e) => e.from === "her" && e.text === "hi"), "Her text goes back in the box, not into the chat.");
     });
@@ -274,7 +276,7 @@ describe("Mochi in VS Code", () => {
       api.chat!.choose(celebration.id, check.id);
       await new Promise((done) => setTimeout(done, 100));
       const last = api.chat!.entries().at(-1)!;
-      assert.strictEqual(last.text, "Select the code you'd like me to check, then tap Check my work again.");
+      assert.strictEqual(last.text, celebrateStrings.selectFirst);
       assert.ok(last.chips?.choices.some((c) => c.label === "Check my work"), "The chips stay, so she can tap it again.");
     });
 
@@ -282,7 +284,7 @@ describe("Mochi in VS Code", () => {
       const api = (await vscode.extensions.getExtension<MochiApi>("arjungyawali.mochi-companion")!.activate()) as MochiApi;
       await api.ask!("done, I give up");
       const last = api.chat!.entries().at(-1)!;
-      assert.strictEqual(last.text, "I'd need a brain to answer that. Want to set one up?");
+      assert.strictEqual(last.text, NO_BRAIN);
     });
 
     it("shows a chip for the selected lines, and leaves them out after the x", async () => {

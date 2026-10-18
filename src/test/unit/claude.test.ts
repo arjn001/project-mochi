@@ -16,6 +16,7 @@ import {
   toSavedModels,
 } from "../../ai/claude";
 import { brainHelpButtons, brainProblemMessages } from "../../ai/provider";
+import { claudeKeyStrings } from "../../strings";
 
 // A made-up key, so a test can look for it anywhere it shouldn't be.
 const KEY = "sk-ant-api03-test-key-0123456789abcdefghij";
@@ -287,9 +288,9 @@ describe("her own Claude key", () => {
 
   describe("pasting her key", () => {
     it("asks again for nothing, or a key with a space in it", () => {
-      assert.strictEqual(keyInputProblem(""), "Paste your key, or press Escape to stop.");
-      assert.strictEqual(keyInputProblem("   "), "Paste your key, or press Escape to stop.");
-      assert.strictEqual(keyInputProblem("sk-ant-api03 abc"), "That has a space in it. Could you paste it again?");
+      assert.strictEqual(keyInputProblem(""), claudeKeyStrings.empty);
+      assert.strictEqual(keyInputProblem("   "), claudeKeyStrings.empty);
+      assert.strictEqual(keyInputProblem("sk-ant-api03 abc"), claudeKeyStrings.space);
     });
 
     it("accepts a key with spaces around it, which pasting often adds", () => {

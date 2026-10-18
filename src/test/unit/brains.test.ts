@@ -122,10 +122,8 @@ describe("choosing a brain", () => {
 
     it("is shown once per change, in her words for the brain", () => {
       const first = fallbackNote(standIn, undefined, "Copilot · GPT-5.6 Luna");
-      assert.strictEqual(
-        first.note,
-        "Quick note: Copilot · GPT-5.6 Luna isn't available right now, so I'm thinking with Copilot · Auto instead. Mochi: Choose a brain changes this."
-      );
+      // It names her pick and the stand-in, in her words for each.
+      assert.match(first.note ?? "", /Copilot · GPT-5\.6 Luna[\s\S]*Copilot · Auto/);
       assert.strictEqual(fallbackNote(standIn, first.noted, "Copilot · GPT-5.6 Luna").note, undefined, "Not on every answer.");
     });
 

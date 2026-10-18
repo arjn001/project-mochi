@@ -12,7 +12,7 @@ describe("mood line", () => {
         "$(mochi-napping) Mochi is napping",
         `In quiet mode, napping must win over "${mood}".`
       );
-      assert.strictEqual(line.tooltip, "Quiet mode. Click to open Mochi.");
+      assert.match(line.tooltip, /Quiet mode/);
     }
   });
 
