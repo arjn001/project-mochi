@@ -11,5 +11,5 @@
     "strict": true,
     "noEmit": true
   },
-  "include": ["./**/*.ts", "../panel/messages.ts"]
+  "include": ["./**/*.ts", "../panel/messages.ts", "../yours/messages.ts"]
 }

@@ -1,0 +1,37 @@
+/*
+ * The "Make it yours" page (MOCHI-43). It loads panel.css first for Mochi's
+ * --mochi-* tokens and uses only those: no raw colors and no tokens of its
+ * own (a unit test checks), so it follows light, dark, and high contrast
+ * themes the same way the panel does.
+ */
+body.mochi-yours {
+  display: block;
+  height: auto;
+  padding: 24px 32px 48px;
+  overflow-y: auto;
+}
+
+.mochi-yours-page {
+  max-width: 640px;
+}
+
+.mochi-yours-title {
+  margin: 0 0 8px;
+  font-family: var(--mochi-greeting-font);
+  font-size: 1.8em;
+  font-weight: normal;
+}
+
+.mochi-yours-section {
+  margin-top: 24px;
+  padding: 16px 20px;
+  border: 1px solid var(--mochi-bubble-border);
+  border-radius: var(--mochi-bubble-corner);
+  background: var(--mochi-reply-bubble);
+}
+
+.mochi-yours-heading {
+  margin: 0 0 12px;
+  font-size: 1.1em;
+  font-weight: 600;
+}

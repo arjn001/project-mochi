@@ -57,6 +57,17 @@ describe("package.json", () => {
     assert.strictEqual(setting.scope, "application", "A project's settings must not be able to turn Learning mode off.");
   });
 
+  it("puts Make it yours in the ... menu of Mochi's tab, before Clear chat", () => {
+    const menu = readJson("package.json").contributes.menus["view/title"];
+    assert.deepStrictEqual(
+      menu.map((m: { command: string; group: string }) => [m.command, m.group]),
+      [
+        ["mochi.makeItYours", "mochi@0"],
+        ["mochi.clearChat", "mochi@1"],
+      ]
+    );
+  });
+
   it("puts Clear chat in the ... menu of Mochi's tab, not as a bare icon", () => {
     const pkg = readJson("package.json");
     const item = pkg.contributes.menus["view/title"].find((m: { command: string }) => m.command === "mochi.clearChat");

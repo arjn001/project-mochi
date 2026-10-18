@@ -168,6 +168,18 @@ export const celebrateStrings = {
   breakOver: "Break's over! Ready when you are.",
 };
 
+// The "Make it yours" page (MOCHI-43). Section names and the project note
+// approved 2026-10-18.
+export const yoursStrings = {
+  title: "Make it yours",
+  about: "About you",
+  talk: "How Mochi talks",
+  brain: "Your brain",
+  focus: "Focus and late night",
+  touches: "Mochi's touches",
+  saved: "Saved",
+};
+
 // "Clear chat", in the ... menu of Mochi's tab (MOCHI-21).
 export const clearStrings = {
   question: "Clear this chat?",

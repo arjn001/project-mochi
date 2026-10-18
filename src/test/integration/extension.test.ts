@@ -27,6 +27,22 @@ describe("Mochi in VS Code", () => {
     await vscode.commands.executeCommand("mochi.open");
   });
 
+  it("opens Make it yours in one editor tab, and brings it back instead of opening another", async () => {
+    const tabs = () =>
+      vscode.window.tabGroups.all
+        .flatMap((group) => group.tabs)
+        .filter((tab) => tab.input instanceof vscode.TabInputWebview && tab.input.viewType.endsWith("mochi.yours"));
+    await vscode.commands.executeCommand("mochi.makeItYours");
+    // The tab list catches up a moment later.
+    for (let i = 0; i < 50 && tabs().length === 0; i++) {
+      await new Promise((done) => setTimeout(done, 100));
+    }
+    await vscode.commands.executeCommand("mochi.makeItYours");
+    await new Promise((done) => setTimeout(done, 300));
+    assert.deepStrictEqual(tabs().map((tab) => tab.label), ["Make it yours"]);
+    await vscode.window.tabGroups.close(tabs());
+  });
+
   describe("asking Mochi", () => {
     it("no longer has the temporary Ask command: the panel's box replaced it", async () => {
       const commands = await vscode.commands.getCommands(true);

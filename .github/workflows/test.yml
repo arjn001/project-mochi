@@ -77,10 +77,11 @@ jobs:
             echo "::error::The .vsix contains src/ or out/. Check .vscodeignore."
             exit 1
           fi
-          # The extension's bundle, and the panel's script (MOCHI-16).
+          # The extension's bundle, the panel's script (MOCHI-16), and the
+          # "Make it yours" page's script (MOCHI-43).
           code=$(unzip -Z1 *.vsix | grep -E '\.(js|cjs|mjs)$' | sort | tr '\n' ' ' || true)
-          if [ "$code" != "extension/dist/extension.js extension/dist/webview/panel.js " ]; then
-            echo "::error::The only code in the .vsix must be extension/dist/extension.js and extension/dist/webview/panel.js. Found: $code"
+          if [ "$code" != "extension/dist/extension.js extension/dist/webview/panel.js extension/dist/webview/yours.js " ]; then
+            echo "::error::The only code in the .vsix must be extension/dist/extension.js and the two webview scripts, dist/webview/panel.js and dist/webview/yours.js. Found: $code"
             exit 1
           fi
           if ! unzip -Z1 *.vsix | grep -qx "extension/THIRD_PARTY_NOTICES.md"; then
