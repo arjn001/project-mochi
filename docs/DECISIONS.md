@@ -8,7 +8,13 @@
 - Personalization works through packs: the extension is the engine, packs give
   it a personality (look, colors, voice, phrases). Version 1 ships two: a
   default pack and a private personal layer that never ships publicly.
-- Settings are always editable through a "Make it yours" page.
+- Settings are always editable through a "Make it yours" page (MOCHI-43,
+  built 2026-10-18): a page in the editor area that saves as she changes
+  each thing, into her user settings only, never a project's. Her name,
+  style notes, and lines go into her personal layer, checked with kind
+  words first and by the pack format's strict checks last. Import and
+  export wait for the gift file format (MOCHI-55, MOCHI-56). Sharing her
+  name with the AI isn't part of it.
 
 ## Where Mochi runs
 - Desktop only in version 1, on purpose: VS Code on Windows, macOS, and

@@ -15,17 +15,17 @@ update isn't listed.*
   https://marketplace.visualstudio.com/items?itemName=arjungyawali.mochi-companion
 - **Open pull requests:** none besides this one.
 - **In progress:**
-  - MOCHI-70 Test audit: coverage and lighter wording tests: built and in
-    review. Done once it merges.
+  - MOCHI-43 "Make it yours" page: built and in review. Done once it
+    merges.
   - MOCHI-17 Art and moods: the preview uses the icon font's cats;
     illustrated art comes when Arjun has it.
-- **Next:** Milestone 5: MOCHI-43 "Make it yours" page (its plan is waiting
-  for Arjun's answers).
-- **Waiting on:** Arjun to merge MOCHI-70, then answer MOCHI-43's plan.
+- **Next:** MOCHI-55 Make a gift file, then MOCHI-56 Unwrap a gift file
+  (which bring Export and Import to the page), then MOCHI-45.
+- **Waiting on:** Arjun to try and merge MOCHI-43.
 
-**48 of 60 Jira tasks and subtasks done**. 4 of the 8
-categories are complete. 482 tests (427 unit, 55 integration) run on every
-pull request, on Linux, macOS, and Windows. `npm run coverage`: 85.4% of
+**49 of 60 Jira tasks and subtasks done**. 4 of the 8
+categories are complete. 513 tests (443 unit, 70 integration) run on every
+pull request, on Linux, macOS, and Windows. `npm run coverage`: 86.3% of
 Mochi's lines.
 
 ## Done
@@ -129,6 +129,11 @@ MOMENTS.md, PRESENCE.md, ARCHITECTURE.md, and BUILD_PLAN.md.
   Marketplace's manage page, which needs no token (MOCHI-68).
 
 **Packs and personalization (MOCHI-38), partly done.**
+- The "Make it yours" page: her name, speak-up, Learning mode, the brain,
+  focus length, late hour, her style notes, and her own lines for each
+  moment, in one page in the editor area. Saves as she changes each thing,
+  into her user settings or her personal layer, with a quiet "Saved" or a
+  kind hint (MOCHI-43).
 - Pack format with strict checking for untrusted gifts, night-owl greetings,
   and her optional name (MOCHI-39). Default pack with the reviewed voice
   (MOCHI-40).
@@ -226,8 +231,8 @@ Alongside or later:
   restart). It needs two development windows on the normal profile.
 - The development-only "Mochi dev" tools (a beaker in the development
   window's status bar) load a whole personal layer from a JSON file and
-  greet on demand. Remove
-  or replace them when "Make it yours" (MOCHI-43) or gifts (MOCHI-56) land.
+  greet on demand. Remove or replace them when gifts (MOCHI-56) land: "Make
+  it yours" edits a layer piece by piece, but doesn't load a whole one.
 - "Set one up" opens VS Code's Copilot setup, or Choose a brain in editors
   without it, and "Got a brain!" follows once Copilot is ready. A fuller
   "Pick a brain" inside Mochi's tab may come after the small welcome.
