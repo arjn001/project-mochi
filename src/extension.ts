@@ -244,14 +244,21 @@ export function activate(context: vscode.ExtensionContext): MochiApi {
 
   // The "Make it yours" page (MOCHI-43): her name, how Mochi talks, the
   // brain, focus and late night, and her own touches, in one place.
-  const yours = new MakeItYours(context.extensionUri, yoursActions());
+  const yours = new MakeItYours(
+    context.extensionUri,
+    yoursActions({ brain: () => brains.current(), hasClaudeKey: async () => (await claudeKey.get()) !== undefined })
+  );
   const openYours = vscode.commands.registerCommand("mochi.makeItYours", () => yours.open());
   // A change in Settings, or in another window, shows up on the page.
-  const followYours = vscode.workspace.onDidChangeConfiguration((event) => {
-    if (event.affectsConfiguration("mochi")) {
-      void yours.refresh();
-    }
-  });
+  const followYours = vscode.Disposable.from(
+    vscode.workspace.onDidChangeConfiguration((event) => {
+      if (event.affectsConfiguration("mochi")) {
+        void yours.refresh();
+      }
+    }),
+    // Brains coming or going, and her Claude key.
+    brains.onDidChange(() => void yours.refresh())
+  );
 
   // Anything added here is cleaned up when Mochi shuts down.
   context.subscriptions.push(names, claudeKey, claudeCommands, chooseBrain, copilotWatch, open, home, mood, followSpeakUp, focus, timer, explain, stuck, dim, lateNight, coding, python, pythonOffer, forget, memory, followBrain, attachment, clearChat, yours, openYours, followYours);

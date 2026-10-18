@@ -37,6 +37,7 @@ describe("the Make it yours page", () => {
     it("accepts an edit to a field Mochi knows", () => {
       assert.deepStrictEqual(toFromYours({ type: "edit", field: "focusMinutes", value: "45" }), { type: "edit", field: "focusMinutes", value: "45" });
       assert.deepStrictEqual(toFromYours({ type: "edit", field: "learningMode", value: false }), { type: "edit", field: "learningMode", value: false });
+      assert.deepStrictEqual(toFromYours({ type: "button", button: "chooseBrain" }), { type: "button", button: "chooseBrain" });
     });
 
     it("ignores anything it doesn't know", () => {
@@ -51,6 +52,7 @@ describe("the Make it yours page", () => {
         { type: "edit", field: "focusMinutes", value: { minutes: 45 } },
         { type: "edit", field: "focusMinutes", value: Number.NaN },
         { type: "edit", field: "focusMinutes", value: "x".repeat(20_000) },
+        { type: "button", button: "workbench.action.reloadWindow" },
       ]) {
         assert.strictEqual(toFromYours(odd), undefined, JSON.stringify(odd)?.slice(0, 80));
       }

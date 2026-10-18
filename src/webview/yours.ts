@@ -78,6 +78,18 @@ function draw(field: Field): HTMLElement {
       row.append(line, element("p", "mochi-yours-description", field.description));
       break;
     }
+    case "actions": {
+      row.append(element("p", "mochi-yours-now", field.now));
+      const buttons = element("div", "mochi-yours-buttons");
+      for (const button of field.buttons) {
+        const made = element("button", "mochi-button", button.label);
+        made.type = "button";
+        made.addEventListener("click", () => vscode.postMessage({ type: "button", button: button.id }));
+        buttons.append(made);
+      }
+      row.append(buttons);
+      return row;
+    }
     case "number": {
       const label = element("label", "mochi-yours-label", field.label);
       label.htmlFor = field.id;

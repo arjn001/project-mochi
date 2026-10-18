@@ -128,3 +128,12 @@ body.mochi-yours {
   vertical-align: -2px;
   background: var(--mochi-problem-border);
 }
+
+.mochi-yours-now {
+  margin: 0 0 8px;
+}
+.mochi-yours-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--mochi-gap);
+}

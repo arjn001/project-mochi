@@ -8,7 +8,10 @@
 export type Field =
   | { kind: "choice"; id: FieldId; label: string; value: string; options: { value: string; label: string; description: string }[]; note?: string }
   | { kind: "toggle"; id: FieldId; label: string; description: string; value: boolean; note?: string }
-  | { kind: "number"; id: FieldId; label: string; description: string; value: number; min: number; max: number; note?: string };
+  | { kind: "number"; id: FieldId; label: string; description: string; value: number; min: number; max: number; note?: string }
+  // Something she does with a button, like choosing a brain. `now` says how
+  // things are.
+  | { kind: "actions"; now: string; buttons: { id: ButtonId; label: string }[] };
 
 export interface Section {
   heading: string;
@@ -32,7 +35,14 @@ export type ToYours =
   | { type: "result"; field: FieldId; ok: true }
   | { type: "result"; field: FieldId; ok: false; hint: string };
 
-export type FromYours = { type: "ready" } | { type: "edit"; field: FieldId; value: string | number | boolean };
+// Buttons on the page, each running a command she could run herself.
+export const BUTTONS = ["chooseBrain", "addClaudeKey", "removeClaudeKey"] as const;
+export type ButtonId = (typeof BUTTONS)[number];
+
+export type FromYours =
+  | { type: "ready" }
+  | { type: "edit"; field: FieldId; value: string | number | boolean }
+  | { type: "button"; button: ButtonId };
 
 // The longest value the page may send. Every field checks its own limits.
 const MAX_VALUE = 10_000;
@@ -52,6 +62,8 @@ export function toFromYours(value: unknown): FromYours | undefined {
         typeof sent === "boolean" || (typeof sent === "number" && Number.isFinite(sent)) || (typeof sent === "string" && sent.length <= MAX_VALUE);
       return FIELDS.includes(message.field as FieldId) && fine ? { type: "edit", field: message.field as FieldId, value: sent as string | number | boolean } : undefined;
     }
+    case "button":
+      return BUTTONS.includes(message.button as ButtonId) ? { type: "button", button: message.button as ButtonId } : undefined;
     default:
       return undefined;
   }

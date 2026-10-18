@@ -193,6 +193,8 @@ export const yoursStrings = {
   focusMinutesDescription: "How long a focus session lasts, in minutes.",
   lateHour: "Late night starts",
   lateHourDescription: "The hour when late night starts, from 0 to 23. Late night lasts until 5:00.",
+  // Each button runs the command with the same name.
+  removeClaudeKey: "Remove my Claude key",
   // When a project's own settings win over hers (approved for speak-up).
   projectSpeakUp: "This project sets its own speak-up level, so that one wins here.",
   projectFocus: "This project sets its own focus session length, so that one wins here.",
