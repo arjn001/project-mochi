@@ -178,6 +178,29 @@ export const yoursStrings = {
   focus: "Focus and late night",
   touches: "Mochi's touches",
   saved: "Saved",
+  // Settings, with their own descriptions from package.json.
+  speakUp: "Speak up",
+  speakUpDescription: "How often Mochi speaks up on its own. Mochi always answers when you open it.",
+  speakUpOptions: [
+    { value: "quiet", label: "Quiet", description: "Mochi stays in the status bar and only talks when you open it." },
+    { value: "gentle", label: "Gentle", description: "Mochi offers help and kind words now and then." },
+    { value: "chatty", label: "Chatty", description: "Mochi says hello more often, with fun facts and small talk." },
+  ],
+  learningMode: "Learning mode",
+  learningModeDescription:
+    "Help me learn instead of handing me answers. For homework, your code, and errors, Mochi explains first, gives a hint if you ask, and shows the fix only when you ask for it. Turn off for direct answers, fixes included.",
+  focusMinutes: "Focus session",
+  focusMinutesDescription: "How long a focus session lasts, in minutes.",
+  lateHour: "Late night starts",
+  lateHourDescription: "The hour when late night starts, from 0 to 23. Late night lasts until 5:00.",
+  // When a project's own settings win over hers (approved for speak-up).
+  projectSpeakUp: "This project sets its own speak-up level, so that one wins here.",
+  projectFocus: "This project sets its own focus session length, so that one wins here.",
+  projectLateHour: "This project sets its own late-night hour, so that one wins here.",
+  // Kind hints when something doesn't fit. Nothing is saved.
+  pickOne: "Pick one of these, please.",
+  focusRange: (min: number, max: number) => `A whole number of minutes from ${min} to ${max}, please.`,
+  hourRange: "A whole hour from 0 to 23, please.",
 };
 
 // "Clear chat", in the ... menu of Mochi's tab (MOCHI-21).

@@ -2,6 +2,7 @@ import * as assert from "node:assert";
 import * as fs from "node:fs";
 import * as path from "node:path";
 import { yoursHtml } from "../../yours/html";
+import { checkEdit } from "../../yours/edits";
 import { toFromYours } from "../../yours/messages";
 
 // The "Make it yours" page (MOCHI-43).
@@ -33,10 +34,60 @@ describe("the Make it yours page", () => {
   });
 
   describe("messages from the page", () => {
+    it("accepts an edit to a field Mochi knows", () => {
+      assert.deepStrictEqual(toFromYours({ type: "edit", field: "focusMinutes", value: "45" }), { type: "edit", field: "focusMinutes", value: "45" });
+      assert.deepStrictEqual(toFromYours({ type: "edit", field: "learningMode", value: false }), { type: "edit", field: "learningMode", value: false });
+    });
+
     it("ignores anything it doesn't know", () => {
       assert.deepStrictEqual(toFromYours({ type: "ready" }), { type: "ready" });
-      for (const odd of [undefined, null, "ready", { type: "run", command: "rm -rf" }]) {
-        assert.strictEqual(toFromYours(odd), undefined, JSON.stringify(odd));
+      for (const odd of [
+        undefined,
+        null,
+        "ready",
+        { type: "run", command: "rm -rf" },
+        { type: "edit", field: "brain", value: "copilot/auto" },
+        { type: "edit", field: "workbench.colorTheme", value: "Dark Modern" },
+        { type: "edit", field: "focusMinutes", value: { minutes: 45 } },
+        { type: "edit", field: "focusMinutes", value: Number.NaN },
+        { type: "edit", field: "focusMinutes", value: "x".repeat(20_000) },
+      ]) {
+        assert.strictEqual(toFromYours(odd), undefined, JSON.stringify(odd)?.slice(0, 80));
+      }
+    });
+  });
+
+  describe("checking what she changes", () => {
+    it("accepts the three speak-up levels, and nothing else", () => {
+      for (const level of ["quiet", "gentle", "chatty"]) {
+        assert.deepStrictEqual(checkEdit("speakUp", level), { ok: true, value: level });
+      }
+      for (const odd of ["loud", "", "Quiet", 1]) {
+        assert.strictEqual(checkEdit("speakUp", odd).ok, false, String(odd));
+      }
+    });
+
+    it("takes Learning mode as on or off only", () => {
+      assert.deepStrictEqual(checkEdit("learningMode", false), { ok: true, value: false });
+      assert.strictEqual(checkEdit("learningMode", "false").ok, false);
+    });
+
+    it("takes a focus length of whole minutes from 5 to 120, typed or not", () => {
+      assert.deepStrictEqual(checkEdit("focusMinutes", "45"), { ok: true, value: 45 });
+      assert.deepStrictEqual(checkEdit("focusMinutes", 5), { ok: true, value: 5 });
+      assert.deepStrictEqual(checkEdit("focusMinutes", 120), { ok: true, value: 120 });
+      for (const odd of [4, 121, 25.5, "", "abc", "25 min", -10]) {
+        const checked = checkEdit("focusMinutes", odd);
+        assert.strictEqual(checked.ok, false, String(odd));
+        assert.match(checked.ok ? "" : checked.hint, /5 to 120/);
+      }
+    });
+
+    it("takes a late-night hour from 0 to 23", () => {
+      assert.deepStrictEqual(checkEdit("lateHour", "0"), { ok: true, value: 0 });
+      assert.deepStrictEqual(checkEdit("lateHour", 23), { ok: true, value: 23 });
+      for (const odd of [24, -1, 22.5, "eleven"]) {
+        assert.strictEqual(checkEdit("lateHour", odd).ok, false, String(odd));
       }
     });
   });

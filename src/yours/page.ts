@@ -2,11 +2,13 @@ import { randomBytes } from "node:crypto";
 import * as vscode from "vscode";
 import { yoursStrings } from "../strings";
 import { yoursHtml } from "./html";
-import { FromYours, ToYours, YoursState, toFromYours } from "./messages";
+import { FieldId, FromYours, ToYours, YoursState, toFromYours } from "./messages";
 
 // What the page asks the rest of Mochi for.
 export interface YoursActions {
   state(): YoursState | Promise<YoursState>;
+  // Checks and saves one change: saved, or a kind hint.
+  edit(field: FieldId, value: string | number | boolean): Promise<{ ok: true } | { ok: false; hint: string }>;
 }
 
 // The "Make it yours" page (MOCHI-43): one tab in the editor area, opened
@@ -76,6 +78,11 @@ export class MakeItYours implements vscode.Disposable {
         this.ready = true;
         await this.refresh();
         break;
+      case "edit": {
+        const result = await this.actions.edit(message.field, message.value);
+        this.post(result.ok ? { type: "result", field: message.field, ok: true } : { type: "result", field: message.field, ok: false, hint: result.hint });
+        break;
+      }
     }
   }
 }
