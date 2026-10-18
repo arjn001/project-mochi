@@ -50,7 +50,7 @@ export function registerClearChat(chat: ChatLog, memory: ChatMemory): vscode.Dis
 // Mochi starts, saves it as it changes, follows the folders she opens, and
 // notices "Forget everything" from another window.
 export class ChatMemory implements vscode.Disposable {
-  private identity = projectIdentity();
+  private identity: string | undefined;
   // The generation the chat in memory belongs to (see chatStore.ts).
   private since = 0;
   private loaded = false;
@@ -68,8 +68,11 @@ export class ChatMemory implements vscode.Disposable {
 
   constructor(
     private readonly store: ChatStore,
-    private readonly chat: ChatLog
+    private readonly chat: ChatLog,
+    // Which project this is. Only tests pass anything else.
+    private readonly identify: () => string | undefined = projectIdentity
   ) {
+    this.identity = identify();
     this.listeners = [
       vscode.workspace.onDidChangeWorkspaceFolders(() => void this.followProject()),
       // Back from another window, where she may have forgotten everything.
@@ -185,7 +188,7 @@ export class ChatMemory implements vscode.Disposable {
   // She opened or closed folders: save this project's chat, then show the
   // new project's.
   private async followProject(): Promise<void> {
-    const next = projectIdentity();
+    const next = this.identify();
     if (next === this.identity) {
       return;
     }
