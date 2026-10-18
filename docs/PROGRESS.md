@@ -15,16 +15,18 @@ update isn't listed.*
   https://marketplace.visualstudio.com/items?itemName=arjungyawali.mochi-companion
 - **Open pull requests:** none besides this one.
 - **In progress:**
-  - MOCHI-36 Celebrating when she finishes something: built and in review.
-    Done once it merges, which completes Moments (MOCHI-32).
+  - MOCHI-70 Test audit: coverage and lighter wording tests: built and in
+    review. Done once it merges.
   - MOCHI-17 Art and moods: the preview uses the icon font's cats;
     illustrated art comes when Arjun has it.
-- **Next:** Milestone 5: MOCHI-43 "Make it yours" page first.
-- **Waiting on:** Arjun to try and merge MOCHI-36.
+- **Next:** Milestone 5: MOCHI-43 "Make it yours" page (its plan is waiting
+  for Arjun's answers).
+- **Waiting on:** Arjun to merge MOCHI-70, then answer MOCHI-43's plan.
 
-**47 of 59 Jira tasks and subtasks done**. 3 of the 8
-categories are complete. 459 tests (418 unit, 41 integration) run on every
-pull request, on Linux, macOS, and Windows.
+**48 of 60 Jira tasks and subtasks done**. 4 of the 8
+categories are complete. 482 tests (427 unit, 55 integration) run on every
+pull request, on Linux, macOS, and Windows. `npm run coverage`: 85.4% of
+Mochi's lines.
 
 ## Done
 **Vision and design (MOCHI-2), complete.** VISION.md, DECISIONS.md,
@@ -55,7 +57,7 @@ MOMENTS.md, PRESENCE.md, ARCHITECTURE.md, and BUILD_PLAN.md.
   pair at WCAG AA or better; the icon font's cat at 56px following the
   mood, and a vintage serif for the greeting (MOCHI-50).
 
-**Moments (MOCHI-32), partly done.**
+**Moments (MOCHI-32), complete.**
 - Celebrating when she says she finished something, with no AI: the
   specific thing in her words ("Yay, you finished your homework!"), never
   for questions, frustration ("done, I give up"), or vague things. Chips
@@ -112,6 +114,11 @@ MOMENTS.md, PRESENCE.md, ARCHITECTURE.md, and BUILD_PLAN.md.
   packaging and its checks run on Linux. Free, since the repo is public.
   Tests (Linux), Tests (macOS), and Tests (Windows) are all required in
   main's "Protect main" ruleset (MOCHI-60).
+- A test audit: `npm run coverage` (85.4% of Mochi's lines, up from
+  82.6%), wording tests that check the important part instead of whole
+  sentences, duplicates merged, and new tests for the share dialog, the
+  conversation, Copilot brains, the chat's memory, and which brain
+  answers (MOCHI-70).
 - The code is MIT; the name "Mochi Companion", the icons, and the art are
   all rights reserved (MOCHI-59). A short README for the listing (MOCHI-46,
   screenshots still to come).
@@ -197,7 +204,7 @@ Only tasks already planned; new feature ideas come after.
 1. **MOCHI-60 Windows and macOS in CI.** Done; all three are required
    checks on main.
 2. **MOCHI-36 Celebrating when she finishes something**, the last of
-   Milestone 4. In review.
+   Milestone 4. Done.
 3. **Milestone 5:** MOCHI-43 "Make it yours" page, MOCHI-55 Make a gift
    file, MOCHI-56 Unwrap a gift file, then MOCHI-45, her gift on her
    install.

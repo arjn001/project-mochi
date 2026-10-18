@@ -4,6 +4,7 @@ dist/
 *.vsix
 .DS_Store
 .vscode-test/
+coverage/
 
 # Local secrets, never committed
 .jira-env

@@ -1,6 +1,7 @@
 import * as assert from "node:assert";
 import { loadDefaultPack } from "../../packs/defaultPack";
 import { layerOver } from "../../packs/format";
+import { greeting } from "../../packs/phrases";
 import {
   GreetCheck,
   cleanProjectName,
@@ -51,15 +52,20 @@ describe("the greeting when VS Code opens", () => {
     const say = (last: { at: number; project?: string } | undefined, project?: string) =>
       greetingText(pack, { now: evening, lateHour: 23, last, project, random: first });
 
+    // The day's greeting, from the pack. The tests check which parts come
+    // after it, not the wording (MOCHI-70).
+    const hello = greeting(pack, evening, first, 23);
+    const welcomeBack = pack.phrases.welcomeBack[0];
+
     it("is just the greeting the first time, or the same day", () => {
-      assert.strictEqual(say(undefined), "Meow, good evening! What are we making today?");
-      assert.strictEqual(say({ at: evening.getTime() - hours(5) }), "Meow, good evening! What are we making today?");
+      assert.strictEqual(say(undefined), hello);
+      assert.strictEqual(say({ at: evening.getTime() - hours(5) }), hello);
     });
 
     it("welcomes her back warmly after 2 or more days, never counting them", () => {
-      assert.strictEqual(say({ at: evening.getTime() - hours(47) }), "Meow, good evening! What are we making today?");
+      assert.strictEqual(say({ at: evening.getTime() - hours(47) }), hello);
       const back = say({ at: evening.getTime() - hours(72) });
-      assert.strictEqual(back, "Meow, good evening! What are we making today? Welcome back! I missed you.");
+      assert.strictEqual(back, `${hello} ${welcomeBack}`);
       assert.doesNotMatch(back, /\d/);
     });
 

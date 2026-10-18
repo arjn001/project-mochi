@@ -258,8 +258,8 @@ describe("setting up a Python project", () => {
     });
 
     it("asks before installing, with the number of packages", () => {
-      assert.strictEqual(pythonStrings.installQuestion(3), "This project lists 3 packages in requirements.txt. Install them too?");
-      assert.strictEqual(pythonStrings.installQuestion(1), "This project lists 1 package in requirements.txt. Install it too?");
+      assert.match(pythonStrings.installQuestion(3), /3 packages[\s\S]*them/);
+      assert.match(pythonStrings.installQuestion(1), /1 package\b[\s\S]*\bit\b/);
     });
   });
 });

@@ -1,5 +1,6 @@
 import * as assert from "node:assert";
 import { Forgettable, forgetEverything } from "../../forget";
+import { forgetStrings } from "../../strings";
 
 // Parts that record when they're forgotten; `broken` ones fail.
 function parts(...names: string[]) {
@@ -19,9 +20,11 @@ describe("forget everything", () => {
   it("asks first, saying what's cleared and what stays", async () => {
     const asked: string[] = [];
     await forgetEverything(async (question, detail) => (asked.push(question, detail), false), []);
-    assert.strictEqual(asked[0], "Forget everything?");
-    assert.match(asked[1], /your chats, your name and personal touches, and everything Mochi remembers about your days/);
-    assert.match(asked[1], /Your settings and any saved AI key stay as they are/);
+    assert.strictEqual(asked[0], forgetStrings.question);
+    // It says what goes, and that settings and keys stay.
+    assert.match(asked[1], /chats/);
+    assert.match(asked[1], /settings/);
+    assert.match(asked[1], /key/);
   });
 
   it("forgets nothing unless she says yes", async () => {

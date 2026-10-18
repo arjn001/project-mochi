@@ -93,7 +93,10 @@ describe("asking Mochi", () => {
       asked.push(q);
       return "cancel";
     });
-    assert.deepStrictEqual(asked, ["Share lines 1 to 1 of homework.py (the error on line 1) with Fake Brain?"]);
+    // The question's wording is tested in shareGate.test.ts; here, that it
+    // names the brain the answer would come from.
+    assert.strictEqual(asked.length, 1);
+    assert.match(asked[0], /with Fake Brain\?/);
   });
 
   it("gives the brain the instructions and only what she agreed to share", async () => {

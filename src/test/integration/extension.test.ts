@@ -6,41 +6,24 @@ import * as vscode from "vscode";
 import { offer } from "../../actions/confirm";
 import { findPython, readProject } from "../../actions/pythonSetup";
 import { readLearningMode } from "../../settings";
+import { NO_BRAIN } from "../../ai/askMochi";
+import { celebrateStrings } from "../../strings";
 import { dimAction } from "../../actions/theme";
 import type { MochiApi } from "../../extension";
 
 describe("Mochi in VS Code", () => {
-  it("starts up and registers its commands", async () => {
+  // Replaces eight separate "registers X" tests (MOCHI-70): every command
+  // package.json lists must exist once Mochi starts.
+  it("starts up, registers every command it lists, and opens Mochi's tab", async () => {
     const mochi = vscode.extensions.getExtension("arjungyawali.mochi-companion");
     assert.ok(mochi, "Mochi is not installed in the test window.");
-
     await mochi.activate();
     const commands = await vscode.commands.getCommands(true);
-
-    assert.ok(
-      commands.includes("mochi.open"),
-      "Mochi started, but the mochi.open command is not registered."
-    );
-  });
-
-  it("has a home view that VS Code can open", async () => {
-    // VS Code creates this command for every view container.
-    const openMochi = "workbench.view.extension.mochi";
-    const commands = await vscode.commands.getCommands(true);
-
-    assert.ok(
-      commands.includes(openMochi),
-      "Mochi's view container is missing. Check viewsContainers in package.json."
-    );
-    await vscode.commands.executeCommand(openMochi);
-  });
-
-  it("opens Mochi's tab with the Open Mochi command", async () => {
-    const commands = await vscode.commands.getCommands(true);
-    assert.ok(
-      commands.includes("mochi.open"),
-      "The mochi.open command is not registered, so the status bar can't open Mochi."
-    );
+    const listed: string[] = mochi.packageJSON.contributes.commands.map((c: { command: string }) => c.command);
+    const missing = listed.filter((command) => !commands.includes(command));
+    assert.deepStrictEqual(missing, [], "Commands in package.json that Mochi never registered.");
+    // VS Code makes this one for every view container.
+    assert.ok(commands.includes("workbench.view.extension.mochi"), "Mochi's view container is missing.");
     await vscode.commands.executeCommand("mochi.open");
   });
 
@@ -48,21 +31,6 @@ describe("Mochi in VS Code", () => {
     it("no longer has the temporary Ask command: the panel's box replaced it", async () => {
       const commands = await vscode.commands.getCommands(true);
       assert.ok(!commands.includes("mochi.ask"));
-    });
-
-    it("registers Choose a brain", async () => {
-      const commands = await vscode.commands.getCommands(true);
-      assert.ok(commands.includes("mochi.chooseBrain"));
-    });
-
-    it("registers Add a Claude key", async () => {
-      const commands = await vscode.commands.getCommands(true);
-      assert.ok(commands.includes("mochi.addClaudeKey"));
-    });
-
-    it("registers Remove my Claude key", async () => {
-      const commands = await vscode.commands.getCommands(true);
-      assert.ok(commands.includes("mochi.removeClaudeKey"));
     });
 
     it("lists the built-in AI's brains without failing when there's no Copilot", async () => {
@@ -92,12 +60,6 @@ describe("Mochi in VS Code", () => {
       );
       return (actions ?? []).map((a) => a.title);
     }
-
-    it("registers the explain commands", async () => {
-      const commands = await vscode.commands.getCommands(true);
-      assert.ok(commands.includes("mochi.explainError"));
-      assert.ok(commands.includes("mochi.explainSelection"));
-    });
 
     it("offers Explain with Mochi in the lightbulb next to an error", async () => {
       assert.ok((await lightbulbFor(vscode.DiagnosticSeverity.Error)).includes("Explain with Mochi"));
@@ -138,25 +100,16 @@ describe("Mochi in VS Code", () => {
       await workbench().update("colorTheme", undefined, vscode.ConfigurationTarget.Global);
     });
 
+    // "Not now" and "already dark" are covered by confirm.test.ts and
+    // darkerTheme.test.ts; these two check the real theme changes (MOCHI-70).
     it("switches all of VS Code to a darker theme after she says yes", async () => {
       assert.strictEqual(await offer(dimAction(), presses("Switch to a dark theme", undefined)), "done");
       assert.strictEqual(theme(), "Dark Modern");
     });
 
-    it("leaves the theme alone when she says Not now", async () => {
-      assert.strictEqual(await offer(dimAction(), presses("Not now")), "declined");
-      assert.strictEqual(theme(), "Light Modern");
-    });
-
     it("puts her old theme back with Undo", async () => {
       assert.strictEqual(await offer(dimAction(), presses("Switch to a dark theme", "Undo")), "undone");
       assert.strictEqual(theme(), "Light Modern");
-    });
-
-    it("doesn't offer when the theme is already dark", async () => {
-      await workbench().update("colorTheme", "Dark Modern", vscode.ConfigurationTarget.Global);
-      await themeKindBecomes(vscode.ColorThemeKind.Dark);
-      assert.strictEqual(await offer(dimAction(), presses(undefined)), "skipped");
     });
   });
 
@@ -202,13 +155,6 @@ describe("Mochi in VS Code", () => {
 
     afterEach(async () => (await mochi()).personal!.clear());
 
-    it("registers What should I call you?, Forget my name, and Forget everything", async () => {
-      const commands = await vscode.commands.getCommands(true);
-      assert.ok(commands.includes("mochi.setName"));
-      assert.ok(commands.includes("mochi.forgetName"));
-      assert.ok(commands.includes("mochi.forgetEverything"));
-    });
-
     it("forgets her layer and greeting memory when asked", async () => {
       const api = await mochi();
       await api.personal!.setName("Sam");
@@ -250,7 +196,7 @@ describe("Mochi in VS Code", () => {
       const last = api.chat!.entries().at(-1)!;
       assert.strictEqual(last.from, "mochi");
       assert.strictEqual(last.problem, true);
-      assert.strictEqual(last.text, "I'd need a brain to answer that. Want to set one up?");
+      assert.strictEqual(last.text, NO_BRAIN);
       assert.deepStrictEqual(last.chips?.choices.map((c) => c.label), ["Set one up"]);
       assert.ok(!api.chat!.entries().some((e) => e.from === "her" && e.text === "hi"), "Her text goes back in the box, not into the chat.");
     });
@@ -274,7 +220,7 @@ describe("Mochi in VS Code", () => {
       api.chat!.choose(celebration.id, check.id);
       await new Promise((done) => setTimeout(done, 100));
       const last = api.chat!.entries().at(-1)!;
-      assert.strictEqual(last.text, "Select the code you'd like me to check, then tap Check my work again.");
+      assert.strictEqual(last.text, celebrateStrings.selectFirst);
       assert.ok(last.chips?.choices.some((c) => c.label === "Check my work"), "The chips stay, so she can tap it again.");
     });
 
@@ -282,7 +228,7 @@ describe("Mochi in VS Code", () => {
       const api = (await vscode.extensions.getExtension<MochiApi>("arjungyawali.mochi-companion")!.activate()) as MochiApi;
       await api.ask!("done, I give up");
       const last = api.chat!.entries().at(-1)!;
-      assert.strictEqual(last.text, "I'd need a brain to answer that. Want to set one up?");
+      assert.strictEqual(last.text, NO_BRAIN);
     });
 
     it("shows a chip for the selected lines, and leaves them out after the x", async () => {
@@ -395,12 +341,7 @@ describe("Mochi in VS Code", () => {
       assert.strictEqual(api.moodText(), "$(mochi-here) Focusing · 45 min left");
     });
 
-    it("still shows in quiet mode, since she started it", async () => {
-      const api = await mochi();
-      await settings().update("speakUp", "quiet", vscode.ConfigurationTarget.Global);
-      await vscode.commands.executeCommand("mochi.focus");
-      assert.strictEqual(api.moodText(), "$(mochi-here) Focusing · 25 min left");
-    });
+    // Focus in quiet mode is covered by focusTimer.test.ts (MOCHI-70).
   });
 
   describe("quiet mode", () => {

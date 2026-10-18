@@ -1,26 +1,29 @@
 import * as assert from "node:assert";
 import { wasWelcomed, welcomeDue, welcomeText } from "../../moments/welcome";
+import { welcomeStrings } from "../../strings";
 
-const start = "Meow, hi! I'm Mochi, your coding buddy. I live in the Mochi tab, and my mood shows in the status bar.";
+// The welcome is built from these parts; the words themselves live in
+// strings.ts (MOCHI-70: test which parts appear, not the wording).
+const start = `${welcomeStrings.hello("Mochi")} ${welcomeStrings.where}`;
 
 describe("the first-run welcome", () => {
   describe("what Mochi says", () => {
     it("names the brain it would think with", () => {
       assert.deepStrictEqual(welcomeText("Mochi", { kind: "ready", label: "Copilot · Auto" }), {
-        text: `${start} I can think with Copilot · Auto whenever you ask me something.`,
+        text: `${start} ${welcomeStrings.ready("Copilot · Auto")}`,
       });
     });
 
     it("offers Copilot's setup when there's no brain", () => {
       assert.deepStrictEqual(welcomeText("Mochi", { kind: "none", copilotSetup: true }), {
-        text: `${start} To answer questions I need a brain, and GitHub Copilot's free plan works: just sign in with GitHub.`,
+        text: `${start} ${welcomeStrings.copilot}`,
         button: "setUpCopilot",
       });
     });
 
     it("offers Choose a brain in editors without Copilot's setup", () => {
       assert.deepStrictEqual(welcomeText("Mochi", { kind: "none", copilotSetup: false }), {
-        text: `${start} To answer questions I need a brain. Choose a brain shows what you can use.`,
+        text: `${start} ${welcomeStrings.choose}`,
         button: "chooseBrain",
       });
     });
@@ -31,7 +34,8 @@ describe("the first-run welcome", () => {
 
     it("uses the pack's name for the cat, and the tab's own label", () => {
       const { text } = welcomeText("Luna", { kind: "ask" });
-      assert.strictEqual(text, "Meow, hi! I'm Luna, your coding buddy. I live in the Mochi tab, and my mood shows in the status bar.");
+      assert.match(text, /\bLuna\b/);
+      assert.match(text, /the Mochi tab/, "The tab's own label, which packs can't change.");
     });
 
     it("never uses an em dash", () => {

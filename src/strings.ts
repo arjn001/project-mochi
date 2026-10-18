@@ -83,6 +83,10 @@ export const shareStrings = {
   // After "Careful: this looks like it might contain a password or API key.
   // Send anyway?" about what she typed.
   sendAnyway: "Send anyway",
+  // The share gate's dialog about what Mochi would attach.
+  share: "Share",
+  sendWithout: "Send without it",
+  detail: "Nothing leaves your computer unless you choose Share.",
 };
 
 // The first-run welcome (MOCHI-42). `companion` is the pack's name for the

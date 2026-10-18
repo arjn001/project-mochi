@@ -152,19 +152,15 @@ describe("the chat", () => {
 
   it("says where the chat is kept: her computer, or the remote machine Mochi runs on", () => {
     const place = (remote?: string) => chatStrings.place(remoteLabel(remote));
-    assert.strictEqual(
-      chatStrings.empty(place()),
-      "Our chat stays on this computer. It can include code from our conversation; Clear chat removes it."
-    );
+    assert.strictEqual(place(), "on this computer");
     assert.strictEqual(place("ssh-remote"), "on this SSH machine");
     assert.strictEqual(place("wsl"), "in this WSL distro");
     assert.strictEqual(place("dev-container"), "in this container");
     assert.strictEqual(place("codespaces"), "in this codespace");
     assert.strictEqual(place("something-new"), "on this remote machine");
-    assert.strictEqual(
-      chatStrings.couldntSave(place("ssh-remote")),
-      "I couldn't save our chat on this SSH machine, so it lasts until VS Code closes."
-    );
+    // Both lines name the place.
+    assert.match(chatStrings.empty(place("wsl")), /in this WSL distro/);
+    assert.match(chatStrings.couldntSave(place("ssh-remote")), /on this SSH machine/);
   });
 
   describe("while Mochi answers (MOCHI-25)", () => {
