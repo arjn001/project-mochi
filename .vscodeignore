@@ -13,9 +13,12 @@ out/**
 tsconfig.json
 esbuild.mjs
 
-# Tests and the test copy of VS Code
+# Tests, the test copy of VS Code, and coverage (MOCHI-70)
 .vscode-test/**
 .vscode-test.mjs
+.c8rc.json
+coverage/**
+scripts/**
 
 # Editor, CI, and tool settings
 .vscode/**

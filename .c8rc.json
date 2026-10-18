@@ -1,0 +1,9 @@
+{
+  "all": true,
+  "src": ["out"],
+  "include": ["out/**/*.js"],
+  "exclude": ["out/test/**", "out/dev/**", "out/webview/**"],
+  "reporter": ["json"],
+  "report-dir": "coverage/unit",
+  "temp-directory": "coverage/.c8"
+}
