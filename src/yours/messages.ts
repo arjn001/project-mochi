@@ -6,6 +6,8 @@
 
 // One thing she can change. The page draws each kind the same way.
 export type Field =
+  // A line of text, saved on Enter or when she leaves the field.
+  | { kind: "text"; id: FieldId; label: string; value: string; placeholder: string; maxLength: number; note?: string }
   | { kind: "choice"; id: FieldId; label: string; value: string; options: { value: string; label: string; description: string }[]; note?: string }
   | { kind: "toggle"; id: FieldId; label: string; description: string; value: boolean; note?: string }
   | { kind: "number"; id: FieldId; label: string; description: string; value: number; min: number; max: number; note?: string }
@@ -26,7 +28,7 @@ export interface YoursState {
 }
 
 // The fields Mochi knows. Anything else from the page is ignored.
-export const FIELDS = ["speakUp", "learningMode", "focusMinutes", "lateHour"] as const;
+export const FIELDS = ["name", "speakUp", "learningMode", "focusMinutes", "lateHour"] as const;
 export type FieldId = (typeof FIELDS)[number];
 
 export type ToYours =
@@ -36,7 +38,7 @@ export type ToYours =
   | { type: "result"; field: FieldId; ok: false; hint: string };
 
 // Buttons on the page, each running a command she could run herself.
-export const BUTTONS = ["chooseBrain", "addClaudeKey", "removeClaudeKey"] as const;
+export const BUTTONS = ["forgetName", "chooseBrain", "addClaudeKey", "removeClaudeKey"] as const;
 export type ButtonId = (typeof BUTTONS)[number];
 
 export type FromYours =

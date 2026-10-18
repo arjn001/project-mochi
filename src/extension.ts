@@ -246,7 +246,12 @@ export function activate(context: vscode.ExtensionContext): MochiApi {
   // brain, focus and late night, and her own touches, in one place.
   const yours = new MakeItYours(
     context.extensionUri,
-    yoursActions({ brain: () => brains.current(), hasClaudeKey: async () => (await claudeKey.get()) !== undefined })
+    yoursActions({
+      brain: () => brains.current(),
+      hasClaudeKey: async () => (await claudeKey.get()) !== undefined,
+      name: () => personal.name(),
+      setName: (name) => personal.setName(name),
+    })
   );
   const openYours = vscode.commands.registerCommand("mochi.makeItYours", () => yours.open());
   // A change in Settings, or in another window, shows up on the page.

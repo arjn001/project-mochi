@@ -43,6 +43,35 @@ function status(field: FieldId): HTMLElement {
 function draw(field: Field): HTMLElement {
   const row = element("div", "mochi-yours-field");
   switch (field.kind) {
+    case "text": {
+      const label = element("label", "mochi-yours-label", field.label);
+      label.htmlFor = field.id;
+      const input = element("input", "mochi-yours-input mochi-yours-text");
+      input.type = "text";
+      input.id = field.id;
+      input.value = field.value;
+      input.placeholder = field.placeholder;
+      input.maxLength = field.maxLength;
+      // Saved on Enter or when she leaves the field, never every keystroke,
+      // and only when it changed. An empty field never erases her name:
+      // that's what "Forget my name" is for.
+      let kept = field.value;
+      const save = () => {
+        if (input.value.trim() !== "" && input.value !== kept) {
+          kept = input.value;
+          edit(field.id, input.value);
+        }
+      };
+      input.addEventListener("change", save);
+      input.addEventListener("keydown", (event) => {
+        if (event.key === "Enter" && !event.isComposing) {
+          event.preventDefault();
+          save();
+        }
+      });
+      row.append(label, input);
+      break;
+    }
     case "choice": {
       const group = element("fieldset", "mochi-yours-choice");
       group.append(element("legend", "mochi-yours-label", field.label));
@@ -79,7 +108,9 @@ function draw(field: Field): HTMLElement {
       break;
     }
     case "actions": {
-      row.append(element("p", "mochi-yours-now", field.now));
+      if (field.now) {
+        row.append(element("p", "mochi-yours-now", field.now));
+      }
       const buttons = element("div", "mochi-yours-buttons");
       for (const button of field.buttons) {
         const made = element("button", "mochi-button", button.label);

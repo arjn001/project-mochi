@@ -137,3 +137,7 @@ body.mochi-yours {
   flex-wrap: wrap;
   gap: var(--mochi-gap);
 }
+.mochi-yours-text {
+  width: 100%;
+  max-width: 320px;
+}

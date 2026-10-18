@@ -60,6 +60,13 @@ describe("the Make it yours page", () => {
   });
 
   describe("checking what she changes", () => {
+    it("checks her name the same way as \"What should I call you?\"", () => {
+      assert.deepStrictEqual(checkEdit("name", " Sam "), { ok: true, value: "Sam" });
+      for (const odd of ["", "   ", "x".repeat(31), "Sam\nSmith", 7]) {
+        assert.strictEqual(checkEdit("name", odd).ok, false, JSON.stringify(odd));
+      }
+    });
+
     it("accepts the three speak-up levels, and nothing else", () => {
       for (const level of ["quiet", "gentle", "chatty"]) {
         assert.deepStrictEqual(checkEdit("speakUp", level), { ok: true, value: level });

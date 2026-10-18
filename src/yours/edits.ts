@@ -2,6 +2,7 @@
 // anything is saved. Plain code with no VS Code dependency. A value that
 // doesn't fit gets a kind hint and isn't saved.
 import { MAX_FOCUS_MINUTES, MIN_FOCUS_MINUTES } from "../focus/timer";
+import { nameProblem } from "../packs/personalLayer";
 import { yoursStrings } from "../strings";
 import { FieldId } from "./messages";
 
@@ -17,6 +18,11 @@ function wholeNumber(value: unknown): number | undefined {
 
 export function checkEdit(field: FieldId, value: unknown): Checked {
   switch (field) {
+    // The same checks, and kind words, as "What should I call you?".
+    case "name": {
+      const problem = typeof value === "string" ? nameProblem(value) : yoursStrings.pickOne;
+      return problem ? { ok: false, hint: problem } : { ok: true, value: (value as string).trim() };
+    }
     case "speakUp":
       return typeof value === "string" && SPEAK_UP.includes(value) ? { ok: true, value } : { ok: false, hint: yoursStrings.pickOne };
     case "learningMode":

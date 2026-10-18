@@ -6,9 +6,17 @@ import { yoursActions } from "../../yours/actions";
 
 const mochi = () => vscode.workspace.getConfiguration("mochi");
 
-// Mochi's answers about the brain and her key, faked.
-const actionsWith = (brain?: string, hasKey = false) =>
-  yoursActions({ brain: async () => brain, hasClaudeKey: async () => hasKey });
+// Mochi's answers about the brain, her key, and her name, faked.
+function actionsWith(brain?: string, hasKey = false, name?: string) {
+  const saved: string[] = [];
+  const actions = yoursActions({
+    brain: async () => brain,
+    hasClaudeKey: async () => hasKey,
+    name: () => name,
+    setName: async (value) => (saved.push(value), { ok: true }),
+  });
+  return Object.assign(actions, { savedNames: saved });
+}
 
 describe("Make it yours: saving", () => {
   afterEach(async () => {
@@ -67,6 +75,29 @@ describe("Make it yours: saving", () => {
     it("says Mochi will ask first when there's no brain to name", async () => {
       const { field } = await brainSection(undefined);
       assert.doesNotMatch(field.now, /undefined/);
+    });
+  });
+
+  describe("about you", () => {
+    it("saves her name through her personal layer, trimmed", async () => {
+      const actions = actionsWith();
+      assert.deepStrictEqual(await actions.edit("name", "  Sam "), { ok: true });
+      assert.deepStrictEqual(actions.savedNames, ["Sam"]);
+    });
+
+    it("keeps a name that doesn't fit out, with the same kind words as \"What should I call you?\"", async () => {
+      const actions = actionsWith();
+      const result = await actions.edit("name", "x".repeat(31));
+      assert.strictEqual(result.ok, false);
+      assert.match(result.ok ? "" : result.hint, /30 characters/);
+      assert.deepStrictEqual(actions.savedNames, []);
+    });
+
+    it("offers Forget my name only once there's a name", async () => {
+      const buttons = async (name?: string) =>
+        (await actionsWith(undefined, false, name).state()).sections[0].fields.flatMap((f) => (f.kind === "actions" ? f.buttons.map((b) => b.id) : []));
+      assert.deepStrictEqual(await buttons(undefined), []);
+      assert.deepStrictEqual(await buttons("Sam"), ["forgetName"]);
     });
   });
 });

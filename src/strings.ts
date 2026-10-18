@@ -195,6 +195,7 @@ export const yoursStrings = {
   lateHourDescription: "The hour when late night starts, from 0 to 23. Late night lasts until 5:00.",
   // Each button runs the command with the same name.
   removeClaudeKey: "Remove my Claude key",
+  forgetName: "Forget my name",
   // When a project's own settings win over hers (approved for speak-up).
   projectSpeakUp: "This project sets its own speak-up level, so that one wins here.",
   projectFocus: "This project sets its own focus session length, so that one wins here.",
@@ -203,6 +204,8 @@ export const yoursStrings = {
   pickOne: "Pick one of these, please.",
   focusRange: (min: number, max: number) => `A whole number of minutes from ${min} to ${max}, please.`,
   hourRange: "A whole hour from 0 to 23, please.",
+  // When even a value that fit couldn't be kept.
+  couldntSave: "I couldn't save that just now. Could you try again?",
 };
 
 // "Clear chat", in the ... menu of Mochi's tab (MOCHI-21).
