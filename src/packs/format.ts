@@ -81,10 +81,10 @@ export interface PackLayer {
 
 export type Checked<T> = { ok: true; value: T } | { ok: false; errors: string[] };
 
-const isObject = (value: unknown): value is Record<string, unknown> =>
+export const isObject = (value: unknown): value is Record<string, unknown> =>
   typeof value === "object" && value !== null && !Array.isArray(value);
 
-function onlyKeys(obj: Record<string, unknown>, allowed: readonly string[], where: string, errors: string[]): void {
+export function onlyKeys(obj: Record<string, unknown>, allowed: readonly string[], where: string, errors: string[]): void {
   for (const key of Object.keys(obj)) {
     if (!allowed.includes(key)) {
       errors.push(`${where} has an unknown field "${key}".`);
@@ -97,7 +97,7 @@ function onlyKeys(obj: Record<string, unknown>, allowed: readonly string[], wher
 // right-to-left names (U+200E, U+200F) are fine.
 export const TEXT_DIRECTION = /[\u202A-\u202E\u2066-\u2069]/;
 
-function checkText(value: unknown, max: number, where: string, errors: string[]): void {
+export function checkText(value: unknown, max: number, where: string, errors: string[]): void {
   if (typeof value !== "string" || value.trim() === "") {
     errors.push(`${where} must be some text.`);
   } else if (value.length > max) {
@@ -109,7 +109,7 @@ function checkText(value: unknown, max: number, where: string, errors: string[])
   }
 }
 
-function checkName(value: unknown, where: string, errors: string[]): void {
+export function checkName(value: unknown, where: string, errors: string[]): void {
   checkText(value, LIMITS.name, where, errors);
   if (typeof value === "string" && value.includes("\n")) {
     errors.push(`${where} must be one line.`);

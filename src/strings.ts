@@ -272,6 +272,10 @@ export const packStrings = {
   noPersonality:
     'A personal layer can\'t replace Mochi\'s personality. Use "voice.style" for tone and style notes instead.',
   textDirection: (where: string) => `${where} contains invisible characters that change the direction of the text.`,
+  // Why a gift file was rejected (MOCHI-55).
+  giftNotObject: "A gift must be a JSON object.",
+  giftFormat: (format: number) => `"mochigift" must be ${format}.`,
+  giftEmpty: "A gift needs at least one thing in it: a name, a style note, or some lines.",
 };
 
 export const pythonStrings = {
