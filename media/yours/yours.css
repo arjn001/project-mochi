@@ -22,6 +22,12 @@ body.mochi-yours {
   font-weight: normal;
 }
 
+/* A line under the title, like "Make a gift"'s (MOCHI-55). */
+.mochi-yours-intro {
+  margin: 0;
+  color: var(--mochi-quiet-text);
+}
+
 .mochi-yours-section {
   margin-top: 24px;
   padding: 16px 20px;

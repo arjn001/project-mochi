@@ -1,7 +1,8 @@
-// The script inside the "Make it yours" page (MOCHI-43). It runs in the
-// webview, not in the extension: it shows what Mochi sends and reports what
-// she changes. It decides nothing and has no words of its own, and builds
-// everything with createElement and text nodes, never HTML.
+// The script inside the "Make it yours" page (MOCHI-43), also used by
+// "Make a gift" (MOCHI-55). It runs in the webview, not in the extension:
+// it shows what Mochi sends and reports what she changes. It decides
+// nothing and has no words of its own, and builds everything with
+// createElement and text nodes, never HTML.
 import { Field, FieldId, FromYours, ToYours, YoursState } from "../yours/messages";
 
 interface VsCodeApi {
@@ -11,6 +12,7 @@ declare function acquireVsCodeApi(): VsCodeApi;
 
 const vscode = acquireVsCodeApi();
 const title = document.getElementById("title") as HTMLHeadingElement;
+const intro = document.getElementById("intro") as HTMLParagraphElement;
 const sections = document.getElementById("sections") as HTMLDivElement;
 
 let savedWord = "";
@@ -175,6 +177,8 @@ function draw(field: Field): HTMLElement {
 function show(state: YoursState): void {
   document.title = state.title;
   title.textContent = state.title;
+  intro.textContent = state.intro ?? "";
+  intro.hidden = !state.intro;
   savedWord = state.saved;
   statuses.clear();
   sections.replaceChildren(

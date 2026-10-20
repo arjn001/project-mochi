@@ -28,6 +28,8 @@ export interface Section {
 // Everything the page shows.
 export interface YoursState {
   title: string;
+  // A line under the title, if the page has one.
+  intro?: string;
   saved: string;
   sections: Section[];
 }
@@ -67,11 +69,18 @@ export type FromYours =
   | { type: "edit"; field: FieldId; value: string | number | boolean }
   | { type: "button"; button: ButtonId };
 
+// The fields and buttons one page has. Each page accepts only its own.
+export interface PageParts {
+  fields: readonly FieldId[];
+  buttons: readonly ButtonId[];
+}
+export const YOURS_PARTS: PageParts = { fields: FIELDS, buttons: BUTTONS };
+
 // The longest value the page may send. Every field checks its own limits.
 const MAX_VALUE = 10_000;
 
-// A message from the page, or undefined if it isn't one Mochi knows.
-export function toFromYours(value: unknown): FromYours | undefined {
+// A message from a page, or undefined if it isn't one that page has.
+export function toFromYours(value: unknown, parts: PageParts = YOURS_PARTS): FromYours | undefined {
   if (typeof value !== "object" || value === null) {
     return undefined;
   }
@@ -83,10 +92,10 @@ export function toFromYours(value: unknown): FromYours | undefined {
       const sent = message.value;
       const fine =
         typeof sent === "boolean" || (typeof sent === "number" && Number.isFinite(sent)) || (typeof sent === "string" && sent.length <= MAX_VALUE);
-      return (FIELDS as readonly string[]).includes(message.field as string) && fine ? { type: "edit", field: message.field as FieldId, value: sent as string | number | boolean } : undefined;
+      return (parts.fields as readonly string[]).includes(message.field as string) && fine ? { type: "edit", field: message.field as FieldId, value: sent as string | number | boolean } : undefined;
     }
     case "button":
-      return BUTTONS.includes(message.button as ButtonId) ? { type: "button", button: message.button as ButtonId } : undefined;
+      return (parts.buttons as readonly string[]).includes(message.button as string) ? { type: "button", button: message.button as ButtonId } : undefined;
     default:
       return undefined;
   }

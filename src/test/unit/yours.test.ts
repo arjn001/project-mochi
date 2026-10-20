@@ -4,7 +4,7 @@ import * as path from "node:path";
 import { yoursHtml } from "../../yours/html";
 import { MOMENTS } from "../../packs/format";
 import { checkEdit, checkLines, checkStyle } from "../../yours/edits";
-import { MOMENT_IDS, toFromYours } from "../../yours/messages";
+import { MOMENT_IDS, PageParts, toFromYours } from "../../yours/messages";
 
 // The "Make it yours" page (MOCHI-43).
 const repo = path.join(__dirname, "..", "..", "..");
@@ -57,6 +57,14 @@ describe("the Make it yours page", () => {
       ]) {
         assert.strictEqual(toFromYours(odd), undefined, JSON.stringify(odd)?.slice(0, 80));
       }
+    });
+
+    it("accepts only the fields and buttons of the page it came from", () => {
+      const small: PageParts = { fields: ["name"], buttons: ["forgetName"] };
+      assert.ok(toFromYours({ type: "edit", field: "name", value: "Sam" }, small));
+      assert.ok(toFromYours({ type: "button", button: "forgetName" }, small));
+      assert.strictEqual(toFromYours({ type: "edit", field: "learningMode", value: false }, small), undefined);
+      assert.strictEqual(toFromYours({ type: "button", button: "removeClaudeKey" }, small), undefined);
     });
   });
 

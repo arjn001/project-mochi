@@ -24,7 +24,7 @@ import { Welcomer } from "./moments/welcomeWatcher";
 import { LAST_NUDGED, watchLateNight } from "./moments/lateNightWatcher";
 import { watchStuck } from "./moments/stuckWatcher";
 import { celebrations } from "./moments/celebrate";
-import { MakeItYours } from "./yours/page";
+import { MochiPage } from "./yours/page";
 import { yoursActions } from "./yours/actions";
 import { FocusTimer } from "./focus/timer";
 import { GreetingSurface, notificationGreeting } from "./presence/greetingSurface";
@@ -252,7 +252,7 @@ export function activate(context: vscode.ExtensionContext): MochiApi {
 
   // The "Make it yours" page (MOCHI-43): her name, how Mochi talks, the
   // brain, focus and late night, and her own touches, in one place.
-  const yours = new MakeItYours(
+  const yours = new MochiPage(
     context.extensionUri,
     yoursActions({
       brain: () => brains.current(),
