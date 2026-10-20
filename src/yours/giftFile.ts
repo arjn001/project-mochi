@@ -9,6 +9,7 @@
 import * as os from "node:os";
 import * as path from "node:path";
 import * as vscode from "vscode";
+import { PackLayer } from "../packs/format";
 import { GIFT_EXTENSION, GiftDraft, giftText } from "../packs/gift";
 import { giftStrings } from "../strings";
 
@@ -72,6 +73,21 @@ export async function wrapGift(gift: GiftDraft, io: GiftFileIo = dialogIo): Prom
         void vscode.commands.executeCommand("revealFileInOS", saved.uri);
       }
     });
+  }
+  return saved;
+}
+
+// "Save my touches as a file" on Make it yours: her own layer, as a gift
+// file with no note, so it can be brought back or shared later.
+export async function exportTouches(layer: PackLayer | undefined, io: GiftFileIo = dialogIo): Promise<SaveResult> {
+  const saved = await saveGiftFile({ layer: layer ?? { format: 1 } }, giftStrings.exportName, io);
+  if (saved.result === "empty") {
+    void vscode.window.showInformationMessage(giftStrings.nothingYet);
+  } else if (saved.result === "failed") {
+    void vscode.window.showWarningMessage(giftStrings.couldntSave);
+  } else if (saved.result === "saved") {
+    const name = layer?.user?.name !== undefined ? ` ${giftStrings.exportedName}` : "";
+    void vscode.window.showInformationMessage(`${giftStrings.exported(saved.name)}${name}`);
   }
   return saved;
 }

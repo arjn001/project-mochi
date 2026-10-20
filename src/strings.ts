@@ -356,6 +356,11 @@ export const giftStrings = {
   wrapped: (file: string) => `Your gift is wrapped! Send ${file} to them, and they can open it in VS Code with Mochi installed.`,
   showFile: "Show the file",
   couldntSave: "I couldn't save the gift there. Could you try another folder?",
+  // Export on "Make it yours": her own touches, in the same format.
+  exportMine: "Save my touches as a file",
+  exportName: "my-mochi.mochigift",
+  exported: (file: string) => `Saved your touches in ${file}.`,
+  exportedName: "They include your name.",
   startOver: "Start over",
   startOverQuestion: "Start over?",
   startOverDetail: "This clears the gift you're making. Your own Mochi stays as it is.",

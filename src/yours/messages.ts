@@ -82,7 +82,7 @@ export type ToYours =
   | { type: "result"; field: FieldId; ok: false; hint: string };
 
 // Buttons on the page, each running a command she could run herself.
-export const BUTTONS = ["forgetName", "chooseBrain", "addClaudeKey", "removeClaudeKey"] as const;
+export const BUTTONS = ["forgetName", "chooseBrain", "addClaudeKey", "removeClaudeKey", "makeGift", "exportMine"] as const;
 export const GIFT_BUTTONS = ["startFromMine", "anotherLine", "saveGift", "startOver"] as const;
 export type ButtonId = (typeof BUTTONS)[number] | (typeof GIFT_BUTTONS)[number];
 

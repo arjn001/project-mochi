@@ -4,7 +4,7 @@ import * as os from "node:os";
 import * as path from "node:path";
 import * as vscode from "vscode";
 import { checkGift, giftText } from "../../packs/gift";
-import { GiftFileIo, dialogIo, saveGiftFile } from "../../yours/giftFile";
+import { GiftFileIo, dialogIo, exportTouches, saveGiftFile } from "../../yours/giftFile";
 
 // Saving a gift file (MOCHI-55) through VS Code's real file system, into a
 // temp folder, with a pretend save dialog.
@@ -50,6 +50,14 @@ describe("saving a gift file", () => {
   it("writes nothing when she closes the dialog", async () => {
     assert.deepStrictEqual(await saveGiftFile(gift, "for-you.mochigift", pickIn(undefined)), { result: "cancelled" });
     assert.deepStrictEqual(fs.readdirSync(folder), []);
+  });
+
+  it("saves her own touches as a gift file with no note, named my-mochi", async () => {
+    const io = pickIn("my-mochi.mochigift");
+    const mine = { format: 1 as const, user: { name: "Sam" }, voice: { style: "Calm." } };
+    assert.strictEqual((await exportTouches(mine, io)).result, "saved");
+    assert.deepStrictEqual(io.asked, ["my-mochi.mochigift"]);
+    assert.deepStrictEqual(JSON.parse(fs.readFileSync(path.join(folder, "my-mochi.mochigift"), "utf8")), { mochigift: 1, layer: mine });
   });
 
   it("says it failed, without throwing, when the place can't be written", async () => {

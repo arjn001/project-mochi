@@ -12,6 +12,7 @@ const mochi = () => vscode.workspace.getConfiguration("mochi");
 // Her personal layer is real, kept in a fake store, over the default pack.
 function actionsWith(brain?: string, hasKey = false, name?: string) {
   const saved: string[] = [];
+  const exported: unknown[] = [];
   const data = new Map<string, unknown>();
   const pack = loadDefaultPack();
   const personal = new PersonalLayer({ get: (key) => data.get(key), update: async (key, value) => void data.set(key, value) }, pack, () => {});
@@ -23,8 +24,9 @@ function actionsWith(brain?: string, hasKey = false, name?: string) {
     layer: () => personal.layer(),
     saveLayer: (layer) => personal.save(layer),
     mochiLines: (moment) => pack.phrases[moment],
+    exportLayer: async () => void exported.push(personal.layer()),
   });
-  return Object.assign(actions, { savedNames: saved, personal });
+  return Object.assign(actions, { savedNames: saved, personal, exported });
 }
 
 describe("Make it yours: saving", () => {
@@ -111,6 +113,19 @@ describe("Make it yours: saving", () => {
   });
 
   describe("Mochi's touches", () => {
+    const buttons = async (actions: ReturnType<typeof actionsWith>) =>
+      (await actions.state()).sections.flatMap((section) => section.fields).flatMap((field) => (field.kind === "actions" ? field.buttons.map((button) => button.id) : []));
+
+    it("offers to save her touches as a file once she has some, and saves her own layer", async () => {
+      const actions = actionsWith();
+      assert.ok(!(await buttons(actions)).includes("exportMine"));
+      assert.ok((await buttons(actions)).includes("makeGift"));
+      await actions.edit("lines.stuck", "Want a paw?");
+      assert.ok((await buttons(actions)).includes("exportMine"));
+      await actions.button("exportMine");
+      assert.deepStrictEqual(actions.exported, [{ format: 1, phrases: { stuck: ["Want a paw?"] } }]);
+    });
+
     it("saves her own lines for a moment, and Mochi says them right away", async () => {
       const actions = actionsWith();
       assert.deepStrictEqual(await actions.edit("lines.celebrate", "Woohoo, {thing} is done!\n\n  Paws up for {thing}!  "), { ok: true });

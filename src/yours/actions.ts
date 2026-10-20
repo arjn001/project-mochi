@@ -4,7 +4,8 @@ import { toSpeakUp } from "../moments/gatekeeper";
 import { toLateHour } from "../moments/lateNight";
 import { readLearningMode } from "../settings";
 import { LIMITS, Moment, PackLayer, placeholdersFor } from "../packs/format";
-import { brainStrings, chatStrings, personalStrings, problemStrings, yoursStrings } from "../strings";
+import { layerIsEmpty } from "../packs/gift";
+import { brainStrings, chatStrings, giftStrings, personalStrings, problemStrings, yoursStrings } from "../strings";
 import { checkEdit, withTouch } from "./edits";
 import { BUTTONS, Field, FieldId, MOMENT_IDS, YoursState } from "./messages";
 import { YoursActions } from "./page";
@@ -22,14 +23,17 @@ export interface YoursNeeds {
   layer(): PackLayer | undefined;
   saveLayer(layer: PackLayer): Promise<{ ok: boolean }>;
   mochiLines(moment: Moment): string[];
+  // Saves her layer as a gift file she picks (MOCHI-55).
+  exportLayer(): Promise<unknown>;
 }
 
 // The command each button runs: the same one she could run herself.
-const COMMANDS: Record<(typeof BUTTONS)[number], string> = {
+const COMMANDS: Record<Exclude<(typeof BUTTONS)[number], "exportMine">, string> = {
   forgetName: "mochi.forgetName",
   chooseBrain: "mochi.chooseBrain",
   addClaudeKey: "mochi.addClaudeKey",
   removeClaudeKey: "mochi.removeClaudeKey",
+  makeGift: "mochi.makeGift",
 };
 
 // Which VS Code setting each field is. They're always saved in her user
@@ -86,6 +90,16 @@ export function yoursActions(needs: YoursNeeds): YoursActions {
           example: needs.mochiLines(moment).join("\n"),
         })
       ),
+      // Her touches as a file, once there's something in them, and a gift
+      // for someone else (MOCHI-55).
+      {
+        kind: "actions",
+        now: "",
+        buttons: [
+          ...(layer && !layerIsEmpty(layer) ? [{ id: "exportMine" as const, label: giftStrings.exportMine }] : []),
+          { id: "makeGift", label: giftStrings.title },
+        ],
+      },
     ];
     // The key itself never reaches the page: only whether there is one.
     const brains: Field[] = [
@@ -172,7 +186,9 @@ export function yoursActions(needs: YoursNeeds): YoursActions {
       return { ok: true };
     },
     async button(button) {
-      if (button in COMMANDS) {
+      if (button === "exportMine") {
+        await needs.exportLayer();
+      } else if (button in COMMANDS) {
         await vscode.commands.executeCommand(COMMANDS[button as keyof typeof COMMANDS]);
       }
     },

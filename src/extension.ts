@@ -26,7 +26,7 @@ import { watchStuck } from "./moments/stuckWatcher";
 import { celebrations } from "./moments/celebrate";
 import { GIFT_PAGE, MochiPage } from "./yours/page";
 import { giftActions } from "./yours/giftActions";
-import { wrapGift } from "./yours/giftFile";
+import { exportTouches, wrapGift } from "./yours/giftFile";
 import { yoursActions } from "./yours/actions";
 import { FocusTimer } from "./focus/timer";
 import { GreetingSurface, notificationGreeting } from "./presence/greetingSurface";
@@ -266,6 +266,7 @@ export function activate(context: vscode.ExtensionContext): MochiApi {
       layer: () => personal.layer(),
       saveLayer: (layer) => personal.save(layer),
       mochiLines: (moment) => defaultPack.phrases[moment],
+      exportLayer: () => exportTouches(personal.layer()),
     })
   );
   const openYours = vscode.commands.registerCommand("mochi.makeItYours", () => yours.open());
