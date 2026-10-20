@@ -84,10 +84,10 @@ function draw(field: Field): HTMLElement {
       input.maxLength = field.maxLength;
       // Saved on Enter or when she leaves the field, never every keystroke,
       // and only when it changed. An empty field never erases her name:
-      // that's what "Forget my name" is for.
+      // that's what "Forget my name" is for. A gift's names can be emptied.
       let kept = field.value;
       const save = () => {
-        if (input.value.trim() !== "" && input.value !== kept) {
+        if ((field.clearable || input.value.trim() !== "") && input.value !== kept) {
           kept = input.value;
           edit(field.id, input.value);
         }

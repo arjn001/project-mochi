@@ -5,8 +5,8 @@ import { toLateHour } from "../moments/lateNight";
 import { readLearningMode } from "../settings";
 import { LIMITS, Moment, PackLayer, placeholdersFor } from "../packs/format";
 import { brainStrings, chatStrings, personalStrings, problemStrings, yoursStrings } from "../strings";
-import { checkEdit, checkLines, checkStyle } from "./edits";
-import { ButtonId, Field, FieldId, MOMENT_IDS, YoursState } from "./messages";
+import { checkEdit, withTouch } from "./edits";
+import { BUTTONS, Field, FieldId, MOMENT_IDS, YoursState } from "./messages";
 import { YoursActions } from "./page";
 
 // What the page needs to know from the rest of Mochi.
@@ -25,7 +25,7 @@ export interface YoursNeeds {
 }
 
 // The command each button runs: the same one she could run herself.
-const COMMANDS: Record<ButtonId, string> = {
+const COMMANDS: Record<(typeof BUTTONS)[number], string> = {
   forgetName: "mochi.forgetName",
   chooseBrain: "mochi.chooseBrain",
   addClaudeKey: "mochi.addClaudeKey",
@@ -149,30 +149,12 @@ export function yoursActions(needs: YoursNeeds): YoursActions {
     async edit(field, value) {
       // Her style notes and her own lines go into her personal layer.
       if (field === "style" || field.startsWith("lines.")) {
-        const next: PackLayer = { format: 1, ...needs.layer() };
-        if (field === "style") {
-          const style = checkStyle(value);
-          if (!style.ok) {
-            return style;
-          }
-          const { style: _old, ...voice } = next.voice ?? {};
-          next.voice = style.style ? { ...voice, style: style.style } : voice;
-          if (Object.keys(next.voice).length === 0) {
-            delete next.voice;
-          }
-        } else {
-          const moment = field.slice("lines.".length) as Moment;
-          const lines = checkLines(moment, value);
-          if (!lines.ok) {
-            return lines;
-          }
-          const { [moment]: _old, ...phrases } = next.phrases ?? {};
-          next.phrases = lines.lines.length ? { ...phrases, [moment]: lines.lines } : phrases;
-          if (Object.keys(next.phrases).length === 0) {
-            delete next.phrases;
-          }
+        const touch = field === "style" ? "style" : (field.slice("lines.".length) as Moment);
+        const next = withTouch(needs.layer(), touch, value);
+        if (!next.ok) {
+          return next;
         }
-        return (await needs.saveLayer(next)).ok ? { ok: true } : { ok: false, hint: yoursStrings.couldntSave };
+        return (await needs.saveLayer(next.layer)).ok ? { ok: true } : { ok: false, hint: yoursStrings.couldntSave };
       }
       const checked = checkEdit(field, value);
       if (!checked.ok) {
@@ -190,7 +172,9 @@ export function yoursActions(needs: YoursNeeds): YoursActions {
       return { ok: true };
     },
     async button(button) {
-      await vscode.commands.executeCommand(COMMANDS[button]);
+      if (button in COMMANDS) {
+        await vscode.commands.executeCommand(COMMANDS[button as keyof typeof COMMANDS]);
+      }
     },
   };
 }

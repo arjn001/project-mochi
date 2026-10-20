@@ -327,3 +327,22 @@ export const pythonStrings = {
   done: (command: string) =>
     `Your Python project is all set up in .venv! Next time you can do this yourself with ${command}`,
 };
+
+// "Make a gift" (MOCHI-55, approved 2026-10-19). The touches reuse "Make it
+// yours"'s words, except the lines' description.
+export const giftStrings = {
+  title: "Make a gift",
+  intro: "Write Mochi's touches for someone special. Nothing here changes your own Mochi.",
+  who: "Who it's for",
+  askName: "What should Mochi call them?",
+  fromYou: "From you",
+  from: "From",
+  fromPlaceholder: "Your name, as they know you",
+  note: "A note for them",
+  noteDescription: "They'll see it when they unwrap the gift.",
+  linesDescription: "Lines for them, one per row. Leave it empty for Mochi's own.",
+  startFromMine: "Start from my touches",
+  startOver: "Start over",
+  startOverQuestion: "Start over?",
+  startOverDetail: "This clears the gift you're making. Your own Mochi stays as it is.",
+};

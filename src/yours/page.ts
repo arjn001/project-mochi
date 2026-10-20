@@ -1,8 +1,8 @@
 import { randomBytes } from "node:crypto";
 import * as vscode from "vscode";
-import { yoursStrings } from "../strings";
+import { giftStrings, yoursStrings } from "../strings";
 import { yoursHtml } from "./html";
-import { ButtonId, FieldId, FromYours, PageParts, ToYours, YoursState, YOURS_PARTS, toFromYours } from "./messages";
+import { ButtonId, FieldId, FromYours, GIFT_PARTS, PageParts, ToYours, YoursState, YOURS_PARTS, toFromYours } from "./messages";
 
 // What the page asks the rest of Mochi for.
 export interface YoursActions {
@@ -22,6 +22,7 @@ export interface PageKind {
 }
 
 export const YOURS_PAGE: PageKind = { viewType: "mochi.yours", title: yoursStrings.title, parts: YOURS_PARTS };
+export const GIFT_PAGE: PageKind = { viewType: "mochi.gift", title: giftStrings.title, parts: GIFT_PARTS };
 
 // A page in the editor area: "Make it yours" (MOCHI-43), and "Make a gift"
 // (MOCHI-55), which shares its script and look. Opened from the Command

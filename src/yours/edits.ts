@@ -2,9 +2,10 @@
 // anything is saved. Plain code with no VS Code dependency. A value that
 // doesn't fit gets a kind hint and isn't saved.
 import { MAX_FOCUS_MINUTES, MIN_FOCUS_MINUTES } from "../focus/timer";
-import { LIMITS, Moment, TEXT_DIRECTION, placeholdersFor, usesName } from "../packs/format";
+import { LIMITS, Moment, PackLayer, TEXT_DIRECTION, placeholdersFor, usesName } from "../packs/format";
 import { nameProblem } from "../packs/personalLayer";
-import { yoursStrings } from "../strings";
+import { GIFT_LIMITS } from "../packs/gift";
+import { personalStrings, yoursStrings } from "../strings";
 import { FieldId } from "./messages";
 
 export type Checked = { ok: true; value: string | number | boolean } | { ok: false; hint: string };
@@ -90,4 +91,61 @@ export function checkStyle(value: unknown): { ok: true; style: string } | { ok: 
     return { ok: false, hint: yoursStrings.hiddenCharacters(1) };
   }
   return { ok: true, style };
+}
+
+// A name on a gift (MOCHI-55): hers, or the maker's. The same checks and
+// kind words as her own name, but empty is fine: it means no name.
+export function checkGiftName(value: unknown): { ok: true; name?: string } | { ok: false; hint: string } {
+  if (typeof value !== "string") {
+    return { ok: false, hint: yoursStrings.pickOne };
+  }
+  if (value.trim() === "") {
+    return { ok: true };
+  }
+  const problem = nameProblem(value);
+  return problem ? { ok: false, hint: problem } : { ok: true, name: value.trim() };
+}
+
+// The maker's note on a gift: a few sentences, line breaks allowed, or
+// nothing.
+export function checkNote(value: unknown): { ok: true; note?: string } | { ok: false; hint: string } {
+  if (typeof value !== "string") {
+    return { ok: false, hint: yoursStrings.pickOne };
+  }
+  const note = value.replace(/\r\n?/g, "\n").trim();
+  if (note.length > GIFT_LIMITS.note) {
+    return { ok: false, hint: yoursStrings.styleTooLong(GIFT_LIMITS.note) };
+  }
+  if (/[\u0000-\u0008\u000B-\u001F\u007F]/.test(note) || TEXT_DIRECTION.test(note)) {
+    return { ok: false, hint: personalStrings.nameHidden };
+  }
+  return note ? { ok: true, note } : { ok: true };
+}
+
+// A layer with one touch changed: the style notes, or one moment's lines.
+// Empty means Mochi's own again, so that part is left out of the layer.
+export function withTouch(layer: PackLayer | undefined, touch: "style" | Moment, value: unknown): { ok: true; layer: PackLayer } | { ok: false; hint: string } {
+  const next: PackLayer = { format: 1, ...layer };
+  if (touch === "style") {
+    const style = checkStyle(value);
+    if (!style.ok) {
+      return style;
+    }
+    const { style: _old, ...voice } = next.voice ?? {};
+    next.voice = style.style ? { ...voice, style: style.style } : voice;
+    if (Object.keys(next.voice).length === 0) {
+      delete next.voice;
+    }
+    return { ok: true, layer: next };
+  }
+  const lines = checkLines(touch, value);
+  if (!lines.ok) {
+    return lines;
+  }
+  const { [touch]: _old, ...phrases } = next.phrases ?? {};
+  next.phrases = lines.lines.length ? { ...phrases, [touch]: lines.lines } : phrases;
+  if (Object.keys(next.phrases).length === 0) {
+    delete next.phrases;
+  }
+  return { ok: true, layer: next };
 }

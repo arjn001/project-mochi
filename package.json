@@ -152,6 +152,11 @@
         "command": "mochi.makeItYours",
         "title": "Make it yours",
         "category": "Mochi"
+      },
+      {
+        "command": "mochi.makeGift",
+        "title": "Make a gift",
+        "category": "Mochi"
       }
     ],
     "menus": {

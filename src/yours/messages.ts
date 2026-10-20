@@ -11,8 +11,9 @@ export type Field =
   // Her own lines for a moment, one per row, saved when she leaves the
   // field. `example` shows Mochi's own lines.
   | { kind: "lines"; id: FieldId; label: string; description: string; value: string[]; example: string; note?: string }
-  // A line of text, saved on Enter or when she leaves the field.
-  | { kind: "text"; id: FieldId; label: string; value: string; placeholder: string; maxLength: number; note?: string }
+  // A line of text, saved on Enter or when she leaves the field. Emptying it
+  // clears it only if it's `clearable`: her own name has "Forget my name".
+  | { kind: "text"; id: FieldId; label: string; value: string; placeholder: string; maxLength: number; clearable?: boolean; note?: string }
   | { kind: "choice"; id: FieldId; label: string; value: string; options: { value: string; label: string; description: string }[]; note?: string }
   | { kind: "toggle"; id: FieldId; label: string; description: string; value: boolean; note?: string }
   | { kind: "number"; id: FieldId; label: string; description: string; value: number; min: number; max: number; note?: string }
@@ -52,7 +53,18 @@ export const MOMENT_IDS = [
 export type MomentId = (typeof MOMENT_IDS)[number];
 
 export const FIELDS = ["name", "speakUp", "learningMode", "focusMinutes", "lateHour", "style", ...MOMENT_IDS.map((moment) => `lines.${moment}` as const)] as const;
-export type FieldId = "name" | "speakUp" | "learningMode" | "focusMinutes" | "lateHour" | "style" | `lines.${MomentId}`;
+// The gift being made (MOCHI-55): her name, the maker's name and note, and
+// the touches, never settings.
+export const GIFT_FIELDS = ["gift.name", "gift.from", "gift.note", "gift.style", ...MOMENT_IDS.map((moment) => `gift.lines.${moment}` as const)] as const;
+export type FieldId =
+  | "name"
+  | "speakUp"
+  | "learningMode"
+  | "focusMinutes"
+  | "lateHour"
+  | "style"
+  | `lines.${MomentId}`
+  | (typeof GIFT_FIELDS)[number];
 
 export type ToYours =
   | { type: "show"; state: YoursState }
@@ -62,7 +74,8 @@ export type ToYours =
 
 // Buttons on the page, each running a command she could run herself.
 export const BUTTONS = ["forgetName", "chooseBrain", "addClaudeKey", "removeClaudeKey"] as const;
-export type ButtonId = (typeof BUTTONS)[number];
+export const GIFT_BUTTONS = ["startFromMine", "startOver"] as const;
+export type ButtonId = (typeof BUTTONS)[number] | (typeof GIFT_BUTTONS)[number];
 
 export type FromYours =
   | { type: "ready" }
@@ -75,6 +88,7 @@ export interface PageParts {
   buttons: readonly ButtonId[];
 }
 export const YOURS_PARTS: PageParts = { fields: FIELDS, buttons: BUTTONS };
+export const GIFT_PARTS: PageParts = { fields: GIFT_FIELDS, buttons: GIFT_BUTTONS };
 
 // The longest value the page may send. Every field checks its own limits.
 const MAX_VALUE = 10_000;
