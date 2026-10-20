@@ -83,7 +83,7 @@ export type ToYours =
 
 // Buttons on the page, each running a command she could run herself.
 export const BUTTONS = ["forgetName", "chooseBrain", "addClaudeKey", "removeClaudeKey"] as const;
-export const GIFT_BUTTONS = ["startFromMine", "anotherLine", "startOver"] as const;
+export const GIFT_BUTTONS = ["startFromMine", "anotherLine", "saveGift", "startOver"] as const;
 export type ButtonId = (typeof BUTTONS)[number] | (typeof GIFT_BUTTONS)[number];
 
 export type FromYours =

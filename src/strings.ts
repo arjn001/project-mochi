@@ -347,6 +347,15 @@ export const giftStrings = {
   // Filled in for the preview, like the docs' examples.
   sample: { timeOfDay: "evening", thing: "your homework", project: "homework-3" },
   startFromMine: "Start from my touches",
+  saveGift: "Save gift file...",
+  // The file's name in the save dialog, and its kind in the dialog's list.
+  defaultName: "for-you.mochigift",
+  fileType: "Mochi gift",
+  nothingYet: "Add a name, a line, or a style note first, so there's something to unwrap.",
+  // `file` is the name she saved it as.
+  wrapped: (file: string) => `Your gift is wrapped! Send ${file} to them, and they can open it in VS Code with Mochi installed.`,
+  showFile: "Show the file",
+  couldntSave: "I couldn't save the gift there. Could you try another folder?",
   startOver: "Start over",
   startOverQuestion: "Start over?",
   startOverDetail: "This clears the gift you're making. Your own Mochi stays as it is.",

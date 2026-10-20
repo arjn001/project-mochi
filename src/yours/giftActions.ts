@@ -22,6 +22,8 @@ export interface GiftNeeds {
   // Mochi's own pack, for the examples and the preview.
   base: Pack;
   confirm: Confirm;
+  // Saves the gift as a file she picks.
+  saveFile(draft: GiftDraft): Promise<unknown>;
 }
 
 // How Mochi would sound with this gift: one line for each moment, from the
@@ -118,7 +120,16 @@ export function giftActions(needs: GiftNeeds): YoursActions {
       ),
     ];
     const sounds: Field[] = [preview(draft), { kind: "actions", now: "", buttons: [{ id: "anotherLine", label: giftStrings.anotherLine }] }];
-    const end: Field[] = [{ kind: "actions", now: "", buttons: [{ id: "startOver", label: giftStrings.startOver }] }];
+    const end: Field[] = [
+      {
+        kind: "actions",
+        now: "",
+        buttons: [
+          { id: "saveGift", label: giftStrings.saveGift },
+          { id: "startOver", label: giftStrings.startOver },
+        ],
+      },
+    ];
     return {
       title: giftStrings.title,
       intro: giftStrings.intro,
@@ -176,6 +187,8 @@ export function giftActions(needs: GiftNeeds): YoursActions {
       const draft = needs.draft();
       if (button === "anotherLine") {
         turn++;
+      } else if (button === "saveGift") {
+        await needs.saveFile(draft);
       } else if (button === "startFromMine") {
         await needs.saveDraft({ ...draft, layer: startFrom(draft.layer, needs.myLayer()) });
       } else if (button === "startOver") {

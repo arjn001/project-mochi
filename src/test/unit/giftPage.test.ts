@@ -15,14 +15,16 @@ function setUp(mine?: PackLayer, answer = true) {
   const drafts = new GiftDrafts(store);
   const pack = loadDefaultPack();
   const asked: string[] = [];
+  const saved: unknown[] = [];
   const actions = giftActions({
     draft: () => drafts.draft(),
     saveDraft: (draft) => drafts.save(draft),
     myLayer: () => data.get(LAYER_KEY) as PackLayer | undefined,
     base: pack,
     confirm: async (question) => (asked.push(question), answer),
+    saveFile: async (draft) => void saved.push(draft),
   });
-  return { actions, drafts, data, asked };
+  return { actions, drafts, data, asked, saved };
 }
 
 const mine: PackLayer = { format: 1, user: { name: "Alex" }, voice: { style: "Calm." }, phrases: { stuck: ["Mine!"], celebrate: ["Go {thing}!"] } };
@@ -105,6 +107,13 @@ describe("Make a gift", () => {
     await actions.button("startFromMine");
     assert.deepStrictEqual(drafts.draft().layer, { format: 1, voice: { style: "Calm." }, phrases: { stuck: ["Gift line"], celebrate: ["Go {thing}!"] } });
     assert.deepStrictEqual(startFrom({ format: 1, voice: { style: "Gift." } }, mine).voice, { style: "Gift." });
+  });
+
+  it("saves the gift as it is now with Save gift file...", async () => {
+    const { actions, saved } = setUp();
+    await actions.edit("gift.name", "Sam");
+    await actions.button("saveGift");
+    assert.deepStrictEqual(saved, [{ layer: { format: 1, user: { name: "Sam" } } }]);
   });
 
   it("starts over only after a clear yes", async () => {

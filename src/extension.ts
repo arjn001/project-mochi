@@ -26,6 +26,7 @@ import { watchStuck } from "./moments/stuckWatcher";
 import { celebrations } from "./moments/celebrate";
 import { GIFT_PAGE, MochiPage } from "./yours/page";
 import { giftActions } from "./yours/giftActions";
+import { wrapGift } from "./yours/giftFile";
 import { yoursActions } from "./yours/actions";
 import { FocusTimer } from "./focus/timer";
 import { GreetingSurface, notificationGreeting } from "./presence/greetingSurface";
@@ -278,6 +279,7 @@ export function activate(context: vscode.ExtensionContext): MochiApi {
       myLayer: () => personal.layer(),
       base: defaultPack,
       confirm: confirmInDialog,
+      saveFile: (draft) => wrapGift(draft),
     }),
     GIFT_PAGE
   );
