@@ -124,7 +124,12 @@ file. A stranger without a gift simply never sees any of this.
 **Making a gift** is its own flow, separate from the maker's own personal
 layer. Writing, previewing, and saving a gift for someone else never applies it
 to the maker's own install. The preview shows how Mochi would look and sound
-without changing anything.
+without changing anything. Built in MOCHI-55: the "Make a gift" page
+(`src/yours/giftActions.ts`) keeps the gift being made under its own key in
+Mochi's private global state (`src/packs/giftDraft.ts`), never laid over
+her pack, and saves it as the file she picks (`src/yours/giftFile.ts`). The
+format is in PACKS.md. "Make it yours" saves her own layer in the same
+format.
 
 **If she already has a personal layer**, unwrapping asks first. The default is
 to merge: the gift adds what's new, and her existing choices stay where both
@@ -197,6 +202,7 @@ more, run anything, or change a setting.
 | API keys | VS Code secret storage |
 | Last time she coded and the project's folder name, today's greeting and tonight's nudge shown | Mochi's private state |
 | Personal layer (her name, her lines, style notes) | Mochi's private global state, on her own computer, not synced |
+| A gift she's making (MOCHI-55) | Mochi's private global state, under its own key, apart from her layer |
 | Chats, one file per project (MOCHI-21) | Mochi's storage folder, where Mochi runs: her computer, or the remote machine in SSH, WSL, and containers |
 | Projects already offered Python setup (folder addresses only) | Mochi's private state, one list for all projects |
 

@@ -413,12 +413,55 @@ brings the same tab forward. Mochi's look, from the panel's tokens.
 - **Settings** are saved in her user settings, never a project's. When a
   project sets its own value: "This project sets its own speak-up level, so
   that one wins here." (and the same for focus length and late hour).
-- **Import and export** come with the gift file format (MOCHI-55, MOCHI-56).
+- **Export:** "Save my touches as a file" at the end of Mochi's touches,
+  once she has some, saves her layer as `my-mochi.mochigift`, then "Saved
+  your touches in my-mochi.mochigift." (with "They include your name."
+  when they do). Next to it, "Make a gift" opens that page (MOCHI-55).
+  Import comes with MOCHI-56.
+- **Wording:** all of it approved, including the field labels, the hints,
+  the project notes for focus length and late hour, and "Late at night (a
+  darker theme)" (2026-10-19).
 
 ![The Make it yours page in Light Modern and Dark Modern](design/screenshots/make-it-yours-preview.png)
 
 *A preview rendered in Chrome with the themes' colors, not a screenshot of
 VS Code.*
+
+## Make a gift (MOCHI-55, agreed 2026-10-19)
+A page like "Make it yours", from **Mochi: Make a gift** or the **Make a
+gift** button on Make it yours, for writing Mochi's touches for someone
+else. "Write Mochi's touches for someone special. Nothing here changes
+your own Mochi." under the title.
+- **Who it's for:** "What should Mochi call them?"
+- **From you:** "From" ("Your name, as they know you"), and "A note for
+  them", "They'll see it when they unwrap the gift."
+- **Mochi's touches:** the same style notes and moments as Make it yours,
+  with "Lines for them, one per row. Leave it empty for Mochi's own." "Start
+  from my touches" (when she has some) adds her own lines and style notes
+  where the gift has none yet, never her name.
+- **How Mochi will sound for them:** one of Mochi's bubbles per moment,
+  with the little cat, from the gift's lines or Mochi's own, filled in with
+  sample values ("Good evening, Sam!", "your homework", "homework-3").
+  "Another line" shows each moment's next line. With style notes: "Style
+  notes shape Mochi's answers, so they show once they ask Mochi something."
+  The preview updates as she leaves each field, without redrawing the
+  fields.
+- **Saving:** "Save gift file..." opens the save dialog in her home folder
+  with `for-you.mochigift`. Then "Your gift is wrapped! Send
+  for-you.mochigift to them, and they can open it in VS Code with Mochi
+  installed." with "Show the file" (in a local window). With nothing in it
+  yet: "Add a name, a line, or a style note first, so there's something to
+  unwrap." If it can't be written: "I couldn't save the gift there. Could
+  you try another folder?" with "Save gift file...".
+- **Start over:** a dialog, "Start over?" with "This clears the gift you're
+  making. Your own Mochi stays as it is.", "Start over" and "Keep it".
+- Every field saves as she goes, like Make it yours. Emptying a name or the
+  note clears it.
+
+![Make a gift in Light Modern and Dark Modern: the top of the page and the preview](design/screenshots/make-a-gift-preview.png)
+
+*A preview rendered in Chrome with the themes' colors, not a screenshot of
+VS Code. Mochi's touches, between From you and the preview, are left out.*
 
 ## Not designed yet
 - **Illustrated avatar art and moods** (MOCHI-17), after the preview.
