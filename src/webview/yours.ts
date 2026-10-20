@@ -3,7 +3,7 @@
 // it shows what Mochi sends and reports what she changes. It decides
 // nothing and has no words of its own, and builds everything with
 // createElement and text nodes, never HTML.
-import { Field, FieldId, FromYours, ToYours, YoursState } from "../yours/messages";
+import { Field, FieldId, FromYours, PreviewField, ToYours, YoursState } from "../yours/messages";
 
 interface VsCodeApi {
   postMessage(message: FromYours): void;
@@ -16,6 +16,8 @@ const intro = document.getElementById("intro") as HTMLParagraphElement;
 const sections = document.getElementById("sections") as HTMLDivElement;
 
 let savedWord = "";
+// The preview, if the page has one, so a change can redraw just that.
+let previewRow: HTMLElement | undefined;
 // Each field's status line: "Saved", or a kind hint.
 const statuses = new Map<FieldId, HTMLElement>();
 const timers = new Map<FieldId, ReturnType<typeof setTimeout>>();
@@ -145,10 +147,30 @@ function draw(field: Field): HTMLElement {
       for (const button of field.buttons) {
         const made = element("button", "mochi-button", button.label);
         made.type = "button";
+        made.id = `button-${button.id}`;
         made.addEventListener("click", () => vscode.postMessage({ type: "button", button: button.id }));
         buttons.append(made);
       }
       row.append(buttons);
+      return row;
+    }
+    case "preview": {
+      // Mochi's bubbles, like in the panel, with the little cat.
+      const list = element("div", "mochi-yours-preview");
+      for (const item of field.items) {
+        const message = element("div", "mochi-message mochi-from-mochi");
+        const cat = element("span", "mochi-message-cat");
+        cat.setAttribute("aria-hidden", "true");
+        const body = element("div", "mochi-message-body");
+        body.append(element("p", "mochi-yours-description", item.label), element("div", "mochi-bubble", item.line));
+        message.append(cat, body);
+        list.append(message);
+      }
+      row.append(list);
+      if (field.note) {
+        row.append(element("p", "mochi-yours-note", field.note));
+      }
+      previewRow = row;
       return row;
     }
     case "number": {
@@ -181,13 +203,27 @@ function show(state: YoursState): void {
   intro.hidden = !state.intro;
   savedWord = state.saved;
   statuses.clear();
+  previewRow = undefined;
+  // Whatever she was on keeps focus after the page is redrawn, like a
+  // button she just pressed.
+  const focused = document.activeElement?.id;
   sections.replaceChildren(
     ...state.sections.map((section) => {
       const box = element("section", "mochi-yours-section");
-      box.append(element("h2", "mochi-yours-heading", section.heading), ...section.fields.map(draw));
+      if (section.heading) {
+        box.append(element("h2", "mochi-yours-heading", section.heading));
+      }
+      box.append(...section.fields.map(draw));
       return box;
     })
   );
+  if (focused) {
+    document.getElementById(focused)?.focus();
+  }
+}
+
+function showPreview(field: PreviewField): void {
+  previewRow?.replaceWith(draw(field));
 }
 
 function result(field: FieldId, ok: boolean, hint?: string): void {
@@ -208,6 +244,8 @@ window.addEventListener("message", (event: MessageEvent<ToYours>) => {
   const message = event.data;
   if (message.type === "show") {
     show(message.state);
+  } else if (message.type === "preview") {
+    showPreview(message.field);
   } else if (message.type === "result") {
     result(message.field, message.ok, message.ok ? undefined : message.hint);
   }

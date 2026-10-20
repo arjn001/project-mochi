@@ -276,7 +276,7 @@ export function activate(context: vscode.ExtensionContext): MochiApi {
       draft: () => giftDrafts.draft(),
       saveDraft: (draft) => giftDrafts.save(draft),
       myLayer: () => personal.layer(),
-      mochiLines: (moment) => defaultPack.phrases[moment],
+      base: defaultPack,
       confirm: confirmInDialog,
     }),
     GIFT_PAGE

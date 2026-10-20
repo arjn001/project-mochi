@@ -4,7 +4,7 @@ import { PackLayer } from "../../packs/format";
 import { GiftDrafts } from "../../packs/giftDraft";
 import { LAYER_KEY } from "../../packs/personalLayer";
 import { checkGiftName, checkNote } from "../../yours/edits";
-import { giftActions, startFrom } from "../../yours/giftActions";
+import { giftActions, previewLines, startFrom } from "../../yours/giftActions";
 import { GIFT_PARTS, toFromYours } from "../../yours/messages";
 
 // "Make a gift" (MOCHI-55), with a real draft store over a pretend
@@ -19,7 +19,7 @@ function setUp(mine?: PackLayer, answer = true) {
     draft: () => drafts.draft(),
     saveDraft: (draft) => drafts.save(draft),
     myLayer: () => data.get(LAYER_KEY) as PackLayer | undefined,
-    mochiLines: (moment) => pack.phrases[moment],
+    base: pack,
     confirm: async (question) => (asked.push(question), answer),
   });
   return { actions, drafts, data, asked };
@@ -118,6 +118,47 @@ describe("Make a gift", () => {
     await cleared.actions.edit("gift.name", "Sam");
     await cleared.actions.button("startOver");
     assert.deepStrictEqual(cleared.drafts.draft(), { layer: { format: 1 } });
+  });
+
+  describe("the preview", () => {
+    const base = loadDefaultPack();
+
+    it("says the gift's lines where it has them, and Mochi's own elsewhere, filled in", () => {
+      const lines = previewLines(base, { format: 1, user: { name: "Sam" }, phrases: { celebrate: ["Paws up, {thing}!"], stuck: ["Need a paw?"] } }, 0);
+      const by = Object.fromEntries(lines.map(({ moment, line }) => [moment, line]));
+      assert.strictEqual(by.stuck, "Need a paw?");
+      assert.strictEqual(by.celebrate, "Paws up, your homework!");
+      assert.strictEqual(lines.length, 9);
+      for (const { moment, line } of lines) {
+        assert.doesNotMatch(line, /\{[^}]*\}|undefined/, `${moment}: ${line}`);
+      }
+    });
+
+    it("uses lines with {name} only when the gift has a name", () => {
+      const greeting = { greeting: ["Hi, {name}!", "Hello there!"] };
+      const withName = [0, 1].map((turn) => previewLines(base, { format: 1, user: { name: "Sam" }, phrases: greeting }, turn)[0].line);
+      assert.deepStrictEqual(withName, ["Hi, Sam!", "Hello there!"]);
+      const without = [0, 1].map((turn) => previewLines(base, { format: 1, phrases: greeting }, turn)[0].line);
+      assert.deepStrictEqual(without, ["Hello there!", "Hello there!"]);
+    });
+
+    it("shows the latest after each change, and another line when asked", async () => {
+      const { actions } = setUp();
+      await actions.edit("gift.lines.stuck", "One\nTwo");
+      const stuck = () => actions.preview!().items.find((item) => item.label === "When you're stuck")!.line;
+      assert.strictEqual(stuck(), "One");
+      await actions.button("anotherLine");
+      assert.strictEqual(stuck(), "Two");
+      const state = await actions.state();
+      assert.ok(state.sections.some((section) => section.fields.some((field) => field.kind === "preview")));
+    });
+
+    it("explains style notes only when the gift has some", async () => {
+      const { actions } = setUp();
+      assert.strictEqual(actions.preview!().note, undefined);
+      await actions.edit("gift.style", "Sleepy.");
+      assert.ok(actions.preview!().note);
+    });
   });
 
   describe("checking names and the note", () => {

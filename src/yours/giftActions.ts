@@ -5,11 +5,11 @@
 // Everything is saved into the gift being made, never her own layer or her
 // settings, so making a gift never changes her own Mochi.
 import { Confirm } from "../forget";
-import { LIMITS, MOMENTS, Moment, PackLayer, placeholdersFor } from "../packs/format";
+import { LIMITS, MOMENTS, Moment, Pack, PackLayer, fill, layerOver, placeholdersFor, usesName } from "../packs/format";
 import { GIFT_LIMITS, GiftDraft } from "../packs/gift";
 import { giftStrings, yoursStrings } from "../strings";
 import { checkGiftName, checkNote, withTouch } from "./edits";
-import { Field, MOMENT_IDS, YoursState } from "./messages";
+import { Field, MOMENT_IDS, PreviewField, YoursState } from "./messages";
 import { YoursActions } from "./page";
 
 export interface GiftNeeds {
@@ -19,8 +19,23 @@ export interface GiftNeeds {
   // Her own layer, to start from. Only her touches are copied, never her
   // name.
   myLayer(): PackLayer | undefined;
-  mochiLines(moment: Moment): string[];
+  // Mochi's own pack, for the examples and the preview.
+  base: Pack;
   confirm: Confirm;
+}
+
+// How Mochi would sound with this gift: one line for each moment, from the
+// gift's lines or Mochi's own, filled in with sample values. `turn` moves
+// each moment to its next line ("Another line"). Lines with {name} only
+// come up when the gift has a name, like when Mochi really speaks.
+export function previewLines(base: Pack, layer: PackLayer, turn: number): { moment: Moment; line: string }[] {
+  const pack = layerOver(base, layer);
+  const name = pack.user?.name;
+  return MOMENTS.map((moment) => {
+    const usable = pack.phrases[moment].filter((phrase) => name || !usesName(phrase));
+    const phrase = usable[turn % usable.length];
+    return { moment, line: fill(phrase, { ...giftStrings.sample, companion: pack.name, ...(name ? { name } : {}) }) };
+  });
 }
 
 const hasTouches = (layer: PackLayer | undefined): boolean => layer?.voice?.style !== undefined || MOMENTS.some((moment) => layer?.phrases?.[moment] !== undefined);
@@ -41,6 +56,14 @@ export function startFrom(gift: PackLayer, mine: PackLayer | undefined): PackLay
 }
 
 export function giftActions(needs: GiftNeeds): YoursActions {
+  // Which line of each moment the preview shows. Kept only while Mochi runs.
+  let turn = 0;
+  const preview = (draft = needs.draft()): PreviewField => ({
+    kind: "preview",
+    items: previewLines(needs.base, draft.layer, turn).map(({ moment, line }) => ({ label: yoursStrings.moments[moment], line })),
+    ...(draft.layer.voice?.style !== undefined && { note: giftStrings.previewStyle }),
+  });
+
   const state = (): YoursState => {
     const draft = needs.draft();
     const who: Field[] = [
@@ -90,11 +113,12 @@ export function giftActions(needs: GiftNeeds): YoursActions {
           label: yoursStrings.moments[moment],
           description: `${giftStrings.linesDescription} ${yoursStrings.canUse([...placeholdersFor(moment)])}`,
           value: draft.layer.phrases?.[moment] ?? [],
-          example: needs.mochiLines(moment).join("\n"),
+          example: needs.base.phrases[moment].join("\n"),
         })
       ),
-      { kind: "actions", now: "", buttons: [{ id: "startOver", label: giftStrings.startOver }] },
     ];
+    const sounds: Field[] = [preview(draft), { kind: "actions", now: "", buttons: [{ id: "anotherLine", label: giftStrings.anotherLine }] }];
+    const end: Field[] = [{ kind: "actions", now: "", buttons: [{ id: "startOver", label: giftStrings.startOver }] }];
     return {
       title: giftStrings.title,
       intro: giftStrings.intro,
@@ -103,6 +127,8 @@ export function giftActions(needs: GiftNeeds): YoursActions {
         { heading: giftStrings.who, fields: who },
         { heading: giftStrings.fromYou, fields: from },
         { heading: yoursStrings.touches, fields: touches },
+        { heading: giftStrings.preview, fields: sounds },
+        { heading: "", fields: end },
       ],
     };
   };
@@ -111,6 +137,7 @@ export function giftActions(needs: GiftNeeds): YoursActions {
 
   return {
     state,
+    preview: () => preview(),
     async edit(field, value) {
       const draft = needs.draft();
       if (field === "gift.name") {
@@ -147,7 +174,9 @@ export function giftActions(needs: GiftNeeds): YoursActions {
     },
     async button(button) {
       const draft = needs.draft();
-      if (button === "startFromMine") {
+      if (button === "anotherLine") {
+        turn++;
+      } else if (button === "startFromMine") {
         await needs.saveDraft({ ...draft, layer: startFrom(draft.layer, needs.myLayer()) });
       } else if (button === "startOver") {
         if (await needs.confirm(giftStrings.startOverQuestion, giftStrings.startOverDetail, giftStrings.startOver)) {

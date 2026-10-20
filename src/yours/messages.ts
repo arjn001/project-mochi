@@ -17,11 +17,15 @@ export type Field =
   | { kind: "choice"; id: FieldId; label: string; value: string; options: { value: string; label: string; description: string }[]; note?: string }
   | { kind: "toggle"; id: FieldId; label: string; description: string; value: boolean; note?: string }
   | { kind: "number"; id: FieldId; label: string; description: string; value: number; min: number; max: number; note?: string }
+  // How Mochi would sound (MOCHI-55): one line per moment, shown as
+  // Mochi's bubbles, as plain text. `note` is a quiet line under them.
+  | { kind: "preview"; items: { label: string; line: string }[]; note?: string }
   // Something she does with a button, like choosing a brain. `now` says how
   // things are.
   | { kind: "actions"; now: string; buttons: { id: ButtonId; label: string }[] };
 
 export interface Section {
+  // Empty for a row of buttons at the end, with no heading of its own.
   heading: string;
   fields: Field[];
 }
@@ -66,15 +70,20 @@ export type FieldId =
   | `lines.${MomentId}`
   | (typeof GIFT_FIELDS)[number];
 
+export type PreviewField = Extract<Field, { kind: "preview" }>;
+
 export type ToYours =
   | { type: "show"; state: YoursState }
+  // After a change on Make a gift: the preview again, without redrawing
+  // the fields she's moving between.
+  | { type: "preview"; field: PreviewField }
   // After an edit: saved, or a kind hint about why not.
   | { type: "result"; field: FieldId; ok: true }
   | { type: "result"; field: FieldId; ok: false; hint: string };
 
 // Buttons on the page, each running a command she could run herself.
 export const BUTTONS = ["forgetName", "chooseBrain", "addClaudeKey", "removeClaudeKey"] as const;
-export const GIFT_BUTTONS = ["startFromMine", "startOver"] as const;
+export const GIFT_BUTTONS = ["startFromMine", "anotherLine", "startOver"] as const;
 export type ButtonId = (typeof BUTTONS)[number] | (typeof GIFT_BUTTONS)[number];
 
 export type FromYours =

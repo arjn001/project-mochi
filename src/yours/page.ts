@@ -2,7 +2,7 @@ import { randomBytes } from "node:crypto";
 import * as vscode from "vscode";
 import { giftStrings, yoursStrings } from "../strings";
 import { yoursHtml } from "./html";
-import { ButtonId, FieldId, FromYours, GIFT_PARTS, PageParts, ToYours, YoursState, YOURS_PARTS, toFromYours } from "./messages";
+import { ButtonId, FieldId, FromYours, GIFT_PARTS, PageParts, PreviewField, ToYours, YoursState, YOURS_PARTS, toFromYours } from "./messages";
 
 // What the page asks the rest of Mochi for.
 export interface YoursActions {
@@ -11,6 +11,8 @@ export interface YoursActions {
   edit(field: FieldId, value: string | number | boolean): Promise<{ ok: true } | { ok: false; hint: string }>;
   // Runs the command a button stands for.
   button(button: ButtonId): Promise<void>;
+  // The page's preview, if it has one, sent again after each change.
+  preview?(): PreviewField;
 }
 
 // Which page this is: VS Code's name for it, its tab title, and the fields
@@ -95,6 +97,9 @@ export class MochiPage implements vscode.Disposable {
       case "edit": {
         const result = await this.actions.edit(message.field, message.value);
         this.post(result.ok ? { type: "result", field: message.field, ok: true } : { type: "result", field: message.field, ok: false, hint: result.hint });
+        if (result.ok && this.actions.preview) {
+          this.post({ type: "preview", field: this.actions.preview() });
+        }
         break;
       }
       case "button":

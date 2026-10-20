@@ -155,3 +155,15 @@ body.mochi-yours {
 .mochi-yours-area::placeholder {
   color: var(--mochi-placeholder);
 }
+
+/* "Make a gift"'s preview (MOCHI-55): Mochi's bubbles from panel.css, one
+   per moment. */
+.mochi-yours-preview {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-width: 560px;
+}
+.mochi-yours-preview .mochi-yours-description {
+  margin: 0;
+}

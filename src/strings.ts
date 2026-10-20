@@ -341,6 +341,11 @@ export const giftStrings = {
   note: "A note for them",
   noteDescription: "They'll see it when they unwrap the gift.",
   linesDescription: "Lines for them, one per row. Leave it empty for Mochi's own.",
+  preview: "How Mochi will sound for them",
+  anotherLine: "Another line",
+  previewStyle: "Style notes shape Mochi's answers, so they show once they ask Mochi something.",
+  // Filled in for the preview, like the docs' examples.
+  sample: { timeOfDay: "evening", thing: "your homework", project: "homework-3" },
   startFromMine: "Start from my touches",
   startOver: "Start over",
   startOverQuestion: "Start over?",
