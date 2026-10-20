@@ -15,15 +15,16 @@ update isn't listed.*
   https://marketplace.visualstudio.com/items?itemName=arjungyawali.mochi-companion
 - **Open pull requests:** none besides this one.
 - **In progress:**
-  - MOCHI-43 "Make it yours" page: built and in review. Done once it
-    merges.
+  - MOCHI-71 Release 0.2.0: the version is 0.2.0, still a Preview, with a
+    CHANGELOG.md for 0.1.0 and 0.2.0. Done once Arjun uploads the tested
+    .vsix built from main.
   - MOCHI-17 Art and moods: the preview uses the icon font's cats;
     illustrated art comes when Arjun has it.
 - **Next:** MOCHI-55 Make a gift file, then MOCHI-56 Unwrap a gift file
   (which bring Export and Import to the page), then MOCHI-45.
-- **Waiting on:** Arjun to try and merge MOCHI-43.
+- **Waiting on:** Arjun to merge MOCHI-71, then to upload 0.2.0.
 
-**49 of 60 Jira tasks and subtasks done**. 4 of the 8
+**50 of 61 Jira tasks and subtasks done**. 4 of the 8
 categories are complete. 513 tests (443 unit, 70 integration) run on every
 pull request, on Linux, macOS, and Windows. `npm run coverage`: 86.3% of
 Mochi's lines.
