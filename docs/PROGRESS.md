@@ -13,12 +13,11 @@ update isn't listed.*
 - **Released:** Mochi Companion 0.1.0, a Preview, on the VS Code
   Marketplace since 2026-10-11 01:58 UTC:
   https://marketplace.visualstudio.com/items?itemName=arjungyawali.mochi-companion
-- **Open pull requests:** none besides this one, once MOCHI-71 (#62)
-  merges.
+- **Open pull requests:** none besides this one.
 - **In progress:**
   - MOCHI-55 Make a gift file: built and in review. Done once it merges.
-  - MOCHI-71 Release 0.2.0: done once Arjun uploads the tested .vsix
-    built from main.
+  - MOCHI-71 Release 0.2.0: the .vsix is built from main and tested in
+    clean profiles on VS Code 1.125 and 1.142. Done once Arjun uploads it.
   - MOCHI-17 Art and moods: the preview uses the icon font's cats;
     illustrated art comes when Arjun has it.
 - **Next:** MOCHI-56 Unwrap a gift file (with Import on the page), then

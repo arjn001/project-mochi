@@ -2,7 +2,7 @@
   "name": "mochi-companion",
   "displayName": "Mochi Companion",
   "description": "A cozy AI companion that lives in VS Code.",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "preview": true,
   "publisher": "arjungyawali",
   "license": "MIT",
