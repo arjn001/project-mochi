@@ -1,6 +1,6 @@
 # Progress
 
-Where Mochi stands, as of 2026-10-11. Jira (space MOCHI) is the source of
+Where Mochi stands, as of 2026-10-19. Jira (space MOCHI) is the source of
 truth for task status; this doc is the readable summary, plus Arjun's likes
 and dislikes. "Current state" is updated at the end of every task, as part
 of that task's last commit. The rest is updated at the end of each working
@@ -15,18 +15,18 @@ update isn't listed.*
   https://marketplace.visualstudio.com/items?itemName=arjungyawali.mochi-companion
 - **Open pull requests:** none besides this one.
 - **In progress:**
-  - MOCHI-71 Release 0.2.0: the version is 0.2.0, still a Preview, with a
-    CHANGELOG.md for 0.1.0 and 0.2.0. Done once Arjun uploads the tested
-    .vsix built from main.
+  - MOCHI-55 Make a gift file: built and in review. Done once it merges.
+  - MOCHI-71 Release 0.2.0: the .vsix is built from main and tested in
+    clean profiles on VS Code 1.125 and 1.142. Done once Arjun uploads it.
   - MOCHI-17 Art and moods: the preview uses the icon font's cats;
     illustrated art comes when Arjun has it.
-- **Next:** MOCHI-55 Make a gift file, then MOCHI-56 Unwrap a gift file
-  (which bring Export and Import to the page), then MOCHI-45.
-- **Waiting on:** Arjun to merge MOCHI-71, then to upload 0.2.0.
+- **Next:** MOCHI-56 Unwrap a gift file (with Import on the page), then
+  MOCHI-45.
+- **Waiting on:** Arjun to try and merge MOCHI-55, and to upload 0.2.0.
 
 **50 of 61 Jira tasks and subtasks done**. 4 of the 8
-categories are complete. 513 tests (443 unit, 70 integration) run on every
-pull request, on Linux, macOS, and Windows. `npm run coverage`: 86.3% of
+categories are complete. 556 tests (479 unit, 77 integration) run on every
+pull request, on Linux, macOS, and Windows. `npm run coverage`: 87.1% of
 Mochi's lines.
 
 ## Done
@@ -135,6 +135,12 @@ MOMENTS.md, PRESENCE.md, ARCHITECTURE.md, and BUILD_PLAN.md.
   moment, in one page in the editor area. Saves as she changes each thing,
   into her user settings or her personal layer, with a quiet "Saved" or a
   kind hint (MOCHI-43).
+- "Make a gift": a page like "Make it yours" for writing Mochi's touches
+  for someone else (their name, a note from you, style notes, and lines),
+  with a preview in Mochi's bubbles, saved as one `for-you.mochigift` file
+  she picks. Kept apart from her own layer, so her Mochi never changes.
+  The gift file is checked JSON (PACKS.md), and "Make it yours" saves her
+  own touches in the same format (MOCHI-55).
 - Pack format with strict checking for untrusted gifts, night-owl greetings,
   and her optional name (MOCHI-39). Default pack with the reviewed voice
   (MOCHI-40).
@@ -230,6 +236,10 @@ Alongside or later:
 - Not checked by hand yet: whether a change to her personal layer in one
   window shows up in another window that's already open (it does after a
   restart). It needs two development windows on the normal profile.
+- Not checked by hand yet: saving a gift in a remote window with "Show
+  Local" (checked in VS Code's code only), and whether Linux's save dialog
+  adds `.mochigift` when she types a name without it. Unwrapping
+  (MOCHI-56) opens files by that ending.
 - The development-only "Mochi dev" tools (a beaker in the development
   window's status bar) load a whole personal layer from a JSON file and
   greet on demand. Remove or replace them when gifts (MOCHI-56) land: "Make

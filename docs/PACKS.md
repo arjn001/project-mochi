@@ -98,3 +98,43 @@ before using it, and rejects it with a plain-English reason if:
 A pack can only change how Mochi looks and talks. It can never change
 settings, the AI choice, or API keys, and never runs anything (see
 ARCHITECTURE.md).
+
+## The gift file, format 1
+A gift is a personal layer made for someone else, saved as one
+`.mochigift` file (MOCHI-55). It's plain JSON text in UTF-8, with Unix line
+endings, never a zip, so there's nothing to unpack. The code is
+`src/packs/gift.ts`.
+
+```json
+{
+  "mochigift": 1,
+  "from": "Alex",
+  "note": "Happy birthday! Mochi is all yours.",
+  "layer": {
+    "format": 1,
+    "voice": { "style": "Extra sleepy, loves puns." },
+    "phrases": { "stuck": ["Need a paw? I'm right here."] },
+    "user": { "name": "Sam" }
+  }
+}
+```
+
+| Field | What it is | Limit |
+|---|---|---|
+| `mochigift` | Always `1` for now | |
+| `from` | Optional. Who made it, as she knows them, on one line | 30 characters |
+| `note` | Optional. A note for her, shown when she unwraps it | 300 characters |
+| `layer` | A personal layer, checked exactly like her own | See above |
+
+- `from` and `note` are only for the "You've got a gift!" screen
+  (MOCHI-56). They're never sent to the AI and never become part of her
+  voice.
+- A gift must set at least one thing: a name, a style note, or some lines.
+- It's checked as strictly as a pack: unknown fields anywhere are
+  rejected, the same text checks apply, and the layer can't set
+  `voice.personality`.
+- The writer copies only the fields a layer may have, then checks the
+  result, so Mochi never saves a gift it wouldn't unwrap, and nothing else
+  (a setting, the brain, a key, a chat) can end up in the file.
+- Art comes in a later format, with MOCHI-17: images inside the same JSON,
+  PNG, JPEG, or WebP only, checked and size-limited (see ARCHITECTURE.md).

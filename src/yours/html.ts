@@ -1,4 +1,4 @@
-// The "Make it yours" page (MOCHI-43). Plain code with no VS Code
+// The "Make it yours" page (MOCHI-43), and "Make a gift" (MOCHI-55). Plain code with no VS Code
 // dependency. Structure only, like the panel: no words, no inline styles
 // or scripts, and no colors (panel.css has Mochi's tokens; yours.css only
 // uses them).
@@ -26,6 +26,7 @@ export function yoursHtml(page: YoursPage): string {
 <body class="mochi-yours">
   <main class="mochi-yours-page">
     <h1 class="mochi-yours-title" id="title"></h1>
+    <p class="mochi-yours-intro" id="intro" hidden></p>
     <div id="sections"></div>
   </main>
   <script nonce="${page.nonce}" src="${page.scriptUri}"></script>

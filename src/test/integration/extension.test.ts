@@ -27,21 +27,28 @@ describe("Mochi in VS Code", () => {
     await vscode.commands.executeCommand("mochi.open");
   });
 
-  it("opens Make it yours in one editor tab, and brings it back instead of opening another", async () => {
-    const tabs = () =>
-      vscode.window.tabGroups.all
-        .flatMap((group) => group.tabs)
-        .filter((tab) => tab.input instanceof vscode.TabInputWebview && tab.input.viewType.endsWith("mochi.yours"));
-    await vscode.commands.executeCommand("mochi.makeItYours");
-    // The tab list catches up a moment later.
-    for (let i = 0; i < 50 && tabs().length === 0; i++) {
-      await new Promise((done) => setTimeout(done, 100));
-    }
-    await vscode.commands.executeCommand("mochi.makeItYours");
-    await new Promise((done) => setTimeout(done, 300));
-    assert.deepStrictEqual(tabs().map((tab) => tab.label), ["Make it yours"]);
-    await vscode.window.tabGroups.close(tabs());
-  });
+  // Make it yours (MOCHI-43) and Make a gift (MOCHI-55) each open in one
+  // editor tab of their own, and opening one again brings it back.
+  for (const [command, viewType, title] of [
+    ["mochi.makeItYours", "mochi.yours", "Make it yours"],
+    ["mochi.makeGift", "mochi.gift", "Make a gift"],
+  ]) {
+    it(`opens ${title} in one editor tab, and brings it back instead of opening another`, async () => {
+      const tabs = () =>
+        vscode.window.tabGroups.all
+          .flatMap((group) => group.tabs)
+          .filter((tab) => tab.input instanceof vscode.TabInputWebview && tab.input.viewType.endsWith(viewType));
+      await vscode.commands.executeCommand(command);
+      // The tab list catches up a moment later.
+      for (let i = 0; i < 50 && tabs().length === 0; i++) {
+        await new Promise((done) => setTimeout(done, 100));
+      }
+      await vscode.commands.executeCommand(command);
+      await new Promise((done) => setTimeout(done, 300));
+      assert.deepStrictEqual(tabs().map((tab) => tab.label), [title]);
+      await vscode.window.tabGroups.close(tabs());
+    });
+  }
 
   describe("asking Mochi", () => {
     it("no longer has the temporary Ask command: the panel's box replaced it", async () => {

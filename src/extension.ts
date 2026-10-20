@@ -3,7 +3,7 @@ import * as vscode from "vscode";
 import { choose } from "./actions/choose";
 import { offer } from "./actions/confirm";
 import { OFFERED, registerPythonSetup, watchPythonProjects } from "./actions/pythonSetup";
-import { registerForgetEverything } from "./forgetCommand";
+import { confirmInDialog, registerForgetEverything } from "./forgetCommand";
 import { dimAction } from "./actions/theme";
 import { Conversation } from "./ai/conversation";
 import { registerExplain } from "./ai/explainCommands";
@@ -16,6 +16,7 @@ import { registerClaudeKeyCommands } from "./ai/claudeKeyCommands";
 import { instructionsFor } from "./ai/instructions";
 import { loadDefaultPack } from "./packs/defaultPack";
 import { registerNameCommands } from "./packs/nameCommands";
+import { GiftDrafts } from "./packs/giftDraft";
 import { PersonalLayer } from "./packs/personalLayer";
 import { registerFocus } from "./focus/focusCommands";
 import { Greeter, rememberCoding } from "./moments/greetingWatcher";
@@ -23,7 +24,9 @@ import { Welcomer } from "./moments/welcomeWatcher";
 import { LAST_NUDGED, watchLateNight } from "./moments/lateNightWatcher";
 import { watchStuck } from "./moments/stuckWatcher";
 import { celebrations } from "./moments/celebrate";
-import { MakeItYours } from "./yours/page";
+import { GIFT_PAGE, MochiPage } from "./yours/page";
+import { giftActions } from "./yours/giftActions";
+import { exportTouches, wrapGift } from "./yours/giftFile";
 import { yoursActions } from "./yours/actions";
 import { FocusTimer } from "./focus/timer";
 import { GreetingSurface, notificationGreeting } from "./presence/greetingSurface";
@@ -90,6 +93,9 @@ export function activate(context: vscode.ExtensionContext): MochiApi {
   });
   const pack = () => personal.pack();
   const names = registerNameCommands(personal);
+  // A gift she's making for someone else (MOCHI-55), kept apart from her
+  // own layer, so it never changes how Mochi talks to her.
+  const giftDrafts = new GiftDrafts(context.globalState);
 
   // Talking to Mochi. Answers, next steps, and kind lines about problems all
   // show in the chat in Mochi's panel (MOCHI-21), created below.
@@ -230,6 +236,8 @@ export function activate(context: vscode.ExtensionContext): MochiApi {
     // Every chat, in every project, on every machine (MOCHI-21).
     { forget: () => memory.forgetAll() },
     { forget: () => personal.forgetAll() },
+    // A gift she was making (MOCHI-55).
+    { forget: () => giftDrafts.forgetAll() },
     { forget: () => greeter.forget() },
     { forget: () => context.globalState.update(LAST_NUDGED, undefined) },
     { forget: () => context.globalState.update(OFFERED, undefined) },
@@ -240,13 +248,15 @@ export function activate(context: vscode.ExtensionContext): MochiApi {
     { forget: () => claudeModels.forget() },
     // The panel's unsent draft.
     { forget: async () => panel.forget() },
-    // An open "Make it yours" page shows everything gone (MOCHI-43).
+    // An open "Make it yours" page shows everything gone (MOCHI-43), and
+    // so does an open "Make a gift" (MOCHI-55).
     { forget: () => yours.refresh() },
+    { forget: () => gift.refresh() },
   ]);
 
   // The "Make it yours" page (MOCHI-43): her name, how Mochi talks, the
   // brain, focus and late night, and her own touches, in one place.
-  const yours = new MakeItYours(
+  const yours = new MochiPage(
     context.extensionUri,
     yoursActions({
       brain: () => brains.current(),
@@ -256,9 +266,25 @@ export function activate(context: vscode.ExtensionContext): MochiApi {
       layer: () => personal.layer(),
       saveLayer: (layer) => personal.save(layer),
       mochiLines: (moment) => defaultPack.phrases[moment],
+      exportLayer: () => exportTouches(personal.layer()),
     })
   );
   const openYours = vscode.commands.registerCommand("mochi.makeItYours", () => yours.open());
+  // "Make a gift" (MOCHI-55): a gift for someone else, kept apart from her
+  // own touches, on a page like Make it yours.
+  const gift = new MochiPage(
+    context.extensionUri,
+    giftActions({
+      draft: () => giftDrafts.draft(),
+      saveDraft: (draft) => giftDrafts.save(draft),
+      myLayer: () => personal.layer(),
+      base: defaultPack,
+      confirm: confirmInDialog,
+      saveFile: (draft) => wrapGift(draft),
+    }),
+    GIFT_PAGE
+  );
+  const openGift = vscode.commands.registerCommand("mochi.makeGift", () => gift.open());
   // A change in Settings, or in another window, shows up on the page.
   const followYours = vscode.Disposable.from(
     vscode.workspace.onDidChangeConfiguration((event) => {
@@ -271,7 +297,7 @@ export function activate(context: vscode.ExtensionContext): MochiApi {
   );
 
   // Anything added here is cleaned up when Mochi shuts down.
-  context.subscriptions.push(names, claudeKey, claudeCommands, chooseBrain, copilotWatch, open, home, mood, followSpeakUp, focus, timer, explain, stuck, dim, lateNight, coding, python, pythonOffer, forget, memory, followBrain, attachment, clearChat, yours, openYours, followYours);
+  context.subscriptions.push(names, claudeKey, claudeCommands, chooseBrain, copilotWatch, open, home, mood, followSpeakUp, focus, timer, explain, stuck, dim, lateNight, coding, python, pythonOffer, forget, memory, followBrain, attachment, clearChat, yours, openYours, followYours, gift, openGift);
 
   return {
     moodText: () => mood.text,

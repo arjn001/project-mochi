@@ -11,16 +11,21 @@ export type Field =
   // Her own lines for a moment, one per row, saved when she leaves the
   // field. `example` shows Mochi's own lines.
   | { kind: "lines"; id: FieldId; label: string; description: string; value: string[]; example: string; note?: string }
-  // A line of text, saved on Enter or when she leaves the field.
-  | { kind: "text"; id: FieldId; label: string; value: string; placeholder: string; maxLength: number; note?: string }
+  // A line of text, saved on Enter or when she leaves the field. Emptying it
+  // clears it only if it's `clearable`: her own name has "Forget my name".
+  | { kind: "text"; id: FieldId; label: string; value: string; placeholder: string; maxLength: number; clearable?: boolean; note?: string }
   | { kind: "choice"; id: FieldId; label: string; value: string; options: { value: string; label: string; description: string }[]; note?: string }
   | { kind: "toggle"; id: FieldId; label: string; description: string; value: boolean; note?: string }
   | { kind: "number"; id: FieldId; label: string; description: string; value: number; min: number; max: number; note?: string }
+  // How Mochi would sound (MOCHI-55): one line per moment, shown as
+  // Mochi's bubbles, as plain text. `note` is a quiet line under them.
+  | { kind: "preview"; items: { label: string; line: string }[]; note?: string }
   // Something she does with a button, like choosing a brain. `now` says how
   // things are.
   | { kind: "actions"; now: string; buttons: { id: ButtonId; label: string }[] };
 
 export interface Section {
+  // Empty for a row of buttons at the end, with no heading of its own.
   heading: string;
   fields: Field[];
 }
@@ -28,6 +33,8 @@ export interface Section {
 // Everything the page shows.
 export interface YoursState {
   title: string;
+  // A line under the title, if the page has one.
+  intro?: string;
   saved: string;
   sections: Section[];
 }
@@ -50,28 +57,53 @@ export const MOMENT_IDS = [
 export type MomentId = (typeof MOMENT_IDS)[number];
 
 export const FIELDS = ["name", "speakUp", "learningMode", "focusMinutes", "lateHour", "style", ...MOMENT_IDS.map((moment) => `lines.${moment}` as const)] as const;
-export type FieldId = "name" | "speakUp" | "learningMode" | "focusMinutes" | "lateHour" | "style" | `lines.${MomentId}`;
+// The gift being made (MOCHI-55): her name, the maker's name and note, and
+// the touches, never settings.
+export const GIFT_FIELDS = ["gift.name", "gift.from", "gift.note", "gift.style", ...MOMENT_IDS.map((moment) => `gift.lines.${moment}` as const)] as const;
+export type FieldId =
+  | "name"
+  | "speakUp"
+  | "learningMode"
+  | "focusMinutes"
+  | "lateHour"
+  | "style"
+  | `lines.${MomentId}`
+  | (typeof GIFT_FIELDS)[number];
+
+export type PreviewField = Extract<Field, { kind: "preview" }>;
 
 export type ToYours =
   | { type: "show"; state: YoursState }
+  // After a change on Make a gift: the preview again, without redrawing
+  // the fields she's moving between.
+  | { type: "preview"; field: PreviewField }
   // After an edit: saved, or a kind hint about why not.
   | { type: "result"; field: FieldId; ok: true }
   | { type: "result"; field: FieldId; ok: false; hint: string };
 
 // Buttons on the page, each running a command she could run herself.
-export const BUTTONS = ["forgetName", "chooseBrain", "addClaudeKey", "removeClaudeKey"] as const;
-export type ButtonId = (typeof BUTTONS)[number];
+export const BUTTONS = ["forgetName", "chooseBrain", "addClaudeKey", "removeClaudeKey", "makeGift", "exportMine"] as const;
+export const GIFT_BUTTONS = ["startFromMine", "anotherLine", "saveGift", "startOver"] as const;
+export type ButtonId = (typeof BUTTONS)[number] | (typeof GIFT_BUTTONS)[number];
 
 export type FromYours =
   | { type: "ready" }
   | { type: "edit"; field: FieldId; value: string | number | boolean }
   | { type: "button"; button: ButtonId };
 
+// The fields and buttons one page has. Each page accepts only its own.
+export interface PageParts {
+  fields: readonly FieldId[];
+  buttons: readonly ButtonId[];
+}
+export const YOURS_PARTS: PageParts = { fields: FIELDS, buttons: BUTTONS };
+export const GIFT_PARTS: PageParts = { fields: GIFT_FIELDS, buttons: GIFT_BUTTONS };
+
 // The longest value the page may send. Every field checks its own limits.
 const MAX_VALUE = 10_000;
 
-// A message from the page, or undefined if it isn't one Mochi knows.
-export function toFromYours(value: unknown): FromYours | undefined {
+// A message from a page, or undefined if it isn't one that page has.
+export function toFromYours(value: unknown, parts: PageParts = YOURS_PARTS): FromYours | undefined {
   if (typeof value !== "object" || value === null) {
     return undefined;
   }
@@ -83,10 +115,10 @@ export function toFromYours(value: unknown): FromYours | undefined {
       const sent = message.value;
       const fine =
         typeof sent === "boolean" || (typeof sent === "number" && Number.isFinite(sent)) || (typeof sent === "string" && sent.length <= MAX_VALUE);
-      return (FIELDS as readonly string[]).includes(message.field as string) && fine ? { type: "edit", field: message.field as FieldId, value: sent as string | number | boolean } : undefined;
+      return (parts.fields as readonly string[]).includes(message.field as string) && fine ? { type: "edit", field: message.field as FieldId, value: sent as string | number | boolean } : undefined;
     }
     case "button":
-      return BUTTONS.includes(message.button as ButtonId) ? { type: "button", button: message.button as ButtonId } : undefined;
+      return (parts.buttons as readonly string[]).includes(message.button as string) ? { type: "button", button: message.button as ButtonId } : undefined;
     default:
       return undefined;
   }

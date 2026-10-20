@@ -1,8 +1,8 @@
 import { randomBytes } from "node:crypto";
 import * as vscode from "vscode";
-import { yoursStrings } from "../strings";
+import { giftStrings, yoursStrings } from "../strings";
 import { yoursHtml } from "./html";
-import { ButtonId, FieldId, FromYours, ToYours, YoursState, toFromYours } from "./messages";
+import { ButtonId, FieldId, FromYours, GIFT_PARTS, PageParts, PreviewField, ToYours, YoursState, YOURS_PARTS, toFromYours } from "./messages";
 
 // What the page asks the rest of Mochi for.
 export interface YoursActions {
@@ -11,19 +11,33 @@ export interface YoursActions {
   edit(field: FieldId, value: string | number | boolean): Promise<{ ok: true } | { ok: false; hint: string }>;
   // Runs the command a button stands for.
   button(button: ButtonId): Promise<void>;
+  // The page's preview, if it has one, sent again after each change.
+  preview?(): PreviewField;
 }
 
-// The "Make it yours" page (MOCHI-43): one tab in the editor area, opened
-// from the Command Palette or the Mochi tab's ... menu. A webview with the
-// panel's strict content security policy and Mochi's look. Opening it again
-// brings the same tab forward.
-export class MakeItYours implements vscode.Disposable {
+// Which page this is: VS Code's name for it, its tab title, and the fields
+// and buttons it has.
+export interface PageKind {
+  viewType: string;
+  title: string;
+  parts: PageParts;
+}
+
+export const YOURS_PAGE: PageKind = { viewType: "mochi.yours", title: yoursStrings.title, parts: YOURS_PARTS };
+export const GIFT_PAGE: PageKind = { viewType: "mochi.gift", title: giftStrings.title, parts: GIFT_PARTS };
+
+// A page in the editor area: "Make it yours" (MOCHI-43), and "Make a gift"
+// (MOCHI-55), which shares its script and look. Opened from the Command
+// Palette or the Mochi tab's ... menu. A webview with the panel's strict
+// content security policy. Opening it again brings the same tab forward.
+export class MochiPage implements vscode.Disposable {
   private panel: vscode.WebviewPanel | undefined;
   private ready = false;
 
   constructor(
     private readonly extensionUri: vscode.Uri,
-    private readonly actions: YoursActions
+    private readonly actions: YoursActions,
+    private readonly kind: PageKind = YOURS_PAGE
   ) {}
 
   open(): void {
@@ -33,7 +47,7 @@ export class MakeItYours implements vscode.Disposable {
     }
     const media = vscode.Uri.joinPath(this.extensionUri, "media");
     const scripts = vscode.Uri.joinPath(this.extensionUri, "dist", "webview");
-    const panel = vscode.window.createWebviewPanel("mochi.yours", yoursStrings.title, vscode.ViewColumn.Active, {
+    const panel = vscode.window.createWebviewPanel(this.kind.viewType, this.kind.title, vscode.ViewColumn.Active, {
       enableScripts: true,
       // Only Mochi's media and the page's script, nothing else from her
       // computer.
@@ -48,7 +62,7 @@ export class MakeItYours implements vscode.Disposable {
       styleUri: webview.asWebviewUri(vscode.Uri.joinPath(media, "yours", "yours.css")).toString(),
       scriptUri: webview.asWebviewUri(vscode.Uri.joinPath(scripts, "yours.js")).toString(),
     });
-    webview.onDidReceiveMessage((message) => void this.receive(toFromYours(message)));
+    webview.onDidReceiveMessage((message) => void this.receive(toFromYours(message, this.kind.parts)));
     // Back in view: show the latest, in case something changed elsewhere.
     panel.onDidChangeViewState(() => void this.refresh());
     panel.onDidDispose(() => {
@@ -83,6 +97,9 @@ export class MakeItYours implements vscode.Disposable {
       case "edit": {
         const result = await this.actions.edit(message.field, message.value);
         this.post(result.ok ? { type: "result", field: message.field, ok: true } : { type: "result", field: message.field, ok: false, hint: result.hint });
+        if (result.ok && this.actions.preview) {
+          this.post({ type: "preview", field: this.actions.preview() });
+        }
         break;
       }
       case "button":

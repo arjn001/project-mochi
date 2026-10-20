@@ -272,6 +272,10 @@ export const packStrings = {
   noPersonality:
     'A personal layer can\'t replace Mochi\'s personality. Use "voice.style" for tone and style notes instead.',
   textDirection: (where: string) => `${where} contains invisible characters that change the direction of the text.`,
+  // Why a gift file was rejected (MOCHI-55).
+  giftNotObject: "A gift must be a JSON object.",
+  giftFormat: (format: number) => `"mochigift" must be ${format}.`,
+  giftEmpty: "A gift needs at least one thing in it: a name, a style note, or some lines.",
 };
 
 export const pythonStrings = {
@@ -322,4 +326,42 @@ export const pythonStrings = {
   // `command` is the one for her system, like "python3 -m venv .venv".
   done: (command: string) =>
     `Your Python project is all set up in .venv! Next time you can do this yourself with ${command}`,
+};
+
+// "Make a gift" (MOCHI-55, approved 2026-10-19). The touches reuse "Make it
+// yours"'s words, except the lines' description.
+export const giftStrings = {
+  title: "Make a gift",
+  intro: "Write Mochi's touches for someone special. Nothing here changes your own Mochi.",
+  who: "Who it's for",
+  askName: "What should Mochi call them?",
+  fromYou: "From you",
+  from: "From",
+  fromPlaceholder: "Your name, as they know you",
+  note: "A note for them",
+  noteDescription: "They'll see it when they unwrap the gift.",
+  linesDescription: "Lines for them, one per row. Leave it empty for Mochi's own.",
+  preview: "How Mochi will sound for them",
+  anotherLine: "Another line",
+  previewStyle: "Style notes shape Mochi's answers, so they show once they ask Mochi something.",
+  // Filled in for the preview, like the docs' examples.
+  sample: { timeOfDay: "evening", thing: "your homework", project: "homework-3" },
+  startFromMine: "Start from my touches",
+  saveGift: "Save gift file...",
+  // The file's name in the save dialog, and its kind in the dialog's list.
+  defaultName: "for-you.mochigift",
+  fileType: "Mochi gift",
+  nothingYet: "Add a name, a line, or a style note first, so there's something to unwrap.",
+  // `file` is the name she saved it as.
+  wrapped: (file: string) => `Your gift is wrapped! Send ${file} to them, and they can open it in VS Code with Mochi installed.`,
+  showFile: "Show the file",
+  couldntSave: "I couldn't save the gift there. Could you try another folder?",
+  // Export on "Make it yours": her own touches, in the same format.
+  exportMine: "Save my touches as a file",
+  exportName: "my-mochi.mochigift",
+  exported: (file: string) => `Saved your touches in ${file}.`,
+  exportedName: "They include your name.",
+  startOver: "Start over",
+  startOverQuestion: "Start over?",
+  startOverDetail: "This clears the gift you're making. Your own Mochi stays as it is.",
 };

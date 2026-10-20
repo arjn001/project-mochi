@@ -22,6 +22,12 @@ body.mochi-yours {
   font-weight: normal;
 }
 
+/* A line under the title, like "Make a gift"'s (MOCHI-55). */
+.mochi-yours-intro {
+  margin: 0;
+  color: var(--mochi-quiet-text);
+}
+
 .mochi-yours-section {
   margin-top: 24px;
   padding: 16px 20px;
@@ -148,4 +154,16 @@ body.mochi-yours {
 }
 .mochi-yours-area::placeholder {
   color: var(--mochi-placeholder);
+}
+
+/* "Make a gift"'s preview (MOCHI-55): Mochi's bubbles from panel.css, one
+   per moment. */
+.mochi-yours-preview {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-width: 560px;
+}
+.mochi-yours-preview .mochi-yours-description {
+  margin: 0;
 }

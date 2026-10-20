@@ -2,9 +2,10 @@ import * as vscode from "vscode";
 import { Confirm, Forgettable, forgetEverything } from "./forget";
 import { forgetStrings } from "./strings";
 
-// A dialog, since this can't be undone. Only "Forget everything" is a yes;
-// "Keep it", Escape, or closing it keeps everything.
-const confirmInDialog: Confirm = async (question, detail, yes) => {
+// A dialog, since this can't be undone. Only the yes button is a yes;
+// "Keep it", Escape, or closing it keeps everything. Also used by "Start
+// over" on Make a gift (MOCHI-55).
+export const confirmInDialog: Confirm = async (question, detail, yes) => {
   const choice = await vscode.window.showWarningMessage(
     question,
     { modal: true, detail },

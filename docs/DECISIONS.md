@@ -12,9 +12,9 @@
   built 2026-10-18): a page in the editor area that saves as she changes
   each thing, into her user settings only, never a project's. Her name,
   style notes, and lines go into her personal layer, checked with kind
-  words first and by the pack format's strict checks last. Import and
-  export wait for the gift file format (MOCHI-55, MOCHI-56). Sharing her
-  name with the AI isn't part of it.
+  words first and by the pack format's strict checks last. Export saves
+  her layer as a gift file (MOCHI-55); import comes with MOCHI-56. Sharing
+  her name with the AI isn't part of it.
 
 ## Where Mochi runs
 - Desktop only in version 1, on purpose: VS Code on Windows, macOS, and
@@ -182,6 +182,7 @@ runs, and "Forget everything" clears them the next time Mochi opens there.
   so: "Our chat stays on this SSH machine." Everything else Mochi keeps is
   in globalState, on her own computer.
 - **Her personal layer:** her name, her lines, and style notes.
+- **A gift she's making** (MOCHI-55), so closing the page doesn't lose it.
 - **About her day, for the greeting:** when she last coded, the project's
   folder name, the day she was last greeted, and today's greeting line.
 - **The panel's unsent draft:** what she typed in the Ask box and didn't
@@ -201,6 +202,7 @@ runs, and "Forget everything" clears them the next time Mochi opens there.
     chats on another machine (a remote setup) go the next time Mochi opens
     them there, through a generation counted up in globalState;
   - her personal layer, including a damaged copy kept aside;
+  - a gift she's making, including a damaged copy kept aside (MOCHI-55);
   - what Mochi remembers about her days: when and where she last coded, the
     day she was last greeted and today's greeting line, tonight's late-night
     nudge, and which projects were offered Python setup;
@@ -267,6 +269,28 @@ runs, and "Forget everything" clears them the next time Mochi opens there.
   (MOCHI-33) uses her name.
 - A loader for trying a whole layer from a JSON file exists only when Mochi
   runs from source. It's never in the published package (checked in CI).
+
+## Gifts (MOCHI-55, agreed 2026-10-19)
+- A gift file is plain JSON text, never a zip: nothing to unpack, no new
+  dependency, and no zip bombs or path tricks. Art can come later inside
+  the same JSON, checked (PACKS.md).
+- A gift is a personal layer plus an optional "from" and note. Those two
+  are only for the "You've got a gift!" screen: never sent to the AI and
+  never part of her voice.
+- Making a gift never touches the maker's own layer or settings. The gift
+  being made is kept under its own key, so closing the page doesn't lose
+  it, and "Forget everything" clears it.
+- Mochi writes only the file she picks, after checking it would unwrap it
+  itself. The writer copies only a layer's known fields, so a setting, the
+  brain, a key, or a chat can't end up in a gift.
+- The save dialog starts in her home folder, never her project, so a gift
+  doesn't end up in her commits.
+- In remote windows the dialog starts on the remote machine, and "Show
+  Local" saves on her own computer: VS Code hands Mochi a `vscode-local`
+  address and writes it there (checked in VS Code 1.141's workbench code,
+  2026-10-19). "Show the file" is only offered in local windows.
+- The cat's name isn't on the page yet, even though the format allows it,
+  since the status bar still says "Mochi" in code.
 
 ## The greeting
 - Once a day across all her windows, like the late-night nudge. Chatty mode
