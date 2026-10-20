@@ -16,6 +16,7 @@ import { registerClaudeKeyCommands } from "./ai/claudeKeyCommands";
 import { instructionsFor } from "./ai/instructions";
 import { loadDefaultPack } from "./packs/defaultPack";
 import { registerNameCommands } from "./packs/nameCommands";
+import { GiftDrafts } from "./packs/giftDraft";
 import { PersonalLayer } from "./packs/personalLayer";
 import { registerFocus } from "./focus/focusCommands";
 import { Greeter, rememberCoding } from "./moments/greetingWatcher";
@@ -90,6 +91,9 @@ export function activate(context: vscode.ExtensionContext): MochiApi {
   });
   const pack = () => personal.pack();
   const names = registerNameCommands(personal);
+  // A gift she's making for someone else (MOCHI-55), kept apart from her
+  // own layer, so it never changes how Mochi talks to her.
+  const giftDrafts = new GiftDrafts(context.globalState);
 
   // Talking to Mochi. Answers, next steps, and kind lines about problems all
   // show in the chat in Mochi's panel (MOCHI-21), created below.
@@ -230,6 +234,8 @@ export function activate(context: vscode.ExtensionContext): MochiApi {
     // Every chat, in every project, on every machine (MOCHI-21).
     { forget: () => memory.forgetAll() },
     { forget: () => personal.forgetAll() },
+    // A gift she was making (MOCHI-55).
+    { forget: () => giftDrafts.forgetAll() },
     { forget: () => greeter.forget() },
     { forget: () => context.globalState.update(LAST_NUDGED, undefined) },
     { forget: () => context.globalState.update(OFFERED, undefined) },

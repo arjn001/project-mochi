@@ -40,6 +40,23 @@ export function layerIsEmpty(layer: PackLayer): boolean {
   );
 }
 
+// The maker's name, the note, and the layer, checked the same way in a gift
+// and in a gift being made. The layer, if it passed.
+function checkParts(input: Record<string, unknown>, errors: string[]): PackLayer | undefined {
+  if (input.from !== undefined) {
+    checkName(input.from, '"from"', errors);
+  }
+  if (input.note !== undefined) {
+    checkText(input.note, GIFT_LIMITS.note, '"note"', errors);
+  }
+  const layer = checkPersonalLayer(input.layer);
+  if (!layer.ok) {
+    errors.push(...layer.errors);
+    return undefined;
+  }
+  return layer.value;
+}
+
 // Checks a gift strictly: the envelope, then the layer, the same way her own
 // personal layer is checked.
 export function checkGift(input: unknown): Checked<Gift> {
@@ -51,19 +68,24 @@ export function checkGift(input: unknown): Checked<Gift> {
   if (input.mochigift !== GIFT_FORMAT) {
     errors.push(packStrings.giftFormat(GIFT_FORMAT));
   }
-  if (input.from !== undefined) {
-    checkName(input.from, '"from"', errors);
-  }
-  if (input.note !== undefined) {
-    checkText(input.note, GIFT_LIMITS.note, '"note"', errors);
-  }
-  const layer = checkPersonalLayer(input.layer);
-  if (!layer.ok) {
-    errors.push(...layer.errors);
-  } else if (layerIsEmpty(layer.value)) {
+  const layer = checkParts(input, errors);
+  if (layer && layerIsEmpty(layer)) {
     errors.push(packStrings.giftEmpty);
   }
   return errors.length ? { ok: false, errors } : { ok: true, value: input as unknown as Gift };
+}
+
+// A gift being made, before it's saved as a file. It may still be empty.
+export type GiftDraft = Omit<Gift, "mochigift">;
+
+export function checkGiftDraft(input: unknown): Checked<GiftDraft> {
+  if (!isObject(input)) {
+    return { ok: false, errors: [packStrings.giftNotObject] };
+  }
+  const errors: string[] = [];
+  onlyKeys(input, ["from", "note", "layer"], "The gift", errors);
+  checkParts(input, errors);
+  return errors.length ? { ok: false, errors } : { ok: true, value: input as unknown as GiftDraft };
 }
 
 // Copies only the fields a layer may have, in a fixed order, so nothing else
@@ -95,7 +117,7 @@ function copyLayer(layer: PackLayer): PackLayer {
 // The text of a gift file: readable JSON with Unix line endings and a final
 // line break, the same on every system. Checked before it's written, so
 // Mochi never saves a gift it wouldn't unwrap.
-export function giftText(gift: { from?: string; note?: string; layer: PackLayer }): Checked<string> {
+export function giftText(gift: GiftDraft): Checked<string> {
   const envelope: Gift = {
     mochigift: GIFT_FORMAT,
     ...(gift.from !== undefined && { from: gift.from }),
